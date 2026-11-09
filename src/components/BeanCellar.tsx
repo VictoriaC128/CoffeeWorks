@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Sparkles, Calendar, MapPin, Layers, Coffee, Trash2, Edit2, X, AlertCircle } from 'lucide-react';
+import { Plus, Sparkles, Calendar, MapPin, Trash2, Edit2, X } from 'lucide-react';
 import { useCoffee } from '../context/CoffeeContext';
 import { Bean, RoastLevel, ProcessMethod } from '../types/coffee';
 

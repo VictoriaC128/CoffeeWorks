@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Layers, ShieldCheck, Check, Trash2, Edit2, X, Sliders, Zap } from 'lucide-react';
+import { Plus, Layers, ShieldCheck, Check, Trash2, Edit2, X, Zap } from 'lucide-react';
 import { useCoffee } from '../context/CoffeeContext';
 import { GearProfile, CoffeeCategory } from '../types/coffee';
 

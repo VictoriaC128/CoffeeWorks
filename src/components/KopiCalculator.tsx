@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { Coffee, Droplets, Sparkles, Plus, Timer, Check, Award } from 'lucide-react';
+import { Coffee, Droplets, Sparkles, Plus, Check, Award } from 'lucide-react';
 import { useCoffee } from '../context/CoffeeContext';
-import { KopiCustomization } from '../types/coffee';
 
 interface PresetOption {
   title: string;

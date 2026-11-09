@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Plus, Search, Filter, Sparkles, BookOpen } from 'lucide-react';
+import { Plus, Search, Sparkles, BookOpen } from 'lucide-react';
 import { useCoffee } from '../context/CoffeeContext';
-import { Recipe, CoffeeCategory } from '../types/coffee';
+import { Recipe } from '../types/coffee';
 import { CategoryPillSelector } from './CategoryPillSelector';
 import { RecipeCard } from './RecipeCard';
 import { RecipeModal } from './RecipeModal';

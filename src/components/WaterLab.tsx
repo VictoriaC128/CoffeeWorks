@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Droplets, Info, Trash2, Edit2, X, Award, ShieldAlert, Sparkles } from 'lucide-react';
+import { Plus, Droplets, Info, Trash2, Edit2, X, ShieldAlert, Sparkles } from 'lucide-react';
 import { useCoffee } from '../context/CoffeeContext';
 import { WaterProfile, WaterType } from '../types/coffee';
 

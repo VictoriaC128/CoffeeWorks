@@ -4,13 +4,10 @@ import {
   Copy,
   Edit2,
   Trash2,
-  Scale,
-  Droplets,
-  Thermometer,
   Layers,
   Sparkles,
-  Gauge,
-  ShieldCheck
+  ShieldCheck,
+  Droplets
 } from 'lucide-react';
 import { Recipe } from '../types/coffee';
 import { useCoffee } from '../context/CoffeeContext';

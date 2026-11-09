@@ -11,7 +11,6 @@ import {
   Scale,
   Gauge,
   Droplets,
-  AlertTriangle,
   Lightbulb,
   Award
 } from 'lucide-react';

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Plus, Trash2, Scale, Droplets, Thermometer, Layers, Save } from 'lucide-react';
+import { X, Plus, Trash2, Save } from 'lucide-react';
 import { useCoffee } from '../context/CoffeeContext';
 import { Recipe, CoffeeCategory, PourStage } from '../types/coffee';
 

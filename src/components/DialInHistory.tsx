@@ -1,5 +1,5 @@
 import React from 'react';
-import { History, Award, Gauge, Scale, Droplets, Calendar, Trash2, Lightbulb, Sparkles } from 'lucide-react';
+import { History, Calendar, Trash2, Lightbulb } from 'lucide-react';
 import { useCoffee } from '../context/CoffeeContext';
 
 export const DialInHistory: React.FC = () => {
