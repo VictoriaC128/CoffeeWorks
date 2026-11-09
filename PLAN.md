@@ -93,35 +93,24 @@ flowchart LR
 ```
 
 #### A. Fields Featuring the "Others..." Option:
-- **Water Source**: Pre-loaded tap/bottled/TWW $\rightarrow$ Select `Others...` $\rightarrow$ Key in e.g. *"Home Under-Sink RO System"* or *"My Village Well Spring"*.
-- **Machine / Dripper**: Pre-loaded models $\rightarrow$ Select `Others...` $\rightarrow$ Key in e.g. *"Custom Modded Gaggia"* or *"3D Printed Spiral Cone"*.
-- **Grinder Model**: Pre-loaded grinders $\rightarrow$ Select `Others...` $\rightarrow$ Key in e.g. *"Vintage Hand Mill"* or *"DF64 Gen 3"*.
-- **Basket Brand & Size**: Pre-loaded Wafo/Unibasket/VST $\rightarrow$ Select `Others...` $\rightarrow$ Key in e.g. *"Custom 21g Nano Basket"*.
+- **Water Source**: Pre-loaded tap/bottled/TWW $\rightarrow$ Select `Others...` or click `Edit labels` $\rightarrow$ Key in e.g. *"Home Under-Sink RO System"*, *"ZeroWater 50ppm Remix"*, or *"My Village Well Spring"*.
+- **Machine / Dripper**: Pre-loaded models $\rightarrow$ Select `Others...` or click `Edit labels` $\rightarrow$ Key in e.g. *"Custom Modded Gaggia"*, *"Cafelat Robot Barista Mod"*, or *"3D Printed Spiral Cone"*.
+- **Grinder Model**: Pre-loaded grinders $\rightarrow$ Select `Others...` or click `Edit labels` $\rightarrow$ Key in e.g. *"Vintage Hand Mill"* or *"DF64 Gen 3"*.
+- **Basket Brand & Size**: Pre-loaded Wafo/Unibasket/VST $\rightarrow$ Select `Others...` or click `Edit labels` $\rightarrow$ Key in e.g. *"Custom 21g Nano Basket"*.
 - **Puck Preparation Tools**:
-  - *WDT Needle Tool*: Pre-loaded $\rightarrow$ Select `Others...` $\rightarrow$ Key in e.g. *"Acupuncture 0.2mm DIY Cork"*.
-  - *Tamper*: Pre-loaded 30lb/Puqpress $\rightarrow$ Select `Others...` $\rightarrow$ Key in e.g. *"Palm Convex 58.4mm"*.
-  - *Puck Screen*: Pre-loaded billet/mesh $\rightarrow$ Select `Others...` $\rightarrow$ Key in e.g. *"Laser Matrix Screen 0.5mm"*.
-- **Filter Papers & Media**: Pre-loaded Sibarist/Cafec $\rightarrow$ Select `Others...` $\rightarrow$ Key in e.g. *"Organic Unbleached Bamboo Paper"*.
-- **Dispersion & Agitation**: Pre-loaded Melodrip/Drip-Assist $\rightarrow$ Select `Others...` $\rightarrow$ Key in e.g. *"Spoon Dispersion Flow"*.
-- **Bean Varietal & Process**: Pre-loaded $\rightarrow$ Select `Others...` $\rightarrow$ Key in e.g. *"Eugenioides Yeast Inoculation"*.
-- **Singaporean Kopi Creamer Brands**: Pre-loaded F&N/Carnation $\rightarrow$ Select `Others...` $\rightarrow$ Key in e.g. *"FairPrice Gold Sweetened Creamer"*.
+  - *WDT Needle Tool*: Pre-loaded $\rightarrow$ Select `Others...` or click `Edit labels` $\rightarrow$ Key in e.g. *"Acupuncture 0.2mm DIY Cork"*.
+  - *Tamper*: Pre-loaded 30lb/Puqpress $\rightarrow$ Select `Others...` or click `Edit labels` $\rightarrow$ Key in e.g. *"Palm Convex 58.4mm"*.
+  - *Puck Screen*: Pre-loaded billet/mesh $\rightarrow$ Select `Others...` or click `Edit labels` $\rightarrow$ Key in e.g. *"Laser Matrix Screen 0.5mm"*.
+- **Filter Papers & Media**: Pre-loaded Sibarist/Cafec $\rightarrow$ Select `Others...` or click `Edit labels` $\rightarrow$ Key in e.g. *"Organic Unbleached Bamboo Paper"*.
+- **Dispersion & Agitation**: Pre-loaded Melodrip/Drip-Assist $\rightarrow$ Select `Others...` or click `Edit labels` $\rightarrow$ Key in e.g. *"Spoon Dispersion Flow"*.
+- **Bean Varietal & Process**: Pre-loaded $\rightarrow$ Select `Others...` or click `Edit labels` $\rightarrow$ Key in e.g. *"Eugenioides Yeast Inoculation"*.
+- **Singaporean Kopi Creamer Brands**: Pre-loaded F&N/Carnation $\rightarrow$ Select `Others...` or click `Edit labels` $\rightarrow$ Key in e.g. *"FairPrice Gold Sweetened Creamer"*.
 
-#### B. Technical Specification of `SmartDropdownWithOthers`
-```typescript
-interface DropdownProps<T> {
-  id: string;
-  label: string;
-  options: { label: string; value: string; group?: string }[];
-  selectedValue: string;
-  onSelect: (value: string, customLabel?: string) => void;
-  allowOthers: boolean; // Enables "Others..." entry
-  placeholder?: string;
-}
-```
-When `value === "__others__"`:
-1. Replaces the selector trigger with an inline animated input text box: `<input autoFocus placeholder="Key in custom label..." />`.
-2. On `Enter` or blur, passes `customLabel` back to parent state and saves the custom label into `localStorage.custom_variables_[field]`.
-3. The custom label now permanently appears in that user's future dropdown options under a `"Custom Variables"` group header.
+#### B. Technical Specification of "Edit labels" & `SmartDropdownWithOthers`
+1. Every configuration dropdown renders an **"Edit labels"** button in its header row, always clickable regardless of whether a preset or custom variable is currently selected.
+2. Clicking **"Edit labels"** pre-fills the input with the active selection, allowing users of minority or custom brands to tweak the label or type their custom brand name.
+3. Upon saving (via Enter or Check), the custom label is saved to `customVariables` and persisted across sessions in `localStorage`.
+4. In the Live Brew Station, a dedicated **Profile & Default Rig Selector** enables 1-tap switching between category daily defaults and pre-saved brew profiles.
 
 ---
 

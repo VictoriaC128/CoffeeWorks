@@ -12,17 +12,35 @@ import {
   Gauge,
   Droplets,
   Lightbulb,
-  Award
+  Award,
+  Star,
+  Bookmark,
+  Save,
+  X,
+  Plus
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useCoffee } from '../context/CoffeeContext';
-import { Recipe, PourStage, SensoryRating } from '../types/coffee';
+import { Recipe, PourStage, SensoryRating, CoffeeCategory } from '../types/coffee';
+
+const CATEGORY_FILTER_TABS: { id: CoffeeCategory | 'all'; label: string; icon: string }[] = [
+  { id: 'all', label: 'All Profiles', icon: '📋' },
+  { id: 'espresso', label: 'Espresso', icon: '⚡' },
+  { id: 'filter', label: 'Filter', icon: '💧' },
+  { id: 'manual_lever', label: 'Lever', icon: '🦾' },
+  { id: 'moka_stovetop', label: 'Moka', icon: '🔥' },
+  { id: 'singaporean_kopi', label: 'Kopi', icon: '🇸🇬' },
+  { id: 'immersion', label: 'Immersion', icon: '⏳' },
+];
 
 export const LiveBrewStopwatch: React.FC = () => {
   const {
     recipes,
     selectedRecipeForBrew,
     setSelectedRecipeForBrew,
+    userPreferences,
+    setDefaultRecipeForCategory,
+    addRecipe,
     beans,
     gearProfiles,
     waterProfiles,
@@ -31,6 +49,13 @@ export const LiveBrewStopwatch: React.FC = () => {
     getDialInAdvice,
     logBrewSession,
   } = useCoffee();
+
+  // Category filter state for profile switcher
+  const [profileCategoryFilter, setProfileCategoryFilter] = useState<CoffeeCategory | 'all'>('all');
+
+  // Modal to save adjusted live dial-in numbers as new profile
+  const [isSaveProfileModalOpen, setIsSaveProfileModalOpen] = useState(false);
+  const [newProfileTitle, setNewProfileTitle] = useState('');
 
   // Selected Recipe
   const activeRecipe: Recipe = selectedRecipeForBrew || recipes[0];
@@ -178,42 +203,208 @@ export const LiveBrewStopwatch: React.FC = () => {
     setTimeout(() => setSaveSuccess(false), 4000);
   };
 
+  // Profile selection and default rig helpers
+  const isCurrentCategoryDefault =
+    userPreferences.defaultRecipePerCategory[activeRecipe.category] === activeRecipe.id;
+
+  const filteredRecipes = profileCategoryFilter === 'all'
+    ? recipes
+    : recipes.filter(r => r.category === profileCategoryFilter);
+
+  const defaultProfilesList = (['espresso', 'filter', 'manual_lever', 'moka_stovetop', 'singaporean_kopi', 'immersion'] as CoffeeCategory[])
+    .map(cat => {
+      const defId = userPreferences.defaultRecipePerCategory[cat];
+      const match = recipes.find(r => r.id === defId) || recipes.find(r => r.category === cat);
+      return match ? { category: cat, recipe: match } : null;
+    })
+    .filter((item): item is { category: CoffeeCategory; recipe: Recipe } => item !== null);
+
+  const handleSelectProfile = (recipeId: string) => {
+    const found = recipes.find(r => r.id === recipeId);
+    if (!found) return;
+    setSelectedRecipeForBrew(found);
+    setActualDose(found.doseGrams);
+    setActualYield(found.yieldGrams);
+    setActualTemp(found.waterTempC);
+    if (!isRunning) {
+      setElapsedMs(0);
+      accumulatedMsRef.current = 0;
+      setCurrentStageIndex(0);
+      setIsCompleted(false);
+    }
+  };
+
+  const handleLoadDefaultRig = () => {
+    const targetCat = profileCategoryFilter !== 'all' ? profileCategoryFilter : activeRecipe.category;
+    const defId = userPreferences.defaultRecipePerCategory[targetCat] || userPreferences.defaultRecipePerCategory[userPreferences.primaryCategory];
+    const defRecipe = recipes.find(r => r.id === defId) || recipes.find(r => r.category === targetCat);
+    if (defRecipe) {
+      handleSelectProfile(defRecipe.id);
+      confetti({ particleCount: 50, spread: 60, origin: { y: 0.5 } });
+    }
+  };
+
+  const handleSetCurrentAsDefault = () => {
+    setDefaultRecipeForCategory(activeRecipe.category, activeRecipe.id);
+    confetti({ particleCount: 60, spread: 70, origin: { y: 0.5 } });
+  };
+
+  const isDialInTweaked =
+    Math.abs(actualDose - activeRecipe.doseGrams) > 0.05 ||
+    Math.abs(actualYield - activeRecipe.yieldGrams) > 0.05 ||
+    Math.abs(actualTemp - activeRecipe.waterTempC) > 0.5;
+
+  const handleSaveTweakedProfile = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newProfileTitle.trim()) return;
+    const newRecipe = addRecipe({
+      title: newProfileTitle.trim(),
+      category: activeRecipe.category,
+      beanId: activeRecipe.beanId,
+      gearId: activeRecipe.gearId,
+      waterProfileId: activeRecipe.waterProfileId,
+      doseGrams: actualDose,
+      yieldGrams: actualYield,
+      ratio: Number((actualYield / (actualDose || 1)).toFixed(2)),
+      waterTempC: actualTemp,
+      grindSetting: activeRecipe.grindSetting,
+      grindMicrons: activeRecipe.grindMicrons,
+      targetTotalTimeSeconds: activeRecipe.targetTotalTimeSeconds,
+      targetFlowRateGs: activeRecipe.targetFlowRateGs,
+      targetTdsPercent: activeRecipe.targetTdsPercent,
+      targetExtractionYieldPercent: activeRecipe.targetExtractionYieldPercent,
+      pourStages: activeRecipe.pourStages,
+      basketSpec: activeRecipe.basketSpec,
+      notes: `Custom dialed profile from Live Station: ${actualDose}g in → ${actualYield}g out. ${activeRecipe.notes || ''}`,
+      tags: [...(activeRecipe.tags || []), 'Dialed In', 'Live Station'],
+    });
+    setSelectedRecipeForBrew(newRecipe);
+    setIsSaveProfileModalOpen(false);
+    setNewProfileTitle('');
+    confetti({ particleCount: 80, spread: 80, origin: { y: 0.6 } });
+  };
+
   return (
     <div className="max-w-5xl mx-auto space-y-6">
-      {/* Top Header & Recipe Selector */}
-      <div className="bg-stone-900 border border-stone-800 rounded-2xl p-4 sm:p-6 shadow-xl">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center space-x-2">
-              <span className="bg-amber-500/20 text-amber-400 text-xs font-semibold px-2.5 py-0.5 rounded-full border border-amber-500/30 uppercase tracking-wide">
-                Active Dial-in Station
-              </span>
-              <span className="text-xs text-stone-400 capitalize">
-                Category: {activeRecipe.category.replace('_', ' ')}
-              </span>
-            </div>
-            <h2 className="text-xl sm:text-2xl font-bold text-white mt-1">
-              {activeRecipe.title}
-            </h2>
+      {/* Top Header & Profile / Default Selector Bar */}
+      <div className="bg-stone-900 border border-stone-800 rounded-3xl p-5 sm:p-6 shadow-xl space-y-4">
+        {/* Method Filter Tabs & Quick Loaders */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-stone-800/80">
+          <div className="flex items-center space-x-1.5 overflow-x-auto scrollbar-none py-1">
+            <span className="text-[11px] font-mono text-stone-400 mr-1 hidden md:inline">Filter:</span>
+            {CATEGORY_FILTER_TABS.map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setProfileCategoryFilter(tab.id)}
+                className={`px-2.5 py-1 rounded-xl text-xs font-mono font-medium whitespace-nowrap transition-all ${
+                  profileCategoryFilter === tab.id
+                    ? 'bg-amber-600 text-white font-bold shadow-md shadow-amber-950/40'
+                    : 'bg-stone-950 border border-stone-800 text-stone-400 hover:text-white'
+                }`}
+              >
+                <span>{tab.icon} {tab.label}</span>
+              </button>
+            ))}
           </div>
 
-          {/* Quick Recipe Switcher */}
           <div className="flex items-center space-x-2">
-            <label className="text-xs text-stone-400 whitespace-nowrap">Switch Recipe:</label>
-            <select
-              value={activeRecipe.id}
-              onChange={e => {
-                const found = recipes.find(r => r.id === e.target.value);
-                if (found) setSelectedRecipeForBrew(found);
-              }}
-              className="bg-stone-950 border border-stone-800 text-stone-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-amber-500"
+            <button
+              onClick={handleLoadDefaultRig}
+              title="Instantly load category default daily driver rig"
+              className="px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-mono font-bold flex items-center space-x-1.5 transition-all shadow-sm"
             >
-              {recipes.map(r => (
-                <option key={r.id} value={r.id}>
-                  {r.title}
-                </option>
-              ))}
-            </select>
+              <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400/20" />
+              <span>Load Default Rig</span>
+            </button>
+
+            {!isCurrentCategoryDefault ? (
+              <button
+                onClick={handleSetCurrentAsDefault}
+                title="Designate this recipe as the category default daily driver"
+                className="px-2.5 py-1.5 rounded-xl bg-stone-950 hover:bg-stone-800 text-stone-300 border border-stone-800 hover:border-amber-500/40 text-xs font-mono flex items-center space-x-1 transition-all"
+              >
+                <Award className="w-3.5 h-3.5 text-amber-400" />
+                <span className="hidden sm:inline">Set as Default</span>
+              </button>
+            ) : (
+              <span className="px-2.5 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-mono font-bold flex items-center space-x-1">
+                <CheckCircle2 className="w-3.5 h-3.5 text-amber-400" />
+                <span>DEFAULT RIG</span>
+              </span>
+            )}
+
+            {isDialInTweaked && (
+              <button
+                onClick={() => {
+                  setNewProfileTitle(`${activeRecipe.title} (${actualDose}g / ${actualYield}g)`);
+                  setIsSaveProfileModalOpen(true);
+                }}
+                className="px-3 py-1.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-mono font-bold flex items-center space-x-1.5 shadow-md transition-all animate-pulse"
+                title="Save adjusted dose/yield numbers as a new profile in your vault"
+              >
+                <Save className="w-3.5 h-3.5" />
+                <span>Save Tweaked</span>
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Profile Information & Dropdown Selector */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center space-x-2">
+              <span className="bg-amber-500/20 text-amber-400 text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full border border-amber-500/30 uppercase tracking-wide">
+                Active Dial-in Station
+              </span>
+              <span className="text-xs text-stone-400 font-mono capitalize">
+                Category: {activeRecipe.category.replace('_', ' ')}
+              </span>
+              {isCurrentCategoryDefault && (
+                <span className="text-[10px] font-mono text-amber-400 flex items-center space-x-1 bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20">
+                  <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
+                  <span>Category Benchmark</span>
+                </span>
+              )}
+            </div>
+            <h2 className="text-xl sm:text-2xl font-black text-white">
+              {activeRecipe.title}
+            </h2>
+            <p className="text-xs text-stone-400 line-clamp-1">
+              Target: {activeRecipe.doseGrams}g in → {activeRecipe.yieldGrams}g out (1:{activeRecipe.ratio}) in {activeRecipe.targetTotalTimeSeconds}s @ {activeRecipe.waterTempC}°C
+            </p>
+          </div>
+
+          {/* Profile Dropdown Selector (Defaults + Pre-saved) */}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+            <div className="space-y-1 w-full sm:w-auto">
+              <label className="text-[11px] font-mono text-stone-400 flex items-center space-x-1">
+                <Bookmark className="w-3.5 h-3.5 text-amber-400" />
+                <span>Select Default or Pre-saved Profile:</span>
+              </label>
+              <select
+                value={activeRecipe.id}
+                onChange={e => handleSelectProfile(e.target.value)}
+                className="w-full sm:w-80 bg-stone-950 border border-stone-700 text-stone-100 text-xs font-mono rounded-xl px-3 py-2.5 focus:outline-none focus:border-amber-500 shadow-inner"
+              >
+                {/* Default Profiles Group */}
+                <optgroup label="⭐ Default Daily-Driver Profiles">
+                  {defaultProfilesList.map(({ category, recipe }) => (
+                    <option key={`default-${recipe.id}`} value={recipe.id}>
+                      ⭐ {category.toUpperCase()}: {recipe.title} ({recipe.doseGrams}g → {recipe.yieldGrams}g)
+                    </option>
+                  ))}
+                </optgroup>
+
+                {/* Pre-saved Profiles Group */}
+                <optgroup label={`📚 Pre-Saved Brew Profiles (${filteredRecipes.length})`}>
+                  {filteredRecipes.map(r => (
+                    <option key={r.id} value={r.id}>
+                      {r.isDefault ? '⭐ ' : ''}{r.title} — {r.doseGrams}g → {r.yieldGrams}g (1:{r.ratio})
+                    </option>
+                  ))}
+                </optgroup>
+              </select>
+            </div>
           </div>
         </div>
 
@@ -704,6 +895,73 @@ export const LiveBrewStopwatch: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Save Tweaked Profile Modal */}
+      {isSaveProfileModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+          <div className="bg-stone-900 border border-stone-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-stone-800">
+              <h3 className="text-base font-bold text-white flex items-center space-x-2">
+                <Bookmark className="w-5 h-5 text-amber-500" />
+                <span>Save Live Dial-In as New Profile</span>
+              </h3>
+              <button
+                onClick={() => setIsSaveProfileModalOpen(false)}
+                className="p-1 rounded-lg text-stone-400 hover:text-white hover:bg-stone-800"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveTweakedProfile} className="space-y-4 text-xs font-mono">
+              <div>
+                <label className="block text-stone-300 mb-1">New Profile Name:</label>
+                <input
+                  type="text"
+                  required
+                  autoFocus
+                  placeholder="e.g. Morning 1:2.3 Turbo Extraction"
+                  value={newProfileTitle}
+                  onChange={e => setNewProfileTitle(e.target.value)}
+                  className="w-full bg-stone-950 border border-stone-800 rounded-xl px-3 py-2 text-white font-sans focus:outline-none focus:border-amber-500"
+                />
+              </div>
+
+              <div className="p-3 bg-stone-950 rounded-xl border border-stone-800 text-[11px] text-stone-300 space-y-1">
+                <div className="flex justify-between">
+                  <span>Dose:</span>
+                  <span className="font-bold text-amber-400">{actualDose}g</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Target Yield:</span>
+                  <span className="font-bold text-cyan-400">{actualYield}g (1:{(actualYield / (actualDose || 1)).toFixed(1)})</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Water Temp:</span>
+                  <span className="font-bold text-red-400">{actualTemp}°C</span>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end space-x-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsSaveProfileModalOpen(false)}
+                  className="px-4 py-2 rounded-xl text-stone-400 hover:text-white"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold flex items-center space-x-1.5 shadow-lg shadow-amber-950/40"
+                >
+                  <Save className="w-4 h-4" />
+                  <span>Save to Pre-saved Profiles</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

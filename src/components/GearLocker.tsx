@@ -371,17 +371,25 @@ export const GearLocker: React.FC = () => {
                     customVariableGroup="drippers"
                   />
                 ) : (
-                  <div>
-                    <label className="block text-xs font-mono text-stone-300 mb-1">Machine / Vessel:</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. Flair 58+ / 9Barista"
-                      value={machineModel}
-                      onChange={e => setMachineModel(e.target.value)}
-                      className="w-full bg-stone-950 border border-stone-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500"
-                    />
-                  </div>
+                  <SmartDropdownWithOthers
+                    label="Machine / Manual Vessel:"
+                    value={machineModel}
+                    onChange={setMachineModel}
+                    options={[
+                      { label: 'Flair 58+ (Electric Chamber)', value: 'Flair 58+' },
+                      { label: 'Flair 58x (Non-Electric)', value: 'Flair 58x' },
+                      { label: 'Cafelat Robot (Manual Lever with Gauge)', value: 'Cafelat Robot' },
+                      { label: 'Odyssey Argos (Spring / Direct Lever)', value: 'Odyssey Argos' },
+                      { label: 'Wacaco Picopresso (Handheld Precision 18 bar)', value: 'Wacaco Picopresso' },
+                      { label: '9Barista Twin Boiler 9-Bar Stovetop', value: '9Barista Stovetop' },
+                      { label: 'Bialetti Brikka 4-Cup (Crema Valve)', value: 'Bialetti Brikka' },
+                      { label: 'Bialetti Moka Express Classic', value: 'Bialetti Moka Express' },
+                      { label: 'AeroPress Clear (Upright/Inverted)', value: 'AeroPress Clear' },
+                      { label: 'AeroPress Original / XL / Go', value: 'AeroPress Go' },
+                      { label: 'Singapore Stainless Kettle & Pull Sock', value: 'Traditional Pull Sock' },
+                    ]}
+                    customVariableGroup="machines"
+                  />
                 )}
 
                 <SmartDropdownWithOthers

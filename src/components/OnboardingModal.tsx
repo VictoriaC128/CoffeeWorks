@@ -4,7 +4,14 @@ import confetti from 'canvas-confetti';
 import { useCoffee } from '../context/CoffeeContext';
 import { CoffeeCategory } from '../types/coffee';
 import { SmartDropdownWithOthers } from './SmartDropdownWithOthers';
-import { ESPRESSO_MACHINE_OPTIONS, FILTER_DRIPPER_OPTIONS, GRINDER_OPTIONS } from '../data/dropdownCatalog';
+import {
+  ESPRESSO_MACHINE_OPTIONS,
+  FILTER_DRIPPER_OPTIONS,
+  GRINDER_OPTIONS,
+  ESPRESSO_BASKET_OPTIONS,
+  FILTER_PAPER_OPTIONS,
+  DISPERSION_OPTIONS,
+} from '../data/dropdownCatalog';
 
 interface Props {
   isOpen: boolean;
@@ -74,6 +81,7 @@ export const OnboardingModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const [machineChoice, setMachineChoice] = useState<string>('Orea V4 Modular (Apex Base)');
   const [grinderChoice, setGrinderChoice] = useState<string>('Fellow Ode Gen 2');
   const [waterChoice, setWaterChoice] = useState<string>('Singapore PUB Tap Water (Ultra-Soft)');
+  const [toolChoice, setToolChoice] = useState<string>('Sibarist FAST Flat Filters');
 
   if (!isOpen) return null;
 
@@ -82,21 +90,27 @@ export const OnboardingModal: React.FC<Props> = ({ isOpen, onClose }) => {
     if (cat === 'espresso') {
       setMachineChoice('Lelit Bianca V3 (Paddle Needle Valve)');
       setGrinderChoice('Option-O Lagom P64');
+      setToolChoice('WAFO Spirit (Hyper-Dense Laser Matrix)');
     } else if (cat === 'filter') {
       setMachineChoice('Orea V4 Modular (Apex Base)');
       setGrinderChoice('Fellow Ode Gen 2');
+      setToolChoice('Sibarist FAST Flat (Low Bypass / Zero Fines Clogging)');
     } else if (cat === 'manual_lever') {
       setMachineChoice('Flair 58+ (Electric Heated Chamber)');
       setGrinderChoice('Zerno Z1');
+      setToolChoice('Weber Workshops Unibasket (CNC Zero Deadzone)');
     } else if (cat === 'moka_stovetop') {
       setMachineChoice('9Barista Twin Boiler 9-Bar Stovetop');
       setGrinderChoice('1Zpresso J-Ultra');
+      setToolChoice('9Barista 53mm Precision Stovetop Basket');
     } else if (cat === 'singaporean_kopi') {
       setMachineChoice('Long-Spout Stainless Kettle + Flannel Cloth Sock');
       setGrinderChoice('Commercial Coarse Roller Mill / Mortar Grind');
+      setToolChoice('Cotton Flannel Pull Sock & Straining Pot');
     } else {
       setMachineChoice('AeroPress Clear + Flow Control Cap');
       setGrinderChoice('Baratza Encore ESP');
+      setToolChoice('AeroPress Prismo Flow Control Valve & Metal Disc');
     }
     setStep(2);
   };
@@ -174,7 +188,7 @@ export const OnboardingModal: React.FC<Props> = ({ isOpen, onClose }) => {
                 Configure Your Default Setup
               </h2>
               <p className="text-xs text-stone-400 mt-1">
-                Whenever you open CoffeeWorks, your workspace will load this setup ready for instant 1-tap dial-in. (You can select "Others..." in any dropdown to key in your own label).
+                Whenever you open CoffeeWorks, your workspace will load this setup ready for instant 1-tap dial-in. Click <strong className="text-amber-400 font-mono">"Edit labels"</strong> on any dropdown to key in minority brands of machines, custom water chemistry, or boutique tools.
               </p>
             </div>
 
@@ -216,6 +230,26 @@ export const OnboardingModal: React.FC<Props> = ({ isOpen, onClose }) => {
                   group: w.countryRegion,
                 }))}
                 customVariableGroup="waters"
+              />
+
+              <SmartDropdownWithOthers
+                label={
+                  selectedPrimary === 'espresso' || selectedPrimary === 'manual_lever'
+                    ? 'Default Precision Basket & Tools:'
+                    : selectedPrimary === 'filter'
+                    ? 'Default Filter Paper & Media Tools:'
+                    : 'Default Brewing & Dispersion Tools:'
+                }
+                value={toolChoice}
+                onChange={setToolChoice}
+                options={
+                  selectedPrimary === 'espresso' || selectedPrimary === 'manual_lever'
+                    ? ESPRESSO_BASKET_OPTIONS
+                    : selectedPrimary === 'filter'
+                    ? FILTER_PAPER_OPTIONS
+                    : DISPERSION_OPTIONS
+                }
+                customVariableGroup="tools"
               />
             </div>
 
