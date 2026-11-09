@@ -147,8 +147,53 @@ classDiagram
 - **Extraction Control Dropdowns**:
   - *Flow Control Mode*: `Manual Needle Paddle` | `Automated Declining Flow Profile` | `Fixed Standard 9-Bar` | `Low-Pressure Turbo (6-Bar)`.
   - *Pre-Infusion Type*: `Passive Line-Pressure (2-3 bar)` | `Active Pump Pulsing` | `Zero Pre-infusion (Direct 9 bar)`.
-- **Basket Model Dropdown**:
-  - `WAFO Spirit (Laser-drilled high extraction)` | `Weber Workshops Unibasket (CNC Zero Deadzone)` | `Pesado HE%` | `Pullman 876` | `IMS Baristapro / E&B Superfine` | `VST Precision (15g, 18g, 20g, 22g)`.
+- **Dedicated Espresso Basket Selection Suite (Brand, Size & Diameter)**:
+  - **Basket Brand & Model Dropdown**:
+    - *High-Extraction / Zero-Deadzone Series (2026 Standards)*:
+      - `Weber Workshops Unibasket` (Single-piece billet CNC, edge-to-edge laser matrix)
+      - `WAFO Spirit` (Hyper-dense laser perforated, ultra-high extraction)
+      - `WAFO Classic` (Balanced flow rate)
+      - `WAFO SOE` (Single-Origin Espresso optimization)
+      - `WAFO Blonde` (High-clarity light roast specialty)
+      - `Pesado HE% High Extraction Basket`
+      - `Pullman 876 Precision Basket` (Maximized active surface area)
+      - `MHW-3BOMBER DEX / Sniper High-Flow Basket`
+      - `SworksDesign Billet Step Basket`
+      - `Mish Chief Honeycomb Precision Basket`
+    - *Specialty Precision Benchmark Series*:
+      - `VST Precision (Ridgeless)`
+      - `VST Precision (Ridged)`
+      - `IMS Baristapro (Nanotech non-stick quartz coating)`
+      - `IMS Competition Series (Curved bottom)`
+      - `IMS Big Bang (Concentric graduated hole pattern)`
+      - `E&B Lab Superfine (Integrated wire-mesh photo-etched membrane)`
+      - `Decent Espresso Precision Basket`
+      - `Hugh by Levercraft High-Flow Basket`
+    - *Standard & OEM Commercial Series*:
+      - `La Marzocco OEM (Strada Advanced Precision)`
+      - `E61 Standard Commercial Double / Single`
+      - `Breville / Sage OEM 54mm Double Wall / Single Wall`
+      - `La Pavoni 51mm / 49mm Millenium Basket`
+      - `[+ Add Custom Basket Brand & Model]`
+  - **Basket Dose Capacity Dropdown (Gram Rating)**:
+    - `Single Dose: 7g – 10g`
+    - `Double Small: 14g – 16g`
+    - `Double Standard: 17g – 19g (Classic 18g baseline)`
+    - `Double Large: 20g – 22g (Modern 20g competition standard)`
+    - `Triple: 22g – 24g`
+    - `Max High-Volume: 24g – 26g+`
+    - `[Custom Gram Capacity Input]`
+  - **Basket Diameter & Portafilter Fit Dropdown**:
+    - `58.5mm (Modern standard: E61, Decent, Bianca, Linea, Slayer, Flair 58)`
+    - `54mm (Breville / Sage Bambino, Barista Express, Dual Boiler)`
+    - `53mm (9Barista, La Spaziale)`
+    - `51mm (La Pavoni Post-Millennium, Delonghi Dedica)`
+    - `49mm (La Pavoni Pre-Millennium, Olympia Cremina)`
+    - `45mm / Handheld (Picopresso, Nanopresso)`
+  - **Hole Matrix & Geometry Profile**:
+    - *Geometry*: `Straight Cylindrical Wall` (Full column uniform extraction) vs. `Tapered Conical` (Restricted lower surface area).
+    - *Hole Distribution*: `Edge-to-Edge Laser Matrix` (Zero perimeter deadzones) vs. `Concentric Traditional Cluster` vs. `Big Bang Gradient Density`.
+    - *Auto-Matched Tamper Base Recommendation*: System displays matched precision tamper size (e.g. $58.55\text{mm}$ edge-to-edge for Unibasket/Wafo/Pullman vs $53.3\text{mm}$ for 54mm Breville baskets).
 - **Puck Preparation Multi-Select Tool Tray (Select as many as used)**:
   - ☑️ **Needle WDT Tool**: Dropdown selector (`Subminimal Flick 0.25mm` | `SworksDesign Billet 0.22mm` | `Umikot Planetary Gear` | `Weber Workshops Moonraker` | `Normcore V2 0.3mm`).
   - ☑️ **Surface Distributor**: Dropdown selector (`Wedge Leveler` | `OCD 3-Blade` | `Jack Leveler`).
