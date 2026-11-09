@@ -1,174 +1,308 @@
 # Barista Blueprint: Dial-in & Coffee Recipe Vault
-## System Architecture & Implementation Plan (2026 Equipment Ecosystem & Global Water Chemistry)
+## System Architecture & Implementation Plan
+### Expanded Planning: Granular Variable Dropdowns & Multi-Tool Recipe Customizer
 
 ---
 
-### 1. Coffee Category Taxonomy
+### 1. Architectural Overview: Dynamic Variable & Dropdown Engine
 
-The architecture features dedicated data schemas, workflow steps, and extraction timers for each distinct brewing discipline:
+Every coffee brewing method requires a customizable **New Recipe Builder** that balances quick preset selection with granular, multi-variable customization. Rather than static text fields, the system provides **categorized dropdowns, multi-select tool stacks, and inline "+ Add Custom Variable" inputs**.
 
 ```mermaid
 flowchart TD
-    CategorySelector["Select Coffee Category"]
+    User["Barista / User"] --> Action["Add New Recipe / Customize Existing"]
+    Action --> Category["1. Select Brewing Method"]
 
-    CategorySelector --> Cat1["1. Espresso (Electric / Benchtop)"]
-    CategorySelector --> Cat2["2. Manual Lever & Alternative Pressure"]
-    CategorySelector --> Cat3["3. Stovetop & Moka Pot"]
-    CategorySelector --> Cat4["4. Modern Filter Coffee (Percolation & Hybrid)"]
-    CategorySelector --> Cat5["5. Immersion (AeroPress, French Press, Cold Brew)"]
-    CategorySelector --> Cat6["6. Traditional Singaporean Kopi (Nanyang Coffee)"]
+    Category --> M1["⚡ Benchtop Espresso"]
+    Category --> M2["🦾 Manual Lever & Alternative"]
+    Category --> M3["🔥 Stovetop & Moka Pot"]
+    Category --> M4["💧 Modern Filter Coffee"]
+    Category --> M5["⏳ Immersion & AeroPress"]
+    Category --> M6["🇸🇬 Traditional Singaporean Kopi"]
 
-    Cat1 --> EspSpecs["Decent, Bianca, Micra, Slayer | Flow Needle, Pre-infusion | Wafo/Unibasket, Moonraker, 30lb Normcore"]
-    Cat2 --> LeverSpecs["Flair 58+, Cafelat Robot, Odyssey Argos, Picopresso, CO2 Pneumatics | Manual Pressure Curve"]
-    Cat3 --> MokaSpecs["Bialetti Brikka, 9Barista | Water Starting Temp, Flame/Induction Cutoff Timeline"]
-    Cat4 --> FilterSpecs["Orea V4/BigBoy, UFO Dripper, Graycano, Pulsar, V60 | Sibarist, Cafec, Ceramic, Paper Negotiators | Flow (g/s)"]
-    Cat5 --> ImmerSpecs["AeroPress (Standard/Inverted/Flow Control Cap/Prismo) | Steep Timeline & Plunge Resistance"]
-    Cat6 --> KopiSpecs["Sock Strainer, Robusta Caramel Wok Roast | Dynamic Milk & Sugar Formulations (Kopi, Kopi-O, Kopi-C, Gao, Po)"]
+    M1 & M2 & M3 & M4 & M5 & M6 --> Universal["Universal Dropdown Layers"]
+    
+    subgraph Universal ["Universal Dropdown Layers"]
+        WaterDD["Water Matrix Dropdown (Tap / Bottled / TWW / Lotus + Custom)"]
+        BeanDD["Bean Cellar Dropdown (Origin / Process / Roast + Custom)"]
+        GrinderDD["Grinder & Burr Dropdown (Setting + Microns)"]
+    end
+
+    Universal --> MethodSpecific["Method-Specific Tool & Variable Stacks"]
+
+    subgraph MethodSpecific ["Method-Specific Tool & Variable Stacks"]
+        EspStack["Puck Prep Multi-Select Stack: WDT + 30lb/Auto Tamp + Screen + Paper Discs + Baskets"]
+        FilterStack["Filter Multi-Select Stack: Dripper + Filter Papers (Sibarist/Cafec) + Negotiator + Dispersion"]
+        MokaStack["Moka Stack: Boiler Start Temp + Flame/Induction Level + Sputter Cutoff"]
+        KopiStack["Kopi Stack: Flannel Sock + Dialect Formulation + Condensed/Evaporated Ratios"]
+    end
+
+    MethodSpecific --> CustomInject["Inline '+ Add Custom Tool/Water/Paper' Button (Instant Persistence)"]
 ```
 
 ---
 
-### 2. Comprehensive Water Chemistry & Global Water Profiling Engine
+### 2. Universal Variable Dropdown Selectors (Available Across All Methods)
 
-Water accounts for **98.5% of drip coffee** and **88–90% of espresso**. Mineral composition dictates extraction yield, perceived sweetness, acidity clarity, and crema formation:
-- **TDS (Total Dissolved Solids)** in $ppm$ / $mg/L$
-- **General Hardness (GH)** in $ppm$ $CaCO_3$ or $°dH$ (Total $Ca^{2+}$ and $Mg^{2+}$ ions; Magnesium accentuates fruit/floral notes, Calcium enhances heavy creamy body)
-- **Carbonate Hardness / Alkalinity (KH)** in $ppm$ $CaCO_3$ or $°dH$ (Acid buffer capacity: low KH yields sparkling vibrant acidity; excessive KH mutes acidity into chalky bitterness)
-- **pH level** and **Water Temperature** (°C / °F)
+Whenever a user creates or customizes a recipe in any method, they select from the following core dropdown matrices:
+
+#### A. Water Chemistry Dropdown (`waterProfileId`)
+Allows selecting existing profiles or entering custom parameters:
+- **Municipal Tap Waters**:
+  - `Singapore PUB Tap` (Ultra-Soft: 70 ppm TDS, 45 ppm GH, 35 ppm KH)
+  - `Tokyo Snowmelt Tap` (Very Soft: 48 ppm TDS, 32 ppm GH, 24 ppm KH)
+  - `Melbourne Specialty Baseline Tap` (Soft: 50 ppm TDS, 30 ppm GH, 25 ppm KH)
+  - `Seattle Mountain Runoff Tap` (Soft: 42 ppm TDS, 28 ppm GH, 20 ppm KH)
+  - `New York City Catskill Tap` (Soft-Med: 58 ppm TDS, 36 ppm GH, 28 ppm KH)
+  - `London Thames Tap` (Very Hard Chalk: 320 ppm TDS, 260 ppm GH, 210 ppm KH)
+  - `Berlin Groundwater Tap` (Very Hard: 360 ppm TDS, 280 ppm GH, 230 ppm KH)
+- **Bottled Spring & Mineral Waters**:
+  - `Volvic Natural Mineral` (France ~130 ppm TDS, SCA benchmark)
+  - `Evian Natural Mineral` (France ~345 ppm TDS, High Calcium)
+  - `Crystal Geyser Alpine Spring` (USA ~120 ppm TDS)
+  - `Ashbeck Natural Spring` (UK ~85 ppm TDS)
+  - `Spa Reine Natural Mineral` (Belgium ~33 ppm TDS ultra-soft)
+- **Remineralized Recipes**:
+  - `Third Wave Water - Classic Profile` (150 ppm TDS, 110 GH, 40 KH)
+  - `Third Wave Water - Espresso Safe Profile` (150 ppm TDS, 85 GH, 65 KH)
+  - `Lotus Water Drops - Bright & Juicy` (90 ppm TDS, 65 GH, 25 KH)
+  - `Peak Water Precision Filter Jug` (Dial Setting 1.0 – 5.0)
+- **Custom Water Action**:
+  - `[+ Add Custom Water Source]`: Opens inline modal to log custom TDS ($ppm$), GH ($ppm$ Ca/Mg), KH ($ppm$ alkalinity buffer), and pH.
+
+#### B. Coffee Bean Dropdown (`beanId`)
+Pulls live from the user's **Bean Cellar**:
+- Shows: `Bean Name` • `Roaster` • `Origin` • `Roast Level` • `Process (Washed/Natural/Anaerobic/Wok)` • `Days off roast`.
+- Quick filter by Roast Degree (Light, Med-Light, Medium, Med-Dark, Dark, Nanyang Wok).
+- Inline Action: `[+ Add New Bean to Cellar]`.
+
+#### C. Grinder & Micron Size Dropdown
+- **Grinder Model Dropdown**: Option-O Lagom (P64, P01, 01), Zerno Z1, Timemore Sculptor (064s, 078s), Fellow Ode Gen 2, Comandante C40 MK4, 1Zpresso (K-Ultra, J-Ultra, ZP6), Niche (Zero, Duo), Mazzer Philos, Baratza Encore ESP, or custom.
+- **Grind Setting Input**: Dial/click setting (e.g. `1.4`, `5.1`, `24 clicks`).
+- **Estimated Particle Micron Rating ($μm$)**: Numeric input with auto-suggested ranges ($200–350\,\mu\text{m}$ for espresso, $500–950\,\mu\text{m}$ for filter, $1000–1200\,\mu\text{m}$ for Kopi).
+
+---
+
+### 3. Method-Specific Variable Dropdowns & Multi-Select Tool Stacks
+
+For each brewing discipline, the recipe creation interface dynamically mounts specialized variable dropdowns and multi-select tool trays:
 
 ```mermaid
-flowchart LR
-    WaterEngine["Water Profile Engine"]
-    
-    WaterEngine --> Remineralized["1. Formulated & Remineralized"]
-    WaterEngine --> Bottled["2. Bottled Spring & Mineral"]
-    WaterEngine --> GlobalTap["3. Global Municipal Tap Water"]
-    WaterEngine --> Filtration["4. In-House Filtration Jugs"]
+classDiagram
+    class RecipeBuilderEngine {
+        +selectCategory(category)
+        +mountMethodDropdowns()
+        +multiSelectTools(toolList)
+        +addCustomTool(customTool)
+    }
 
-    Remineralized --> R1["Third Wave Water (Classic / Espresso / Dark)"]
-    Remineralized --> R2["Lotus Water Drops (Custom Ca/Mg/K/Buffer drops)"]
-    Remineralized --> R3["Barista Hustle Water Recipes (Hendon, Rao, Melbourne)"]
-    Remineralized --> R4["Aquacode & RO remineralization"]
+    class EspressoVariables {
+        +dropdown machineModel
+        +dropdown flowControlMode
+        +dropdown preInfusionType
+        +dropdown basketType
+        +multiselect puckPrepTools
+        +multiselect filtrationLayers
+    }
 
-    Bottled --> B1["Volvic (France ~130 ppm, SCA benchmark)"]
-    Bottled --> B2["Evian (France ~345 ppm, high Ca/mineral)"]
-    Bottled --> B3["Crystal Geyser (US ~110-140 ppm)"]
-    Bottled --> B4["Ashbeck / Highland Spring (UK ~85-170 ppm)"]
-    Bottled --> B5["Spa Reine (Belgium ~33 ppm ultra-soft)"]
+    class FilterVariables {
+        +dropdown dripperModel
+        +dropdown filterPaperMedia
+        +toggle usesNegotiator
+        +toggle hybridImmersionValve
+        +multiselect agitationTools
+        +pourScheduleStages stages
+    }
 
-    GlobalTap --> T1["Singapore (PUB Ultra-Soft ~60-90 ppm, low KH)"]
-    GlobalTap --> T2["Japan: Tokyo / Kyoto (Soft volcanic ~35-60 ppm)"]
-    GlobalTap --> T3["Australia: Melbourne (~45 ppm) vs. Adelaide (~280 ppm)"]
-    GlobalTap --> T4["USA: Seattle/NYC (~40-60 ppm) vs. LA/Chicago (~150-300 ppm)"]
-    GlobalTap --> T5["Europe: London/Berlin/Munich (Very Hard ~280-400 ppm)"]
-    GlobalTap --> T6["Europe: Nordics / Vienna (Alps Spring / Soft ~40-120 ppm)"]
+    class LeverVariables {
+        +dropdown leverModel
+        +dropdown preheatMethod
+        +dropdown pressureProfileCurve
+        +multiselect puckPrepTools
+    }
 
-    Filtration --> F1["Peak Water (Adjustable bypass dial 1-5)"]
-    Filtration --> F2["BWT Magnesium Mineralizer"]
-    Filtration --> F3["Brita Maxtra+ / ZeroWater base"]
+    class KopiVariables {
+        +dropdown kopiStyle
+        +dropdown strengthLevel
+        +multiselect sweeteningCreamers
+        +dropdown flannelSockGrade
+    }
+
+    RecipeBuilderEngine --> EspressoVariables
+    RecipeBuilderEngine --> FilterVariables
+    RecipeBuilderEngine --> LeverVariables
+    RecipeBuilderEngine --> KopiVariables
 ```
 
----
-
-### 3. Comprehensive 2026 Specialty Gear & Tools Library
-
-#### A. Modern Filter Drippers & Geometry
-- **Orea**: *Orea V4 Modular* (interchangeable bases: Classic, Open, Fast, Apex), *Orea V3 MK2*, *Orea Big Boy*.
-- **UFO Dripper**: *UFO Dripper* (ultra-wide, shallow bed geometry, hyper-fast uniform extraction).
-- **Zero-Bypass & Hybrid Drippers**: *NextLevel Pulsar* (valve-controlled zero-bypass), *Tricolate*, *Hario Switch*, *Clever Dripper*.
-- **Geometric Conical & Flat Drippers**: *Graycano* (cast aluminum Lava ribs), *April Dripper*, *Origami* (Air Resin & Ceramic), *Fellow Stagg [X/XF]*, *Timemore B75*, *Hario V60 (Plastic, Ceramic, Copper, Mugen)*, *Kalita Wave 155/185*, *Chemex (3, 6, 8 cup)*.
-- **Porous Ceramic Micro-Filters**: *LOCA Ceramic Filter* (Arita-ware porous micro-filtration), *Cofil Fuji Ceramic*, *Kyuemon Ceramic Dripper*.
-
-#### B. Filter Papers & Tooling (With Paper-to-Dripper Synergy)
-- **Sibarist (Spain)**: *FAST Cone*, *FAST Flat*, *Sibarist UFO Papers*, *B3 & HYBRID discs*.
-- **Orea Papers & Tooling**: *Orea Type 'A' (Fast) & Type 'B' (Balanced)*, *Orea Wave Papers*, *Orea Negotiator Tool* (dedicated tool to pleat and shape flat papers directly against dripper walls to eliminate bypass).
-- **Cafec (Japan)**: *Cafec Abaca / Abaca+*, *T-90 Medium-Dark (fast drawdown)*, *T-83 Light Roast (high sweetness retention)*, *T-92 Dark Roast*.
-- **Standard & Heavy Filtration**: *Chemex Bonded Filters*, *Kalita Wave 155/185*, *Hario V60 Tabbed (Japan/Europe) vs. Untabbed (Classic)*.
-- **Dispersion & Water Agitation Tools**: *Melodrip* (zero-agitation shower tool), *Hario Drip-Assist*, *Gabi Master A*.
-
-#### C. Espresso Machines & Lever Systems
-- **Benchtop Electric Espresso**: *Decent Espresso (DE1PRO, DE1XL, Bengle)*, *Lelit Bianca V3 (needle valve paddle)*, *La Marzocco Linea Micra / Mini R*, *Slayer Espresso (needle valve pre-brew)*, *Sanremo YOU (paddle profiling)*, *E61 Flow Profiling rigs*.
-- **Extraction Yield (EY %) & Refractometer Matrix**:
-  - **Refractometer TDS Input**: Digital coffee refractometer integration (DiFluid R2 Extract, Atago PAL-Coffee, VST LAB Coffee III).
-  - **Auto-Calculated Extraction Yield (EY %)**:
-    $$\text{EY \%} = \frac{\text{Espresso Yield } (g) \times \text{Beverage TDS \%}}{\text{Dry Ground Dose } (g)}$$
-  - **Extraction Target Zones**:
-    - *Under-extracted*: $< 18.0\%$ (sour, grassy, quick finish)
-    - *Specialty Balanced*: $18.5\% - 22.0\%$ (optimal sweetness, balanced acidity, lingering body)
-    - *Modern High-Extraction*: $22.0\% - 25.5\%+$ (achieved with precision baskets like WAFO/Unibasket, low-fines grinders, bottom paper filters)
-- **Manual Lever & Alternative Pressure**: *Flair 58 / 58+ / PRO 2*, *Cafelat Robot*, *Odyssey Espresso Argos*, *ROK EspressoGC*, *Wacaco Picopresso & Nanopresso*, *Staresso Mirage*, *CO2 Cartridge / Pneumatic Portable Machines*.
-- **Stovetop Precision**: *9Barista* (9-bar twin boiler stovetop), *Bialetti Brikka* (weighted dual-valve crema), *Classic Bialetti Moka Express*.
-
-#### D. Puck Preparation Suite (2026 Industry Standards)
-- **Distribution & Needle Tools (WDT)**: *Subminimal Flick WDT* (retractable), *SworksDesign Billet WDT*, *Umikot / Planetary Gear WDT*, *Weber Workshops Moonraker & Blind Shaker*, *Normcore V2/V3*.
-- **Tamping Systems**: *Normcore V4 Calibrated Spring Tamper (15 lb, 25 lb, 30 lb springs)*, *The Force Tamper* (automatic leveling impact), *Puqpress Q2 / M-Line Gen 5 digital electronic tamper*, *Pullman BigStep*.
-- **Precision Baskets**: *Weber Workshops Unibasket*, *WAFO Baskets (Spirit, SOE, Classic)*, *Pesado HE%*, *Pullman 876*, *IMS Baristapro / E&B Lab Superfine*, *VST Precision*.
-- **Puck Screens & Filtration Layers**: *SworksDesign Billet Puck Screen (0.2mm)*, *Normcore 0.8mm & 1.7mm titanium/mesh*, *Mish Chief Honeycomb*, *Bottom Basket Paper Filter Discs* (Cafec, Sibarist, Whatman).
+#### Method 1: Benchtop Electric Espresso
+- **Machine Selection Dropdown**:
+  - `Decent Espresso (DE1PRO / DE1XL / Bengle)`
+  - `Lelit Bianca V3 (Paddle Needle Valve)`
+  - `La Marzocco Linea Micra / Mini R`
+  - `Slayer Espresso (Needle Valve Pre-Brew)`
+  - `Sanremo YOU (Digital Paddle Profiling)`
+  - `E61 Heat Exchanger / Dual Boiler with Flow Profiling Kit`
+  - `Single Boiler / Thermoblock`
+  - `[+ Add Custom Espresso Machine]`
+- **Extraction Control Dropdowns**:
+  - *Flow Control Mode*: `Manual Needle Paddle` | `Automated Declining Flow Profile` | `Fixed Standard 9-Bar` | `Low-Pressure Turbo (6-Bar)`.
+  - *Pre-Infusion Type*: `Passive Line-Pressure (2-3 bar)` | `Active Pump Pulsing` | `Zero Pre-infusion (Direct 9 bar)`.
+- **Basket Model Dropdown**:
+  - `WAFO Spirit (Laser-drilled high extraction)` | `Weber Workshops Unibasket (CNC Zero Deadzone)` | `Pesado HE%` | `Pullman 876` | `IMS Baristapro / E&B Superfine` | `VST Precision (15g, 18g, 20g, 22g)`.
+- **Puck Preparation Multi-Select Tool Tray (Select as many as used)**:
+  - ☑️ **Needle WDT Tool**: Dropdown selector (`Subminimal Flick 0.25mm` | `SworksDesign Billet 0.22mm` | `Umikot Planetary Gear` | `Weber Workshops Moonraker` | `Normcore V2 0.3mm`).
+  - ☑️ **Surface Distributor**: Dropdown selector (`Wedge Leveler` | `OCD 3-Blade` | `Jack Leveler`).
+  - ☑️ **Tamping System**: Dropdown selector (`Normcore V4 30lb Calibrated Spring` | `Normcore V4 25lb Spring` | `The Force Tamper Impact Leveling` | `Puqpress Digital Electronic Auto-Tamper` | `Traditional Flat Stainless Tamper`).
+  - ☑️ **Top Puck Screen**: Dropdown selector (`SworksDesign 0.2mm Billet Screen` | `Normcore 0.8mm Titanium Mesh` | `Normcore 1.7mm Stainless Mesh` | `Mish Chief Honeycomb Screen`).
+  - ☑️ **Bottom Basket Paper Filter**: Dropdown selector (`Sworks Bottom Paper Disc` | `Cafec 55mm Round Paper` | `Whatman Lab Grade 54mm Disc`).
+  - ☑️ **Top Basket Paper Filter**: Toggle (`Yes / No`).
+  - ☑️ **Pre-Tamp Agitation**: Dropdown selector (`Weber Workshops Blind Shaker` | `RDT Water Spritz`).
+  - `[+ Add Custom Puck Prep Tool]`
 
 ---
 
-### 4. Filter Coffee vs. Espresso: Variable Parity Matrix
-
-| Dimension | Espresso & Lever Engine | Filter & Drip Engine (V60, Orea, UFO, Chemex, Pulsar) |
-| :--- | :--- | :--- |
-| **Water Recipe & TDS** | Target TDS, GH/KH ratio, boiler scale prevention rating | Target TDS, mineral accentuation (Mg for fruit/acidity, Ca for body) |
-| **Tooling & Media** | Basket (Wafo/Unibasket/VST), Puck Screen (0.2/0.8mm), Paper Disc | Dripper (Orea V4, UFO, V60), Filter Paper (Sibarist FAST, Cafec Abaca, Ceramic), Negotiator |
-| **Grind Size Metrics** | Grinder setting, burr geometry, micron estimate ($200–350\,\mu\text{m}$) | Grinder setting, clicks/microns ($500–950\,\mu\text{m}$), fines distribution profile |
-| **Pre-Infusion / Bloom** | Pre-infusion seconds, pressure ($bar$), line vs pump | Bloom water weight ($g$), bloom duration, agitation method (swirl, stir, Melodrip) |
-| **Immersion Control** | Continuous pressure vs lever dwell | Pure percolation vs Hybrid immersion valve toggle (Switch, Pulsar, Clever) |
-| **Flow Dynamics** | Real-time extraction flow rate ($g/s = \text{Yield} \div \text{Time}$) | Bed drawdown speed ($g/s$), bypass resistance, paper-flow benchmarking |
-| **Extraction Yield (EY %)** | $\text{EY \%} = \frac{\text{Yield } (g) \times \text{TDS \%}}{\text{Dose } (g)}$ (Refractometer 8%–12% TDS $\rightarrow$ 18%–25% EY) | Filter $\text{EY \%} = \frac{\text{Brew } (g) \times \text{TDS \%}}{\text{Dose } (g)}$ (1.2%–1.5% TDS $\rightarrow$ 19%–23% EY) |
-| **Timeline Stages** | T1: Pre-infusion $\rightarrow$ T2: Peak ramp $\rightarrow$ T3: Flow decline | T1: Bloom $\rightarrow$ T2: Pulse 1 $\rightarrow$ T3: Pulse 2 $\rightarrow$ T4: Immersion steep $\rightarrow$ T5: Drawdown |
-| **Sensory Feedback** | Sour/Channelling $\leftrightarrow$ Sweet/Crema $\leftrightarrow$ Bitter/Astringent | Bright acidity $\leftrightarrow$ Floral/Sweet balance $\leftrightarrow$ Dry astringency / Stalling |
+#### Method 2: Manual Lever & Alternative Pressure
+- **Device Model Dropdown**:
+  - `Flair 58 / 58+ (Electric Heated Chamber)` | `Flair PRO 2` | `Flair Neo Flex`
+  - `Cafelat Robot (Manual Dual Lever + Pressure Gauge)`
+  - `Odyssey Espresso Argos (Spring & Direct Lever Hybrid)`
+  - `ROK EspressoGC`
+  - `Wacaco Picopresso (Handheld Precision Pump)` | `Nanopresso`
+  - `Staresso Mirage`
+  - `CO2 Cartridge / Pneumatic Portable Press`
+  - `[+ Add Custom Lever/Portable Device]`
+- **Chamber Pre-Heating Dropdown**:
+  - `Built-in Electric PID (Level 1, 2, or 3)` | `Steam Chamber Pre-heat over Kettle` | `Boiling Water Dual Flush` | `No Pre-heat (Dark Roast)`.
+- **Pressure Profiling Curve Dropdown**:
+  - `Declining Flow Profile (3 bar pre-infusion → 8 bar peak → 5 bar declining finish)`
+  - `Flat 6-Bar Turbo Profile`
+  - `Traditional Lever Spring Profile (10 bar peak → natural spring decay)`
+  - `Slayer-Style Extended Pre-Infusion (15s @ 2 bar → 9 bar finish)`
+- **Puck Prep Multi-Select Tool Tray**:
+  - Same comprehensive multi-tool tray as Benchtop Espresso (WDT, 30lb tamp, puck screens, paper discs).
 
 ---
 
-### 5. Interactive Live Brew Station & Flow Rate Monitor
+#### Method 3: Stovetop & Moka Pot
+- **Device Model Dropdown**:
+  - `9Barista (Twin Boiler Jet-Engineered 9-Bar Stovetop)`
+  - `Bialetti Brikka (Dual Weighted Crema Valve)`
+  - `Classic Bialetti Moka Express (1, 3, 6 cup)`
+  - `Alessi Pulcina / 9090`
+  - `[+ Add Custom Stovetop Model]`
+- **Boiler Water Starting Prep Dropdown**:
+  - `Pre-Boiled Water (Reduces thermal exposure of grounds)`
+  - `Room Temperature Water`
+- **Heat Source & Intensity Dropdown**:
+  - `Gas Burner (Low Flame with heat diffuser plate)`
+  - `Induction Cooktop (400W – 800W setting)`
+  - `Electric Ceramic Hotplate`
+- **Extraction Cutoff Trigger Dropdown**:
+  - `Blonding Transition (Remove from heat & quench base in cold water)`
+  - `First Sputter Sound (Cutoff immediately)`
+  - `Timed Extraction (25s from first emergence)`
+
+---
+
+#### Method 4: Modern Filter Coffee (Percolation & Hybrid Immersion)
+- **Dripper Model Dropdown**:
+  - *Orea Series*: `Orea V4 Modular (Apex Base)` | `Orea V4 (Fast Base)` | `Orea V4 (Open Base)` | `Orea V4 (Classic Base)` | `Orea V3 MK2` | `Orea Big Boy (Batch)`.
+  - *UFO Series*: `UFO Dripper (Ultra-wide shallow flat bed)`.
+  - *Zero-Bypass & Hybrid*: `NextLevel Pulsar (Zero-bypass valve)` | `Tricolate` | `Hario Switch 02/03` | `Clever Dripper`.
+  - *Geometric Flat & Conical*: `Graycano (Lava Ribs)` | `April Glass/Plastic Dripper` | `Origami Air Resin / Ceramic` | `Fellow Stagg [X] / [XF]` | `Timemore B75` | `Hario V60 (Plastic 01/02, Ceramic, Copper, Mugen)` | `Kalita Wave 155/185 (Stainless Tsubame/Glass)` | `Chemex (3, 6, 8, 10 cup)`.
+  - `[+ Add Custom Dripper]`
+- **Filter Paper & Media Dropdown (Multi-Selectable)**:
+  - *Sibarist (Spain)*: `Sibarist FAST Flat` | `Sibarist FAST Cone` | `Sibarist FAST UFO` | `Sibarist B3 / HYBRID`.
+  - *Orea Specialty Papers*: `Orea Type 'A' (Fast)` | `Orea Type 'B' (Balanced)` | `Orea Wave 185 Papers`.
+  - *Cafec (Japan)*: `Cafec Abaca` | `Cafec Abaca+` | `Cafec T-90 (Medium-Dark fast)` | `Cafec T-83 (Light roast dense)` | `Cafec T-92 (Dark)`.
+  - *Porous Ceramic Micro-Filters*: `LOCA Arita Ceramic Filter` | `Cofil Fuji Porous Alumina` | `Kyuemon Ceramic Dripper`.
+  - *Standard Papers*: `Chemex Bonded Circles / Squares` | `Kalita Wave Bleached / Unbleached` | `Hario V60 Tabbed (Japan/Europe)` | `Hario V60 Untabbed (Classic)`.
+  - *Reusable Media*: `Flannel Cloth Filter` | `Stainless Steel Ultra-Fine Mesh`.
+  - `[+ Add Custom Filter Paper / Medium]`
+- **Filter Tooling Multi-Select Tray (Select as many as used)**:
+  - ☑️ **Paper Shaper**: Dropdown (`Orea Negotiator (Zero Bypass)` | `3D Printed Pleater` | `Standard Rinse Fold`).
+  - ☑️ **Dispersion & Agitation Tool**: Dropdown (`Melodrip (Collimated zero-agitation shower)` | `Hario Drip-Assist` | `Gabi Master A` | `Kettle Pour Only`).
+  - ☑️ **Agitation Method**: Dropdown (`Gentle Swirl` | `Paddle Stir` | `Chopstick Star Agitation` | `Bed Tap`).
+  - ☑️ **Immersion Valve Scheduling**: Toggle (`Open/Closed valve schedule for Switch/Pulsar`).
+- **Pour Schedule Stage Builder**:
+  - Add as many pour stages as required: `[Stage Name]`, `[Target Weight (g)]`, `[Start Second]`, `[Duration]`, `[Agitation Type]`, `[Valve Open/Closed]`.
+
+---
+
+#### Method 5: Immersion & Hybrid (AeroPress, French Press, Cold Brew)
+- **AeroPress Orientation & Cap Dropdown**:
+  - `Inverted AeroPress Setup` | `Standard Upright Setup`
+  - `Fellow Prismo Pressure Valve` | `AeroPress Flow Control Filter Cap` | `Standard Hexagonal Cap`
+- **Filter Medium Dropdown**:
+  - `Single Paper Filter (Standard / Cafec Round)` | `Double Paper Filter` | `Ultra-Fine Metal Mesh Disc` | `Aesir Precision Filter Paper`.
+- **Agitation & Steep Tools Multi-Select**:
+  - ☑️ `AeroPress Paddle / Stirrer (Back-and-forth stir count: e.g. 10x)`
+  - ☑️ `Plunge Speed Controller (Steady 30s plunge vs. rapid 10s)`
+  - ☑️ `Hiss Cutoff (Stop immediately at hiss to avoid bitter astringency)`
+
+---
+
+#### Method 6: Traditional Singaporean Kopi (Nanyang Heritage)
+- **Gear Setup Dropdown**:
+  - `Long-Spout Stainless Steel Kettle + Traditional Flannel Sock Strainer (Kopi Bag)`
+  - `Double Pot Sock Pull Station`
+  - `Porcelain Floral Thick Cup & Saucer`
+- **Nanyang Roast Dropdown**:
+  - `Robusta Caramel Butter Wok Roast (Kim Guan Guan / Traditional)`
+  - `Liberica / Robusta Artisan Wok Blend`
+- **Dialect Order Formulation Dropdown**:
+  - `Kopi` (Condensed milk + Evaporated milk + sugar)
+  - `Kopi-O` (Black coffee + sugar)
+  - `Kopi-O Kosong` (Pure black coffee, zero sugar)
+  - `Kopi-C` (Fresh evaporated milk + sugar)
+  - `Kopi-C Kosong` (Evaporated milk, no sugar)
+  - `Kopi Gao` (Thick double strength grounds)
+  - `Kopi Po` (Light / extra hot water dilution)
+  - `Kopi Di-Lo` (Undiluted coffee essence straight from sock)
+  - `Kopi Peng` (Iced over crushed ice)
+- **Sweetener & Creamer Multi-Select Tray**:
+  - ☑️ `Condensed Milk`: Brand dropdown (`F&N Sweetened Condensed` | `Carnation` | `Custom`) + Grams/tablespoons slider.
+  - ☑️ `Evaporated Milk`: Brand dropdown (`Carnation Evaporated` | `Marigold Dawn` | `King of Kings`) + Grams/tablespoons slider.
+  - ☑️ `Granulated Cane Sugar`: Grams / teaspoons slider.
+  - ☑️ `Salted Butter Pat`: Dropdown (`Traditional Butter Melt in Cup - Kopi Gu You`).
+
+---
+
+### 4. Dynamic Variable Customization Flow
+
+The recipe creation modal implements a **recursive component architecture**:
 
 ```mermaid
 sequenceDiagram
     autonumber
     actor Barista
-    participant App as Barista Blueprint UI
-    participant Timer as High-Precision Split Stopwatch
-    participant Advisor as Smart Dial-in Engine
+    participant Modal as Recipe Creation Modal
+    participant Engine as Dropdown & Tool Engine
+    participant DB as Local Gear & Water Database
 
-    Barista->>App: Select Recipe (e.g. "Orea V4 + Sibarist Flat + Volvic Water 130ppm")
-    Barista->>App: Tap "Start Brew Session"
-    App->>Timer: Begin Stage 1: Bloom (50g water in 45s)
-    Timer-->>App: Display live seconds & target weight
-    Barista->>App: Tap Next / Auto-transition to Pulse Pours
-    App->>Timer: Stage 2: Main Pour (up to 250g)
-    Timer-->>App: Compute live bed drawdown flow rate (g/s)
-    Barista->>App: Mark Bed Dry / Tap "Brew Complete"
-    Timer-->>App: Finalize total drawdown time (e.g., 2m 45s)
-    App->>Advisor: Evaluate paper flow & water mineral balance
-    Advisor-->>Barista: "Optimal drawdown! Sibarist flow rate maintained at 1.8 g/s. Volvic mineral buffer produced bright malic acidity."
+    Barista->>Modal: Open "Create New Recipe"
+    Barista->>Modal: Select Brew Method (e.g. Modern Filter)
+    Modal->>Engine: Mount Method-Specific Form
+    Engine-->>Modal: Display: Dripper Dropdown, Filter Paper Dropdown, Tool Multi-Select Tray
+    Barista->>Modal: Click Filter Paper Dropdown
+    Modal-->>Barista: Shows Sibarist, Cafec, Orea, Ceramic, Chemex + "[+ Add New Paper]"
+    Barista->>Modal: Selects "Sibarist FAST Flat"
+    Barista->>Modal: Checks ☑️ Orea Negotiator tool & ☑️ Melodrip
+    Barista->>Modal: Selects Water Dropdown -> "Singapore PUB Tap"
+    Barista->>Modal: Tap "Save Recipe"
+    Modal->>DB: Persists recipe with full variable dependencies
+    DB-->>Barista: Recipe ready in Vault with all tool badges active!
 ```
 
 ---
 
-### 6. Implementation Roadmap
+### 5. Implementation Task List for Variable Customizer
 
-- [ ] **Phase 1: Project Scaffolding & Theme System**
-  - Initialize Vite React (TypeScript) + Tailwind CSS + Lucide icons.
-  - Setup rich dark/warm barista aesthetic with mobile-responsive layout for coffee bar stations.
-- [ ] **Phase 2: Database & 2026 Gear + Global Water Preset Library**
-  - Pre-load gear catalog: Orea (V3/V4/Big Boy), UFO Dripper, Sibarist FAST papers, Cafec series, LOCA/Cofil ceramic, NextLevel Pulsar, Decent, Flair 58+, 30lb Normcore tampers, Wafo/Unibasket, SworksDesign.
-  - Pre-load water catalog: Third Wave Water, Lotus drops, Barista Hustle recipes, Volvic, Evian, Crystal Geyser, Ashbeck, and global municipal tap profiles (Singapore, Tokyo, Melbourne, Seattle, NYC, London, Berlin, Paris).
-  - Custom gear & custom water profile builder (TDS, GH, KH, pH, temp).
-  - Bean Cellar with roast date, degassing status, origin, and fermentation logging.
-- [ ] **Phase 3: Recipe Vault & Multi-Category Engines**
-  - Specialized recipe builders for:
-    1. Benchtop Electric Espresso (flow control, pre-infusion, puck screens).
-    2. Manual Levers & Alternative Pressure (Flair, Robot, Picopresso, CO2).
-    3. Stovetop & Moka Pot (Brikka, 9Barista, flame cutoff).
-    4. Modern Filter Coffee (Orea/UFO/V60, filter paper linkage, immersion toggles, grind microns).
-    5. Immersion (AeroPress standard/inverted/prismo).
-    6. Singaporean Kopi (condensed/evaporated milk & sugar formulation engine).
-- [ ] **Phase 4: Live Brew Station & Dynamic Stopwatch**
-  - Split timers (Bloom/Pre-infusion, Multi-Pour pulses, Drawdown, Plunge).
-  - Real-time flow rate ($g/s$) monitor and paper flow index comparison.
-- [ ] **Phase 5: Dial-in Diagnostic Advisor & Sensory Cupping**
-  - Extraction diagnosis (Sour / Balanced / Bitter / Water buffer effect), automated adjustment recommendations.
-  - JSON Backup, Export, and Recipe sharing.
+- [ ] **Task 1: Schema Updates for Dynamic Tool Stacking**
+  - Update `Recipe` and `GearProfile` interfaces in `src/types/coffee.ts` to support dynamic arrays of `selectedTools: string[]` and `selectedMedia: string[]`.
+- [ ] **Task 2: Modular Dropdown Components**
+  - Build reusable `SelectWithAddCustom<T>` dropdown component supporting search, grouped presets, and instant `[+ Add Custom]` creation.
+- [ ] **Task 3: Category-Specific Recipe Modal Builders**
+  - Build specialized sub-panels in `RecipeModal.tsx` for Espresso (puck prep tray), Filter (papers, drippers, negotiator, multi-stage pour list), Moka (boiler prep & cutoff), and Kopi (dialect order & milk sliders).
+- [ ] **Task 4: Interactive Tool Badge Previews**
+  - Display interactive visual chips on recipe cards reflecting every single tool selected (e.g., `[WDT: 0.25mm]`, `[Tamper: 30lb Normcore]`, `[Screen: 0.2mm Billet]`, `[Paper: Sibarist FAST]`, `[Negotiator: Active]`).
