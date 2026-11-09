@@ -135,14 +135,35 @@ classDiagram
 ```
 
 #### Method 1: Benchtop Electric Espresso
-- **Machine Selection Dropdown**:
-  - `Decent Espresso (DE1PRO / DE1XL / Bengle)`
-  - `Lelit Bianca V3 (Paddle Needle Valve)`
-  - `La Marzocco Linea Micra / Mini R`
-  - `Slayer Espresso (Needle Valve Pre-Brew)`
-  - `Sanremo YOU (Digital Paddle Profiling)`
-  - `E61 Heat Exchanger / Dual Boiler with Flow Profiling Kit`
-  - `Single Boiler / Thermoblock`
+- **Machine Selection Dropdown (Categorized by Heritage, Profiling & Global Origin)**:
+  - *Artisan & Multi-Boiler Showcase*:
+    - `Kees van der Westen (Netherlands)`: Spirit (Duette / Triplette), Speedster, Mirage, Slim Jim, Idrocompresso.
+    - `Slayer Espresso (USA)`: Slayer Single Group (Needle-Valve Profiling), Slayer Steam LP, Slayer Steam EP.
+    - `Synesso (USA)`: Synesso ES.1 (Single-Group Prosumer Profiling), MVP Hydra.
+    - `Sanremo (Italy)`: Sanremo YOU (Volumetric & Paddle Pressure Profiling), CUBE, Cafe Racer.
+  - *Italian Heritage & Commercial Prosumer Benchmark*:
+    - `La Marzocco (Italy)`: Linea Micra, Linea Mini / Mini R, GS3 MP (Manual Paddle Profiling), GS3 AV, Strada (X / EP), Leva Luxury, KB90.
+    - `Lelit (Italy)`: Bianca V3 (Manual Paddle Flow Control Needle), Mara X (Heat Exchanger PID), Elizabeth (Dual Boiler), Victoria, Anna.
+    - `Rocket Espresso (Italy)`: R Cinquantotto (R58 Dual Boiler), Appartamento (TCA), Giotto Cronometro, Mozzafiato, Epica (Manual Lever with pressure profiling).
+    - `ECM (Germany/Italy)`: Synchronika II (Dual Boiler + E61 Flow Profiling kit), Mechanika MAX, Puristika (Single Boiler with external glass reservoir & expansion flow valve).
+    - `Profitec (Germany)`: Profitec Drive (Integrated Flow Control Dual Boiler), Pro 600, Pro 500, Profitec GO.
+    - `Victoria Arduino / Nuova Simonelli (Italy)`: Eagle One Prima / Prima EXP (PureBrew Extraction), Oscar II, Black Eagle.
+    - `Gaggia (Italy)`: Classic Pro / Classic EVO (including Gaggiuino Arduino Flow Profiling mod).
+  - *Digital & Real-Time Flow Profiling*:
+    - `Decent Espresso (Hong Kong/USA)`: DE1PRO, DE1XL, Bengle (Real-time pressure, flow, and temp feedback).
+  - *Breville / Sage High-Value Ecosystem (Australia)*:
+    - `Breville Dual Boiler (BES920XL)` (Including Slayer-mod needle valve routing).
+    - `Breville Bambino / Bambino Plus` (ThermoJet 3-second instant heat-up).
+    - `Breville Barista Express / Barista Express Impress`.
+    - `Breville Barista Touch / Oracle Touch`.
+  - *Leading Chinese & Asian Value-Engineered Brands (2024–2026)*:
+    - `WPM / Welhome (Hong Kong/China)`: KD-310 / KD-330 (Triple Thermoblock with variable gear-pump flow profiling), KD-270.
+    - `Gemilai (China)`: CRM3605 (Entry benchmark), CRM3007G (Rotary pump / PID), CRM3121A (Commercial dual boiler), CRM3200D.
+    - `ITOP (China)`: ITOP 03, ITOP 40 Plus, ITOP Dual Thermoblock with digital PID.
+    - `MiiCoffee / Turin (China/USA OEM)`: MiiCoffee Apex (Dual boiler PID with programmable pre-infusion), Turin Legato / Apex.
+    - `HiBREW (China)`: HiBREW H10A (Commercial 58mm group with PID & adjustable pre-infusion), H10B, H7A (Dual boiler).
+    - `Petrus (China)`: PE3888 (Commercial 58mm group), PE3899 (Dual thermoblock saturated group).
+    - `Barsetto (China)`: Barsetto BAE02S, BAE-V1 (Dual boiler rotary pump).
   - `[+ Add Custom Espresso Machine]`
 - **Extraction Control Dropdowns**:
   - *Flow Control Mode*: `Manual Needle Paddle` | `Automated Declining Flow Profile` | `Fixed Standard 9-Bar` | `Low-Pressure Turbo (6-Bar)`.
