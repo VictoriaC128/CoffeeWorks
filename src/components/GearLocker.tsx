@@ -2,6 +2,16 @@ import React, { useState } from 'react';
 import { Plus, Layers, ShieldCheck, Check, Trash2, Edit2, X, Zap } from 'lucide-react';
 import { useCoffee } from '../context/CoffeeContext';
 import { GearProfile, CoffeeCategory } from '../types/coffee';
+import { SmartDropdownWithOthers } from './SmartDropdownWithOthers';
+import {
+  ESPRESSO_MACHINE_OPTIONS,
+  ESPRESSO_BASKET_OPTIONS,
+  FILTER_DRIPPER_OPTIONS,
+  FILTER_PAPER_OPTIONS,
+  GRINDER_OPTIONS,
+  WDT_OPTIONS,
+  PUCK_SCREEN_OPTIONS,
+} from '../data/dropdownCatalog';
 
 export const GearLocker: React.FC = () => {
   const { gearProfiles, addGear, updateGear, deleteGear } = useCoffee();
@@ -12,20 +22,20 @@ export const GearLocker: React.FC = () => {
   // Form states
   const [name, setName] = useState('');
   const [category, setCategory] = useState<CoffeeCategory>('espresso');
-  const [machineModel, setMachineModel] = useState('');
-  const [grinderModel, setGrinderModel] = useState('');
+  const [machineModel, setMachineModel] = useState('Lelit Bianca V3');
+  const [grinderModel, setGrinderModel] = useState('Option-O Lagom P64');
   const [hasFlowControl, setHasFlowControl] = useState(false);
   const [hasPreInfusion, setHasPreInfusion] = useState(false);
-  const [basketType, setBasketType] = useState('');
-  const [dripperModel, setDripperModel] = useState('');
-  const [filterPaperType, setFilterPaperType] = useState('');
+  const [basketType, setBasketType] = useState('WAFO Spirit');
+  const [dripperModel, setDripperModel] = useState('Orea V4 Modular (Apex Base)');
+  const [filterPaperType, setFilterPaperType] = useState('Sibarist FAST Flat');
   const [isCeramicFilter, setIsCeramicFilter] = useState(false);
   const [hasImmersionValve, setHasImmersionValve] = useState(false);
   const [usesNegotiator, setUsesNegotiator] = useState(false);
 
   // Puck Prep states
   const [wdt, setWdt] = useState(true);
-  const [wdtNeedleSize, setWdtNeedleSize] = useState('0.25mm Retractable');
+  const [wdtNeedleSize, setWdtNeedleSize] = useState('Subminimal Flick 0.25mm');
   const [distributor, setDistributor] = useState(true);
   const [tamperType, setTamperType] = useState<GearProfile['puckPrep']['tamperType']>('calibrated_30lb');
   const [puckScreen, setPuckScreen] = useState(true);
@@ -37,18 +47,18 @@ export const GearLocker: React.FC = () => {
     setGearToEdit(null);
     setName('');
     setCategory('espresso');
-    setMachineModel('');
-    setGrinderModel('');
+    setMachineModel('Lelit Bianca V3');
+    setGrinderModel('Option-O Lagom P64');
     setHasFlowControl(true);
     setHasPreInfusion(true);
-    setBasketType('WAFO Spirit / Weber Unibasket');
-    setDripperModel('');
-    setFilterPaperType('');
+    setBasketType('WAFO Spirit');
+    setDripperModel('Orea V4 Modular (Apex Base)');
+    setFilterPaperType('Sibarist FAST Flat');
     setIsCeramicFilter(false);
     setHasImmersionValve(false);
     setUsesNegotiator(false);
     setWdt(true);
-    setWdtNeedleSize('0.25mm Retractable');
+    setWdtNeedleSize('Subminimal Flick 0.25mm');
     setDistributor(true);
     setTamperType('calibrated_30lb');
     setPuckScreen(true);
@@ -74,11 +84,11 @@ export const GearLocker: React.FC = () => {
     setUsesNegotiator(gear.usesNegotiator || false);
 
     setWdt(gear.puckPrep.wdt);
-    setWdtNeedleSize(gear.puckPrep.wdtNeedleSize || '');
+    setWdtNeedleSize(gear.puckPrep.wdtNeedleSize || 'Subminimal Flick 0.25mm');
     setDistributor(gear.puckPrep.distributor);
     setTamperType(gear.puckPrep.tamperType);
     setPuckScreen(gear.puckPrep.puckScreen);
-    setPuckScreenThickness(gear.puckPrep.puckScreenThickness || '');
+    setPuckScreenThickness(gear.puckPrep.puckScreenThickness || '0.2mm Sworks Billet');
     setBottomPaperFilter(gear.puckPrep.bottomPaperFilter);
     setTopPaperFilter(gear.puckPrep.topPaperFilter);
     setIsModalOpen(true);
@@ -132,7 +142,7 @@ export const GearLocker: React.FC = () => {
             <span>Gear Locker & Tooling Suite</span>
           </h2>
           <p className="text-xs sm:text-sm text-stone-400 mt-1">
-            Configure machines, high-extraction baskets, WDT needle tools, 30lb spring tampers, Orea negotiators, and filter papers.
+            Configure machines, precision baskets, needle WDT tools, 30lb spring tampers, Orea negotiators, and filter papers.
           </p>
         </div>
 
@@ -298,10 +308,10 @@ export const GearLocker: React.FC = () => {
 
       {/* Add / Edit Gear Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm overflow-y-auto">
-          <div className="bg-stone-900 border border-stone-800 rounded-2xl max-w-xl w-full p-6 shadow-2xl my-8">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-stone-900 border border-stone-800 rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl my-8">
             <div className="flex items-center justify-between pb-3 border-b border-stone-800">
-              <h3 className="text-base font-bold text-white">
+              <h3 className="text-lg font-bold text-white">
                 {gearToEdit ? 'Edit Gear Profile' : 'Add New Coffee Gear Rig'}
               </h3>
               <button
@@ -312,7 +322,7 @@ export const GearLocker: React.FC = () => {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="mt-4 space-y-3.5">
+            <form onSubmit={handleSubmit} className="mt-4 space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-mono text-stone-300 mb-1">Rig Name:</label>
@@ -344,34 +354,48 @@ export const GearLocker: React.FC = () => {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-mono text-stone-300 mb-1">Machine / Kettle:</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Lelit Bianca V3 / Fellow EKG"
+                {category === 'espresso' ? (
+                  <SmartDropdownWithOthers
+                    label="Espresso Machine:"
                     value={machineModel}
-                    onChange={e => setMachineModel(e.target.value)}
-                    className="w-full bg-stone-950 border border-stone-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500"
+                    onChange={setMachineModel}
+                    options={ESPRESSO_MACHINE_OPTIONS}
+                    customVariableGroup="machines"
                   />
-                </div>
+                ) : category === 'filter' ? (
+                  <SmartDropdownWithOthers
+                    label="Filter Dripper:"
+                    value={dripperModel}
+                    onChange={setDripperModel}
+                    options={FILTER_DRIPPER_OPTIONS}
+                    customVariableGroup="drippers"
+                  />
+                ) : (
+                  <div>
+                    <label className="block text-xs font-mono text-stone-300 mb-1">Machine / Vessel:</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Flair 58+ / 9Barista"
+                      value={machineModel}
+                      onChange={e => setMachineModel(e.target.value)}
+                      className="w-full bg-stone-950 border border-stone-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500"
+                    />
+                  </div>
+                )}
 
-                <div>
-                  <label className="block text-xs font-mono text-stone-300 mb-1">Grinder & Burrs:</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Option-O Lagom P64 Mizen"
-                    value={grinderModel}
-                    onChange={e => setGrinderModel(e.target.value)}
-                    className="w-full bg-stone-950 border border-stone-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500"
-                  />
-                </div>
+                <SmartDropdownWithOthers
+                  label="Grinder & Burrs:"
+                  value={grinderModel}
+                  onChange={setGrinderModel}
+                  options={GRINDER_OPTIONS}
+                  customVariableGroup="grinders"
+                />
               </div>
 
               {/* Espresso & Lever Controls */}
               {(category === 'espresso' || category === 'manual_lever') && (
-                <div className="p-3 bg-stone-950 rounded-xl border border-stone-800 space-y-2.5">
+                <div className="p-3.5 bg-stone-950 rounded-2xl border border-stone-800 space-y-3">
                   <span className="text-xs font-mono font-bold text-amber-400 block">
                     Puck Preparation & Machine Controls
                   </span>
@@ -398,14 +422,29 @@ export const GearLocker: React.FC = () => {
                     </label>
                   </div>
 
-                  <div>
-                    <label className="block text-xs font-mono text-stone-400 mb-1">Basket Model:</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. WAFO Spirit 20g / Weber Unibasket / VST"
-                      value={basketType}
-                      onChange={e => setBasketType(e.target.value)}
-                      className="w-full bg-stone-900 border border-stone-800 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500"
+                  <SmartDropdownWithOthers
+                    label="Precision Basket Model:"
+                    value={basketType || 'WAFO Spirit'}
+                    onChange={setBasketType}
+                    options={ESPRESSO_BASKET_OPTIONS}
+                    customVariableGroup="baskets"
+                  />
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                    <SmartDropdownWithOthers
+                      label="Needle WDT Tool:"
+                      value={wdtNeedleSize || 'Subminimal Flick 0.25mm'}
+                      onChange={setWdtNeedleSize}
+                      options={WDT_OPTIONS}
+                      customVariableGroup="wdt_tools"
+                    />
+
+                    <SmartDropdownWithOthers
+                      label="Top Puck Screen:"
+                      value={puckScreenThickness || '0.2mm Sworks Billet'}
+                      onChange={setPuckScreenThickness}
+                      options={PUCK_SCREEN_OPTIONS}
+                      customVariableGroup="puck_screens"
                     />
                   </div>
 
@@ -417,7 +456,7 @@ export const GearLocker: React.FC = () => {
                         onChange={e => setWdt(e.target.checked)}
                         className="accent-amber-500 rounded"
                       />
-                      <span>Needle WDT Tool</span>
+                      <span>Use WDT Tool</span>
                     </label>
 
                     <label className="flex items-center space-x-1.5 cursor-pointer">
@@ -437,7 +476,7 @@ export const GearLocker: React.FC = () => {
                         onChange={e => setPuckScreen(e.target.checked)}
                         className="accent-amber-500 rounded"
                       />
-                      <span>Top Puck Screen (0.2/0.8mm)</span>
+                      <span>Use Puck Screen</span>
                     </label>
 
                     <label className="flex items-center space-x-1.5 cursor-pointer">
@@ -447,57 +486,26 @@ export const GearLocker: React.FC = () => {
                         onChange={e => setBottomPaperFilter(e.target.checked)}
                         className="accent-amber-500 rounded"
                       />
-                      <span>Bottom Paper Filter Disc</span>
+                      <span>Bottom Basket Paper Disc</span>
                     </label>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-mono text-stone-400 mb-1">Tamper Type:</label>
-                    <select
-                      value={tamperType}
-                      onChange={e =>
-                        setTamperType(e.target.value as GearProfile['puckPrep']['tamperType'])
-                      }
-                      className="w-full bg-stone-900 border border-stone-800 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500"
-                    >
-                      <option value="calibrated_30lb">Calibrated Spring Tamper (30 lbs)</option>
-                      <option value="calibrated_25lb">Calibrated Spring Tamper (25 lbs)</option>
-                      <option value="force_tamper">The Force Tamper (Impact Leveling)</option>
-                      <option value="electronic_puqpress">Electronic Auto Tamper (Puqpress)</option>
-                      <option value="traditional_flat">Traditional Flat/Convex Tamper</option>
-                    </select>
                   </div>
                 </div>
               )}
 
               {/* Filter Tooling Controls */}
               {category === 'filter' && (
-                <div className="p-3 bg-stone-950 rounded-xl border border-stone-800 space-y-2.5">
+                <div className="p-3.5 bg-stone-950 rounded-2xl border border-stone-800 space-y-3">
                   <span className="text-xs font-mono font-bold text-amber-400 block">
                     Filter Geometry & Papers
                   </span>
 
-                  <div>
-                    <label className="block text-xs font-mono text-stone-400 mb-1">Dripper Model:</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Orea V4 Modular / UFO Dripper / NextLevel Pulsar"
-                      value={dripperModel}
-                      onChange={e => setDripperModel(e.target.value)}
-                      className="w-full bg-stone-900 border border-stone-800 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-mono text-stone-400 mb-1">Filter Paper Model:</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Sibarist FAST Flat / Cafec Abaca / UFO Paper"
-                      value={filterPaperType}
-                      onChange={e => setFilterPaperType(e.target.value)}
-                      className="w-full bg-stone-900 border border-stone-800 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500"
-                    />
-                  </div>
+                  <SmartDropdownWithOthers
+                    label="Filter Paper Model:"
+                    value={filterPaperType}
+                    onChange={setFilterPaperType}
+                    options={FILTER_PAPER_OPTIONS}
+                    customVariableGroup="papers"
+                  />
 
                   <div className="grid grid-cols-2 gap-2 text-xs text-stone-300 pt-1">
                     <label className="flex items-center space-x-1.5 cursor-pointer">
@@ -518,16 +526,6 @@ export const GearLocker: React.FC = () => {
                         className="accent-amber-500 rounded"
                       />
                       <span>Porous Ceramic Micro-Filter</span>
-                    </label>
-
-                    <label className="flex items-center space-x-1.5 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={hasImmersionValve}
-                        onChange={e => setHasImmersionValve(e.target.checked)}
-                        className="accent-amber-500 rounded"
-                      />
-                      <span>Hybrid Immersion Valve</span>
                     </label>
                   </div>
                 </div>

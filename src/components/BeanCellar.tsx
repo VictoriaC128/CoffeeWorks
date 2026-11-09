@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Plus, Sparkles, Calendar, MapPin, Trash2, Edit2, X } from 'lucide-react';
 import { useCoffee } from '../context/CoffeeContext';
 import { Bean, RoastLevel, ProcessMethod } from '../types/coffee';
+import { SmartDropdownWithOthers } from './SmartDropdownWithOthers';
 
 export const BeanCellar: React.FC = () => {
   const { beans, addBean, updateBean, deleteBean } = useCoffee();
@@ -323,39 +324,37 @@ export const BeanCellar: React.FC = () => {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-mono text-stone-300 mb-1">Roast Degree:</label>
-                  <select
-                    value={roastLevel}
-                    onChange={e => setRoastLevel(e.target.value as RoastLevel)}
-                    className="w-full bg-stone-950 border border-stone-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500"
-                  >
-                    <option value="light">Light Roast (Filter / Nordic)</option>
-                    <option value="med_light">Medium-Light</option>
-                    <option value="medium">Medium Roast</option>
-                    <option value="med_dark">Medium-Dark</option>
-                    <option value="dark">Dark Roast</option>
-                    <option value="nanyang_wok">Traditional Nanyang Wok Butter Roast</option>
-                  </select>
-                </div>
+                <SmartDropdownWithOthers
+                  label="Roast Degree:"
+                  value={roastLevel}
+                  onChange={val => setRoastLevel(val as RoastLevel)}
+                  options={[
+                    { label: 'Light Roast (Filter / Nordic)', value: 'light' },
+                    { label: 'Medium-Light', value: 'med_light' },
+                    { label: 'Medium Roast', value: 'medium' },
+                    { label: 'Medium-Dark', value: 'med_dark' },
+                    { label: 'Dark Roast', value: 'dark' },
+                    { label: 'Traditional Nanyang Wok Butter Roast', value: 'nanyang_wok' },
+                  ]}
+                  customVariableGroup="roast_levels"
+                />
 
-                <div>
-                  <label className="block text-xs font-mono text-stone-300 mb-1">Processing Method:</label>
-                  <select
-                    value={processMethod}
-                    onChange={e => setProcessMethod(e.target.value as ProcessMethod)}
-                    className="w-full bg-stone-950 border border-stone-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500"
-                  >
-                    <option value="washed">Washed</option>
-                    <option value="natural">Natural</option>
-                    <option value="honey">Honey / Pulped Natural</option>
-                    <option value="anaerobic_fermentation">Anaerobic Fermentation</option>
-                    <option value="carbonic_maceration">Carbonic Maceration</option>
-                    <option value="thermal_shock">Thermal Shock</option>
-                    <option value="co_fermented">Fruit Co-Fermented</option>
-                    <option value="traditional_butter_sugar_roast">Traditional Butter/Sugar Roast</option>
-                  </select>
-                </div>
+                <SmartDropdownWithOthers
+                  label="Processing Method:"
+                  value={processMethod}
+                  onChange={val => setProcessMethod(val as ProcessMethod)}
+                  options={[
+                    { label: 'Washed', value: 'washed' },
+                    { label: 'Natural', value: 'natural' },
+                    { label: 'Honey / Pulped Natural', value: 'honey' },
+                    { label: 'Anaerobic Fermentation', value: 'anaerobic_fermentation' },
+                    { label: 'Carbonic Maceration', value: 'carbonic_maceration' },
+                    { label: 'Thermal Shock', value: 'thermal_shock' },
+                    { label: 'Fruit Co-Fermented', value: 'co_fermented' },
+                    { label: 'Traditional Butter/Sugar Roast', value: 'traditional_butter_sugar_roast' },
+                  ]}
+                  customVariableGroup="process_methods"
+                />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

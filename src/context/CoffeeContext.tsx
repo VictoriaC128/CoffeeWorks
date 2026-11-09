@@ -5,7 +5,8 @@ import {
   WaterProfile,
   Recipe,
   BrewSession,
-  CoffeeCategory
+  CoffeeCategory,
+  UserPreferences,
 } from '../types/coffee';
 import { PRESET_BEANS } from '../data/presetBeans';
 import { PRESET_GEARS } from '../data/presetGear';
@@ -15,6 +16,13 @@ import { DEFAULT_RECIPES } from '../data/defaultRecipes';
 interface CoffeeContextType {
   activeCategory: CoffeeCategory | 'all';
   setActiveCategory: (cat: CoffeeCategory | 'all') => void;
+
+  userPreferences: UserPreferences;
+  setUserPreferences: (prefs: UserPreferences) => void;
+  setDefaultRecipeForCategory: (cat: CoffeeCategory, recipeId: string) => void;
+
+  customVariables: Record<string, string[]>;
+  addCustomVariable: (group: string, label: string) => void;
   
   beans: Bean[];
   gearProfiles: GearProfile[];
@@ -71,18 +79,42 @@ interface CoffeeContextType {
 }
 
 const STORAGE_KEYS = {
-  BEANS: 'coffeeworks_beans_v1',
-  GEAR: 'coffeeworks_gear_v1',
-  WATER: 'coffeeworks_water_v1',
-  RECIPES: 'coffeeworks_recipes_v1',
-  SESSIONS: 'coffeeworks_sessions_v1',
+  BEANS: 'coffeeworks_beans_v2',
+  GEAR: 'coffeeworks_gear_v2',
+  WATER: 'coffeeworks_water_v2',
+  RECIPES: 'coffeeworks_recipes_v2',
+  SESSIONS: 'coffeeworks_sessions_v2',
+  PREFERENCES: 'coffeeworks_preferences_v2',
+  CUSTOM_VARS: 'coffeeworks_custom_vars_v2',
+};
+
+const DEFAULT_PREFERENCES: UserPreferences = {
+  primaryCategory: 'filter',
+  defaultRecipePerCategory: {
+    espresso: 'recipe-espresso-modern-flow',
+    manual_lever: 'recipe-lever-flair-pressure-profile',
+    moka_stovetop: 'recipe-moka-9barista-crema',
+    filter: 'recipe-filter-orea-apex-fast',
+    immersion: 'recipe-aeropress-inverted-championship',
+    singaporean_kopi: 'recipe-kopi-singaporean-gao',
+  },
+  hasCompletedOnboarding: false,
 };
 
 const CoffeeContext = createContext<CoffeeContextType | undefined>(undefined);
 
 export const CoffeeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [activeCategory, setActiveCategory] = useState<CoffeeCategory | 'all'>('all');
-  const [selectedRecipeForBrew, setSelectedRecipeForBrew] = useState<Recipe | null>(DEFAULT_RECIPES[0]);
+
+  const [userPreferences, setUserPreferences] = useState<UserPreferences>(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.PREFERENCES);
+    return saved ? JSON.parse(saved) : DEFAULT_PREFERENCES;
+  });
+
+  const [customVariables, setCustomVariables] = useState<Record<string, string[]>>(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.CUSTOM_VARS);
+    return saved ? JSON.parse(saved) : {};
+  });
 
   // Persistent States
   const [beans, setBeans] = useState<Bean[]>(() => {
@@ -110,7 +142,21 @@ export const CoffeeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     return saved ? JSON.parse(saved) : [];
   });
 
+  const [selectedRecipeForBrew, setSelectedRecipeForBrew] = useState<Recipe | null>(() => {
+    const prefCat = userPreferences.primaryCategory || 'filter';
+    const defId = userPreferences.defaultRecipePerCategory[prefCat];
+    return recipes.find(r => r.id === defId) || recipes[0];
+  });
+
   // Save to LocalStorage on updates
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.PREFERENCES, JSON.stringify(userPreferences));
+  }, [userPreferences]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.CUSTOM_VARS, JSON.stringify(customVariables));
+  }, [customVariables]);
+
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.BEANS, JSON.stringify(beans));
   }, [beans]);
@@ -130,6 +176,41 @@ export const CoffeeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.SESSIONS, JSON.stringify(sessions));
   }, [sessions]);
+
+  // When active category switches, load default recipe for that category if applicable
+  const handleSetActiveCategory = (cat: CoffeeCategory | 'all') => {
+    setActiveCategory(cat);
+    if (cat !== 'all') {
+      const defaultRecipeId = userPreferences.defaultRecipePerCategory[cat];
+      const match = recipes.find(r => r.id === defaultRecipeId) || recipes.find(r => r.category === cat);
+      if (match) {
+        setSelectedRecipeForBrew(match);
+      }
+    }
+  };
+
+  const setDefaultRecipeForCategory = (cat: CoffeeCategory, recipeId: string) => {
+    setUserPreferences(prev => ({
+      ...prev,
+      defaultRecipePerCategory: {
+        ...prev.defaultRecipePerCategory,
+        [cat]: recipeId,
+      },
+    }));
+  };
+
+  const addCustomVariable = (group: string, label: string) => {
+    const trimmed = label.trim();
+    if (!trimmed) return;
+    setCustomVariables(prev => {
+      const existing = prev[group] || [];
+      if (existing.includes(trimmed)) return prev;
+      return {
+        ...prev,
+        [group]: [trimmed, ...existing],
+      };
+    });
+  };
 
   // Bean Actions
   const addBean = (beanData: Omit<Bean, 'id'>) => {
@@ -186,6 +267,12 @@ export const CoffeeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       updatedAt: dateStr,
     };
     setRecipes(prev => [newRecipe, ...prev]);
+
+    // If marked as default or first recipe in category, set as default
+    if (newRecipe.isDefault || !userPreferences.defaultRecipePerCategory[newRecipe.category]) {
+      setDefaultRecipeForCategory(newRecipe.category, newRecipe.id);
+    }
+
     return newRecipe;
   };
 
@@ -194,6 +281,9 @@ export const CoffeeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     setRecipes(prev =>
       prev.map(r => (r.id === id ? { ...r, ...updates, updatedAt: dateStr } : r))
     );
+    if (updates.isDefault && updates.category) {
+      setDefaultRecipeForCategory(updates.category, id);
+    }
   };
 
   const deleteRecipe = (id: string) => {
@@ -208,6 +298,7 @@ export const CoffeeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       ...original,
       id: `recipe-${Date.now()}`,
       title: newTitle || `${original.title} (Customized)`,
+      isDefault: false,
       createdAt: dateStr,
       updatedAt: dateStr,
     };
@@ -303,8 +394,10 @@ export const CoffeeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   // Export / Import
   const exportDataAsJSON = () => {
     const data = {
-      version: '1.0',
+      version: '2.0',
       exportedAt: new Date().toISOString(),
+      userPreferences,
+      customVariables,
       beans,
       gearProfiles,
       waterProfiles,
@@ -317,6 +410,8 @@ export const CoffeeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const importDataFromJSON = (jsonString: string): boolean => {
     try {
       const data = JSON.parse(jsonString);
+      if (data.userPreferences) setUserPreferences(data.userPreferences);
+      if (data.customVariables) setCustomVariables(data.customVariables);
       if (data.beans) setBeans(data.beans);
       if (data.gearProfiles) setGearProfiles(data.gearProfiles);
       if (data.waterProfiles) setWaterProfiles(data.waterProfiles);
@@ -330,23 +425,26 @@ export const CoffeeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   };
 
   const resetToDefaults = () => {
+    setUserPreferences(DEFAULT_PREFERENCES);
+    setCustomVariables({});
     setBeans(PRESET_BEANS);
     setGearProfiles(PRESET_GEARS);
     setWaterProfiles(PRESET_WATER_PROFILES);
     setRecipes(DEFAULT_RECIPES);
     setSessions([]);
-    localStorage.removeItem(STORAGE_KEYS.BEANS);
-    localStorage.removeItem(STORAGE_KEYS.GEAR);
-    localStorage.removeItem(STORAGE_KEYS.WATER);
-    localStorage.removeItem(STORAGE_KEYS.RECIPES);
-    localStorage.removeItem(STORAGE_KEYS.SESSIONS);
+    localStorage.clear();
   };
 
   return (
     <CoffeeContext.Provider
       value={{
         activeCategory,
-        setActiveCategory,
+        setActiveCategory: handleSetActiveCategory,
+        userPreferences,
+        setUserPreferences,
+        setDefaultRecipeForCategory,
+        customVariables,
+        addCustomVariable,
         beans,
         gearProfiles,
         waterProfiles,

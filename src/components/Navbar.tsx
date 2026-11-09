@@ -19,9 +19,10 @@ export type NavTab = 'recipes' | 'brew' | 'kopi' | 'beans' | 'gear' | 'water' | 
 interface Props {
   currentTab: NavTab;
   onSelectTab: (tab: NavTab) => void;
+  onOpenSetup?: () => void;
 }
 
-export const Navbar: React.FC<Props> = ({ currentTab, onSelectTab }) => {
+export const Navbar: React.FC<Props> = ({ currentTab, onSelectTab, onOpenSetup }) => {
   const { exportDataAsJSON, importDataFromJSON, resetToDefaults } = useCoffee();
   const [showBackupModal, setShowBackupModal] = useState(false);
   const [importText, setImportText] = useState('');
@@ -170,8 +171,19 @@ export const Navbar: React.FC<Props> = ({ currentTab, onSelectTab }) => {
               </button>
             </nav>
 
-            {/* Backup / Export / Import Trigger */}
+            {/* Setup & Backup Trigger */}
             <div className="flex items-center space-x-2">
+              {onOpenSetup && (
+                <button
+                  onClick={onOpenSetup}
+                  title="Configure Default Brewing Method & Rig"
+                  className="px-2.5 py-1.5 rounded-lg bg-stone-900 border border-stone-800 text-amber-400 hover:text-amber-300 hover:border-amber-500/40 text-xs font-medium flex items-center space-x-1.5 transition-colors"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Daily Defaults</span>
+                </button>
+              )}
+
               <button
                 onClick={() => setShowBackupModal(true)}
                 title="Backup & Restore Data"

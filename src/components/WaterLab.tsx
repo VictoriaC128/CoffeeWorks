@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Plus, Droplets, Info, Trash2, Edit2, X, ShieldAlert, Sparkles } from 'lucide-react';
 import { useCoffee } from '../context/CoffeeContext';
 import { WaterProfile, WaterType } from '../types/coffee';
+import { SmartDropdownWithOthers } from './SmartDropdownWithOthers';
+import { WATER_SOURCE_OPTIONS } from '../data/dropdownCatalog';
 
 export const WaterLab: React.FC = () => {
   const { waterProfiles, addWaterProfile, updateWaterProfile, deleteWaterProfile } = useCoffee();
@@ -247,16 +249,13 @@ export const WaterLab: React.FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-mono text-stone-300 mb-1">Water Source Type:</label>
-                  <select
+                  <SmartDropdownWithOthers
+                    options={WATER_SOURCE_OPTIONS}
                     value={type}
-                    onChange={e => setType(e.target.value as WaterType)}
-                    className="w-full bg-stone-950 border border-stone-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500"
-                  >
-                    <option value="tap">Municipal Tap Water</option>
-                    <option value="bottled_spring">Bottled Spring / Mineral</option>
-                    <option value="remineralized_ro">Remineralized RO (Third Wave / Lotus)</option>
-                    <option value="filtration_jug">Filtration Jug (Peak Water / Brita)</option>
-                  </select>
+                    onChange={val => setType(val)}
+                    customVariableGroup="waters"
+                    placeholder="Select or enter custom water type..."
+                  />
                 </div>
 
                 <div>

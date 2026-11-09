@@ -8,11 +8,15 @@ import { BeanCellar } from './components/BeanCellar';
 import { GearLocker } from './components/GearLocker';
 import { WaterLab } from './components/WaterLab';
 import { DialInHistory } from './components/DialInHistory';
+import { OnboardingModal } from './components/OnboardingModal';
 import { Recipe } from './types/coffee';
 
 const MainContent: React.FC = () => {
   const [currentTab, setCurrentTab] = useState<NavTab>('recipes');
-  const { setSelectedRecipeForBrew } = useCoffee();
+  const { setSelectedRecipeForBrew, userPreferences } = useCoffee();
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState<boolean>(
+    !userPreferences.hasCompletedOnboarding
+  );
 
   const handleLaunchBrew = (recipe: Recipe) => {
     setSelectedRecipeForBrew(recipe);
@@ -22,7 +26,11 @@ const MainContent: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-stone-950 text-stone-100 flex flex-col font-sans">
-      <Navbar currentTab={currentTab} onSelectTab={setCurrentTab} />
+      <Navbar
+        currentTab={currentTab}
+        onSelectTab={setCurrentTab}
+        onOpenSetup={() => setIsOnboardingOpen(true)}
+      />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {currentTab === 'recipes' && <RecipeVault onLaunchBrew={handleLaunchBrew} />}
@@ -40,6 +48,12 @@ const MainContent: React.FC = () => {
           Engineered for Benchtop Espresso, Orea/UFO Filter, Levers, 9Barista & Singapore Heritage Kopi
         </p>
       </footer>
+
+      {/* First-Time User Experience & Daily Driver Setup Wizard */}
+      <OnboardingModal
+        isOpen={isOnboardingOpen}
+        onClose={() => setIsOnboardingOpen(false)}
+      />
     </div>
   );
 };

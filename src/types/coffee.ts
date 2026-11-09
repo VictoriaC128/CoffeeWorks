@@ -22,7 +22,8 @@ export type ProcessMethod =
   | 'carbonic_maceration'
   | 'thermal_shock'
   | 'co_fermented'
-  | 'traditional_butter_sugar_roast';
+  | 'traditional_butter_sugar_roast'
+  | 'other';
 
 export interface Bean {
   id: string;
@@ -41,7 +42,7 @@ export interface Bean {
   notes?: string;
 }
 
-export type WaterType = 'tap' | 'bottled_spring' | 'remineralized_ro' | 'filtration_jug';
+export type WaterType = 'tap' | 'bottled_spring' | 'remineralized_ro' | 'filtration_jug' | 'other' | string;
 
 export interface WaterProfile {
   id: string;
@@ -55,13 +56,20 @@ export interface WaterProfile {
   description: string;
 }
 
+export interface BasketSpec {
+  brand: string;
+  sizeGrams: string; // e.g. "18g", "20g", "7g-10g", "22g-24g", "custom"
+  diameterMm: string; // "58.5mm", "54mm", "53mm", "51mm", "49mm", "custom"
+}
+
 export interface PuckPrepTools {
   wdt: boolean;
-  wdtNeedleSize?: string; // e.g. "0.25mm", "0.35mm", "Subminimal Flick"
+  wdtNeedleSize?: string; // e.g. "0.25mm", "0.35mm", "Subminimal Flick", custom
   distributor: boolean;
-  tamperType: 'calibrated_30lb' | 'calibrated_25lb' | 'traditional_flat' | 'electronic_puqpress' | 'force_tamper';
+  tamperType: 'calibrated_30lb' | 'calibrated_25lb' | 'traditional_flat' | 'electronic_puqpress' | 'force_tamper' | 'other';
+  tamperCustomLabel?: string;
   puckScreen: boolean;
-  puckScreenThickness?: string; // "0.2mm Sworks", "0.8mm Normcore", "1.7mm Mesh"
+  puckScreenThickness?: string; // "0.2mm Sworks", "0.8mm Normcore", "1.7mm Mesh", custom
   bottomPaperFilter: boolean;
   topPaperFilter: boolean;
 }
@@ -75,6 +83,7 @@ export interface GearProfile {
   // Espresso / Lever specific
   hasFlowControl?: boolean;
   hasPreInfusion?: boolean;
+  basketSpec?: BasketSpec;
   basketType?: string; // e.g. "Wafo Spirit", "Weber Unibasket", "Pullman 876", "VST 18g"
   puckPrep: PuckPrepTools;
   // Filter specific
@@ -92,12 +101,12 @@ export interface PourStage {
   startTimeSeconds: number;
   durationSeconds: number;
   isImmersionClosed?: boolean;
-  agitation?: 'swirl' | 'stir' | 'melodrip' | 'gentle_pour' | 'center_pour';
+  agitation?: 'swirl' | 'stir' | 'melodrip' | 'gentle_pour' | 'center_pour' | 'other';
   notes?: string;
 }
 
 export interface KopiCustomization {
-  style: 'kopi' | 'kopi_o' | 'kopi_c' | 'kopi_kosong' | 'kopi_o_kosong' | 'kopi_c_kosong';
+  style: 'kopi' | 'kopi_o' | 'kopi_c' | 'kopi_kosong' | 'kopi_o_kosong' | 'kopi_c_kosong' | 'other';
   strength: 'standard' | 'gao' | 'po' | 'di_lo';
   isIced: boolean;
   condensedMilkGrams: number;
@@ -138,6 +147,8 @@ export interface Recipe {
   // Singaporean Kopi formulation
   kopiSpecs?: KopiCustomization;
   
+  basketSpec?: BasketSpec;
+  isDefault?: boolean; // Set as default recipe for this category
   notes: string;
   tags: string[];
   createdAt: string;
@@ -175,4 +186,10 @@ export interface BrewSession {
   sensory: SensoryRating;
   sensoryNotes: string;
   dialInAdvice: string[];
+}
+
+export interface UserPreferences {
+  primaryCategory: CoffeeCategory;
+  defaultRecipePerCategory: Partial<Record<CoffeeCategory, string>>;
+  hasCompletedOnboarding: boolean;
 }

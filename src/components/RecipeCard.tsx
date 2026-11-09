@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Play,
   Copy,
@@ -7,7 +7,9 @@ import {
   Layers,
   Sparkles,
   ShieldCheck,
-  Droplets
+  Droplets,
+  Star,
+  Check
 } from 'lucide-react';
 import { Recipe } from '../types/coffee';
 import { useCoffee } from '../context/CoffeeContext';
@@ -19,11 +21,23 @@ interface Props {
 }
 
 export const RecipeCard: React.FC<Props> = ({ recipe, onEdit, onLaunchBrew }) => {
-  const { beans, gearProfiles, waterProfiles, deleteRecipe, duplicateRecipe } = useCoffee();
+  const {
+    beans,
+    gearProfiles,
+    waterProfiles,
+    deleteRecipe,
+    duplicateRecipe,
+    userPreferences,
+    setDefaultRecipeForCategory,
+  } = useCoffee();
+
+  const [toastMessage, setToastMessage] = useState<string>('');
 
   const bean = beans.find(b => b.id === recipe.beanId);
   const gear = gearProfiles.find(g => g.id === recipe.gearId);
   const water = waterProfiles.find(w => w.id === recipe.waterProfileId);
+
+  const isDefault = userPreferences.defaultRecipePerCategory[recipe.category] === recipe.id;
 
   const handleDuplicate = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -37,15 +51,51 @@ export const RecipeCard: React.FC<Props> = ({ recipe, onEdit, onLaunchBrew }) =>
     }
   };
 
+  const handleToggleDefault = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setDefaultRecipeForCategory(recipe.category, recipe.id);
+    setToastMessage(`Default for ${recipe.category.replace('_', ' ')}!`);
+    setTimeout(() => setToastMessage(''), 2500);
+  };
+
   return (
-    <div className="bg-stone-900 border border-stone-800 hover:border-stone-700/80 rounded-2xl p-5 shadow-lg transition-all duration-200 flex flex-col justify-between group">
+    <div className={`bg-stone-900 border rounded-2xl p-5 shadow-lg transition-all duration-200 flex flex-col justify-between group relative ${
+      isDefault ? 'border-amber-500/60 shadow-amber-950/20' : 'border-stone-800 hover:border-stone-700/80'
+    }`}>
+      {toastMessage && (
+        <div className="absolute top-2 right-12 z-20 bg-amber-500 text-stone-950 text-[10px] font-bold px-2 py-1 rounded-md shadow-lg flex items-center space-x-1 animate-bounce">
+          <Check className="w-3 h-3" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
+
       <div>
         {/* Header Tags & Category */}
         <div className="flex items-center justify-between gap-2 mb-2">
-          <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20">
-            {recipe.category.replace('_', ' ')}
-          </span>
+          <div className="flex items-center space-x-1.5">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20">
+              {recipe.category.replace('_', ' ')}
+            </span>
+            {isDefault && (
+              <span className="text-[10px] font-mono font-semibold text-amber-300 bg-amber-950/60 px-1.5 py-0.5 rounded border border-amber-800/60 flex items-center space-x-1">
+                <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-400" />
+                <span>DEFAULT RIG</span>
+              </span>
+            )}
+          </div>
+
           <div className="flex items-center space-x-1 opacity-80 group-hover:opacity-100 transition-opacity">
+            <button
+              onClick={handleToggleDefault}
+              title={isDefault ? 'Default Recipe for this Category' : 'Set as Default Recipe for this Category'}
+              className={`p-1.5 rounded-lg transition-colors ${
+                isDefault
+                  ? 'text-amber-400 hover:text-amber-300 hover:bg-stone-800'
+                  : 'text-stone-500 hover:text-amber-400 hover:bg-stone-800'
+              }`}
+            >
+              <Star className={`w-3.5 h-3.5 ${isDefault ? 'fill-amber-400 text-amber-400' : ''}`} />
+            </button>
             <button
               onClick={handleDuplicate}
               title="Duplicate & Customize Cup"
@@ -117,6 +167,15 @@ export const RecipeCard: React.FC<Props> = ({ recipe, onEdit, onLaunchBrew }) =>
               <Layers className="w-3.5 h-3.5 text-stone-400 shrink-0" />
               <span className="text-stone-300 truncate">
                 {gear.dripperModel || gear.machineModel}
+              </span>
+            </div>
+          )}
+
+          {recipe.basketSpec && (
+            <div className="flex items-center space-x-1.5 text-stone-300 truncate font-mono text-[10px]">
+              <span className="text-amber-400 font-semibold">Basket:</span>
+              <span className="truncate">
+                {recipe.basketSpec.brand} · {recipe.basketSpec.sizeGrams} ({recipe.basketSpec.diameterMm})
               </span>
             </div>
           )}
