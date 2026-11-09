@@ -23,9 +23,9 @@ flowchart TD
     M1 & M2 & M3 & M4 & M5 & M6 --> Universal["Universal Dropdown Layers"]
     
     subgraph Universal ["Universal Dropdown Layers"]
-        WaterDD["Water Matrix Dropdown (Tap / Bottled / TWW / Lotus + Custom)"]
-        BeanDD["Bean Cellar Dropdown (Origin / Process / Roast + Custom)"]
-        GrinderDD["Grinder & Burr Dropdown (Setting + Microns)"]
+        WaterDD["Water Matrix Dropdown (Tap / Bottled / TWW / Lotus + 'Others...')"]
+        BeanDD["Bean Cellar Dropdown (Origin / Process / Roast + 'Others...')"]
+        GrinderDD["Grinder & Burr Dropdown (Setting + Microns + 'Others...')"]
     end
 
     Universal --> MethodSpecific["Method-Specific Tool & Variable Stacks"]
@@ -37,12 +37,95 @@ flowchart TD
         KopiStack["Kopi Stack: Flannel Sock + Dialect Formulation + Condensed/Evaporated Ratios"]
     end
 
-    MethodSpecific --> CustomInject["Inline '+ Add Custom Tool/Water/Paper' Button (Instant Persistence)"]
+    MethodSpecific --> CustomInject["Universal 'Others...' Option in Every Dropdown (Key in custom label & persist)"]
 ```
 
 ---
 
-### 2. Universal Variable Dropdown Selectors (Available Across All Methods)
+### 2. First-Time User Experience (FTUX) & Default Method Engine
+
+To eliminate friction on first launch, the application introduces an **Onboarding & Default Setup Flow**:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as New Barista / User
+    participant Welcome as Welcome & Setup Wizard
+    participant Engine as User Preference Engine
+    participant App as Main Workspace
+
+    User->>Welcome: First App Launch
+    Welcome-->>User: "Welcome to Barista Blueprint! What is your go-to coffee discipline?"
+    User->>Welcome: Selects Primary Choice (e.g. Modern Filter or Espresso)
+    Welcome-->>User: "Configure your Daily Driver Rig for this method:"
+    User->>Welcome: Selects or Keys in Machine/Dripper, Grinder, Water & Dose
+    User->>Welcome: Sets as "Default Recipe" for this method
+    Welcome->>Engine: Persists UserPreferences (defaultCategory, defaultRecipePerCategory)
+    Engine-->>App: Loads workspace with User's primary method & default recipe pre-selected!
+```
+
+#### A. Onboarding & Default Rig Configuration
+1. **Primary Method Selection**: User chooses their overall main choice (*Benchtop Espresso, Manual Lever, Modern Filter, Moka Pot, Immersion, or Singaporean Kopi*).
+2. **Per-Method Default Rig**:
+   - For *each* method the user chooses to customize, they can designate a **Default Go-To Recipe & Gear Rig**:
+     - *Default Machine / Dripper*
+     - *Default Grinder & Setting*
+     - *Default Water Profile*
+     - *Default Dose / Yield ratio*
+3. **Instant 1-Tap Brew Launch**:
+   - When the user launches the app or switches to a category tab, the interface automatically pre-loads their customized **Default Recipe** so they can start the brew stopwatch with 1 tap.
+4. **Change Defaults Anytime**:
+   - Every recipe card features a ⭐ **"Set as Default for [Category]"** button to seamlessly swap their daily driver.
+
+---
+
+### 3. Universal "Others..." Dropdown Architecture (Custom Label Key-In)
+
+Across **every single variable dropdown** in the application, users are never restricted to pre-loaded options:
+
+```mermaid
+flowchart LR
+    DropdownOpen["User Opens Dropdown"] --> OptionsList["Displays Pre-loaded 2026 Brands & Presets"]
+    OptionsList --> OthersOption["Select 'Others...' (At bottom of list)"]
+    OthersOption --> InlineInput["Inline Text Field Appears: 'Key in custom label...'"]
+    InlineInput --> SaveLabel["User Types Name & Hits Enter"]
+    SaveLabel --> AutoSelect["Custom Label Instantly Applied to Recipe & Saved to User Catalog"]
+```
+
+#### A. Fields Featuring the "Others..." Option:
+- **Water Source**: Pre-loaded tap/bottled/TWW $\rightarrow$ Select `Others...` $\rightarrow$ Key in e.g. *"Home Under-Sink RO System"* or *"My Village Well Spring"*.
+- **Machine / Dripper**: Pre-loaded models $\rightarrow$ Select `Others...` $\rightarrow$ Key in e.g. *"Custom Modded Gaggia"* or *"3D Printed Spiral Cone"*.
+- **Grinder Model**: Pre-loaded grinders $\rightarrow$ Select `Others...` $\rightarrow$ Key in e.g. *"Vintage Hand Mill"* or *"DF64 Gen 3"*.
+- **Basket Brand & Size**: Pre-loaded Wafo/Unibasket/VST $\rightarrow$ Select `Others...` $\rightarrow$ Key in e.g. *"Custom 21g Nano Basket"*.
+- **Puck Preparation Tools**:
+  - *WDT Needle Tool*: Pre-loaded $\rightarrow$ Select `Others...` $\rightarrow$ Key in e.g. *"Acupuncture 0.2mm DIY Cork"*.
+  - *Tamper*: Pre-loaded 30lb/Puqpress $\rightarrow$ Select `Others...` $\rightarrow$ Key in e.g. *"Palm Convex 58.4mm"*.
+  - *Puck Screen*: Pre-loaded billet/mesh $\rightarrow$ Select `Others...` $\rightarrow$ Key in e.g. *"Laser Matrix Screen 0.5mm"*.
+- **Filter Papers & Media**: Pre-loaded Sibarist/Cafec $\rightarrow$ Select `Others...` $\rightarrow$ Key in e.g. *"Organic Unbleached Bamboo Paper"*.
+- **Dispersion & Agitation**: Pre-loaded Melodrip/Drip-Assist $\rightarrow$ Select `Others...` $\rightarrow$ Key in e.g. *"Spoon Dispersion Flow"*.
+- **Bean Varietal & Process**: Pre-loaded $\rightarrow$ Select `Others...` $\rightarrow$ Key in e.g. *"Eugenioides Yeast Inoculation"*.
+- **Singaporean Kopi Creamer Brands**: Pre-loaded F&N/Carnation $\rightarrow$ Select `Others...` $\rightarrow$ Key in e.g. *"FairPrice Gold Sweetened Creamer"*.
+
+#### B. Technical Specification of `SmartDropdownWithOthers`
+```typescript
+interface DropdownProps<T> {
+  id: string;
+  label: string;
+  options: { label: string; value: string; group?: string }[];
+  selectedValue: string;
+  onSelect: (value: string, customLabel?: string) => void;
+  allowOthers: boolean; // Enables "Others..." entry
+  placeholder?: string;
+}
+```
+When `value === "__others__"`:
+1. Replaces the selector trigger with an inline animated input text box: `<input autoFocus placeholder="Key in custom label..." />`.
+2. On `Enter` or blur, passes `customLabel` back to parent state and saves the custom label into `localStorage.custom_variables_[field]`.
+3. The custom label now permanently appears in that user's future dropdown options under a `"Custom Variables"` group header.
+
+---
+
+### 4. Universal Variable Dropdown Selectors (Available Across All Methods)
 
 Whenever a user creates or customizes a recipe in any method, they select from the following core dropdown matrices:
 
