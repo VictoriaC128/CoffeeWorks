@@ -7,11 +7,13 @@ import {
   BrewSession,
   CoffeeCategory,
   UserPreferences,
+  CoffeeDrinkRecipe,
 } from '../types/coffee';
 import { PRESET_BEANS } from '../data/presetBeans';
 import { PRESET_GEARS } from '../data/presetGear';
 import { PRESET_WATER_PROFILES } from '../data/presetWater';
 import { DEFAULT_RECIPES } from '../data/defaultRecipes';
+import { COFFEE_DRINKS_CATALOG } from '../data/coffeeDrinksCatalog';
 
 interface CoffeeContextType {
   activeCategory: CoffeeCategory | 'all';
@@ -28,11 +30,18 @@ interface CoffeeContextType {
   gearProfiles: GearProfile[];
   waterProfiles: WaterProfile[];
   recipes: Recipe[];
+  coffeeDrinks: CoffeeDrinkRecipe[];
   sessions: BrewSession[];
 
   // Selected Recipe for brewing
   selectedRecipeForBrew: Recipe | null;
   setSelectedRecipeForBrew: (recipe: Recipe | null) => void;
+
+  // Coffee Drinks CRUD
+  addCoffeeDrink: (drink: Omit<CoffeeDrinkRecipe, 'id'>) => CoffeeDrinkRecipe;
+  updateCoffeeDrink: (id: string, updates: Partial<CoffeeDrinkRecipe>) => void;
+  deleteCoffeeDrink: (id: string) => void;
+  duplicateCoffeeDrink: (id: string, newName?: string) => CoffeeDrinkRecipe;
 
   // Bean CRUD
   addBean: (bean: Omit<Bean, 'id'>) => Bean;
@@ -83,6 +92,7 @@ const STORAGE_KEYS = {
   GEAR: 'coffeeworks_gear_v2',
   WATER: 'coffeeworks_water_v2',
   RECIPES: 'coffeeworks_recipes_v2',
+  DRINKS: 'coffeeworks_drinks_v2',
   SESSIONS: 'coffeeworks_sessions_v2',
   PREFERENCES: 'coffeeworks_preferences_v2',
   CUSTOM_VARS: 'coffeeworks_custom_vars_v2',
@@ -137,6 +147,11 @@ export const CoffeeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     return saved ? JSON.parse(saved) : DEFAULT_RECIPES;
   });
 
+  const [coffeeDrinks, setCoffeeDrinks] = useState<CoffeeDrinkRecipe[]>(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.DRINKS);
+    return saved ? JSON.parse(saved) : COFFEE_DRINKS_CATALOG;
+  });
+
   const [sessions, setSessions] = useState<BrewSession[]>(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.SESSIONS);
     return saved ? JSON.parse(saved) : [];
@@ -172,6 +187,10 @@ export const CoffeeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.RECIPES, JSON.stringify(recipes));
   }, [recipes]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.DRINKS, JSON.stringify(coffeeDrinks));
+  }, [coffeeDrinks]);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.SESSIONS, JSON.stringify(sessions));
@@ -306,6 +325,38 @@ export const CoffeeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     return forked;
   };
 
+  // Coffee Drinks CRUD
+  const addCoffeeDrink = (drinkData: Omit<CoffeeDrinkRecipe, 'id'>) => {
+    const newDrink: CoffeeDrinkRecipe = {
+      ...drinkData,
+      id: `drink-${Date.now()}`,
+    };
+    setCoffeeDrinks(prev => [newDrink, ...prev]);
+    return newDrink;
+  };
+
+  const updateCoffeeDrink = (id: string, updates: Partial<CoffeeDrinkRecipe>) => {
+    setCoffeeDrinks(prev =>
+      prev.map(d => (d.id === id ? { ...d, ...updates } : d))
+    );
+  };
+
+  const deleteCoffeeDrink = (id: string) => {
+    setCoffeeDrinks(prev => prev.filter(d => d.id !== id));
+  };
+
+  const duplicateCoffeeDrink = (id: string, newName?: string) => {
+    const original = coffeeDrinks.find(d => d.id === id);
+    if (!original) throw new Error('Drink recipe not found');
+    const forked: CoffeeDrinkRecipe = {
+      ...original,
+      id: `drink-${Date.now()}`,
+      name: newName || `${original.name} (Custom)`,
+    };
+    setCoffeeDrinks(prev => [forked, ...prev]);
+    return forked;
+  };
+
   // Session Logging
   const logBrewSession = (sessionData: Omit<BrewSession, 'id' | 'timestamp'>) => {
     const newSession: BrewSession = {
@@ -402,6 +453,7 @@ export const CoffeeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       gearProfiles,
       waterProfiles,
       recipes,
+      coffeeDrinks,
       sessions,
     };
     return JSON.stringify(data, null, 2);
@@ -416,6 +468,7 @@ export const CoffeeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       if (data.gearProfiles) setGearProfiles(data.gearProfiles);
       if (data.waterProfiles) setWaterProfiles(data.waterProfiles);
       if (data.recipes) setRecipes(data.recipes);
+      if (data.coffeeDrinks) setCoffeeDrinks(data.coffeeDrinks);
       if (data.sessions) setSessions(data.sessions);
       return true;
     } catch (e) {
@@ -431,6 +484,7 @@ export const CoffeeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     setGearProfiles(PRESET_GEARS);
     setWaterProfiles(PRESET_WATER_PROFILES);
     setRecipes(DEFAULT_RECIPES);
+    setCoffeeDrinks(COFFEE_DRINKS_CATALOG);
     setSessions([]);
     localStorage.clear();
   };
@@ -449,9 +503,14 @@ export const CoffeeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         gearProfiles,
         waterProfiles,
         recipes,
+        coffeeDrinks,
         sessions,
         selectedRecipeForBrew,
         setSelectedRecipeForBrew,
+        addCoffeeDrink,
+        updateCoffeeDrink,
+        deleteCoffeeDrink,
+        duplicateCoffeeDrink,
         addBean,
         updateBean,
         deleteBean,

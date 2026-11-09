@@ -8,13 +8,14 @@ import {
   History,
   Download,
   Upload,
-  RefreshCw,
   Sparkles,
-  Milestone
+  Milestone,
+  GlassWater,
+  RefreshCw
 } from 'lucide-react';
 import { useCoffee } from '../context/CoffeeContext';
 
-export type NavTab = 'recipes' | 'brew' | 'kopi' | 'beans' | 'gear' | 'water' | 'history';
+export type NavTab = 'recipes' | 'drinks' | 'brew' | 'kopi' | 'beans' | 'gear' | 'water' | 'history';
 
 interface Props {
   currentTab: NavTab;
@@ -96,6 +97,18 @@ export const Navbar: React.FC<Props> = ({ currentTab, onSelectTab, onOpenSetup }
               >
                 <BookOpen className="w-4 h-4" />
                 <span>Recipe Vault</span>
+              </button>
+
+              <button
+                onClick={() => onSelectTab('drinks')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center space-x-1.5 ${
+                  currentTab === 'drinks'
+                    ? 'bg-amber-600/30 text-amber-300 border border-amber-500/40 font-semibold'
+                    : 'text-stone-300 hover:text-white hover:bg-stone-900'
+                }`}
+              >
+                <GlassWater className="w-4 h-4 text-amber-400" />
+                <span>Drink Menu & Ratios</span>
               </button>
 
               <button
@@ -204,6 +217,15 @@ export const Navbar: React.FC<Props> = ({ currentTab, onSelectTab, onOpenSetup }
             }`}
           >
             Recipes
+          </button>
+          <button
+            onClick={() => onSelectTab('drinks')}
+            className={`px-3 py-1.5 rounded-lg text-xs whitespace-nowrap font-medium flex items-center space-x-1 ${
+              currentTab === 'drinks' ? 'bg-amber-600/30 text-amber-300 font-semibold' : 'text-stone-400'
+            }`}
+          >
+            <GlassWater className="w-3.5 h-3.5 text-amber-400" />
+            <span>Drinks</span>
           </button>
           <button
             onClick={() => onSelectTab('brew')}

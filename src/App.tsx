@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { CoffeeProvider, useCoffee } from './context/CoffeeContext';
 import { Navbar, NavTab } from './components/Navbar';
 import { RecipeVault } from './components/RecipeVault';
+import { DrinkLab } from './components/DrinkLab';
 import { LiveBrewStopwatch } from './components/LiveBrewStopwatch';
 import { KopiCalculator } from './components/KopiCalculator';
 import { BeanCellar } from './components/BeanCellar';
@@ -9,17 +10,31 @@ import { GearLocker } from './components/GearLocker';
 import { WaterLab } from './components/WaterLab';
 import { DialInHistory } from './components/DialInHistory';
 import { OnboardingModal } from './components/OnboardingModal';
-import { Recipe } from './types/coffee';
+import { Recipe, CoffeeCategory } from './types/coffee';
 
 const MainContent: React.FC = () => {
   const [currentTab, setCurrentTab] = useState<NavTab>('recipes');
-  const { setSelectedRecipeForBrew, userPreferences } = useCoffee();
+  const { setSelectedRecipeForBrew, userPreferences, recipes } = useCoffee();
   const [isOnboardingOpen, setIsOnboardingOpen] = useState<boolean>(
     !userPreferences.hasCompletedOnboarding
   );
 
   const handleLaunchBrew = (recipe: Recipe) => {
     setSelectedRecipeForBrew(recipe);
+    setCurrentTab('brew');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleLaunchBrewFromDrink = (category: CoffeeCategory, dose: number, yieldGrams: number, title: string) => {
+    const match = recipes.find(r => r.category === category) || recipes[0];
+    if (match) {
+      setSelectedRecipeForBrew({
+        ...match,
+        title: `${title} Base (${yieldGrams}g yield)`,
+        doseGrams: dose,
+        yieldGrams: yieldGrams,
+      });
+    }
     setCurrentTab('brew');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -34,6 +49,7 @@ const MainContent: React.FC = () => {
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {currentTab === 'recipes' && <RecipeVault onLaunchBrew={handleLaunchBrew} />}
+        {currentTab === 'drinks' && <DrinkLab onLaunchBrew={handleLaunchBrewFromDrink} />}
         {currentTab === 'brew' && <LiveBrewStopwatch />}
         {currentTab === 'kopi' && <KopiCalculator />}
         {currentTab === 'beans' && <BeanCellar />}

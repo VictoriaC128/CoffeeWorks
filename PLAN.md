@@ -453,5 +453,74 @@ sequenceDiagram
   - Build reusable `SelectWithAddCustom<T>` dropdown component supporting search, grouped presets, and instant `[+ Add Custom]` creation.
 - [ ] **Task 3: Category-Specific Recipe Modal Builders**
   - Build specialized sub-panels in `RecipeModal.tsx` for Espresso (puck prep tray), Filter (papers, drippers, negotiator, multi-stage pour list), Moka (boiler prep & cutoff), and Kopi (dialect order & milk sliders).
-- [ ] **Task 4: Interactive Tool Badge Previews**
+- [x] **Task 4: Interactive Tool Badge Previews**
   - Display interactive visual chips on recipe cards reflecting every single tool selected (e.g., `[WDT: 0.25mm]`, `[Tamper: 30lb Normcore]`, `[Screen: 0.2mm Billet]`, `[Paper: Sibarist FAST]`, `[Negotiator: Active]`).
+
+---
+
+### 6. Drink Formulation & Ratio Engine: Comprehensive Drink Recipes
+
+The application features a dedicated **Drink Lab (`DrinkLab.tsx`)** that catalogues 30+ classic, specialty, and heritage coffee drinks with mathematically precise liquid formulations across four core variables:
+
+```mermaid
+flowchart TD
+    Drink["Coffee Drink Formulation Engine"]
+    Drink --> Coffee["☕ Coffee Base (g dose / g yield)"]
+    Drink --> Water["💧 Water Amount (ml hot/cold/tonic)"]
+    Drink --> Milk["🥛 Milk Amount (ml steamed/cold/cream/condensed)"]
+    Drink --> Ice["🧊 Ice Amount (g solid cubes / crushed)"]
+
+    Coffee & Water & Milk & Ice --> Scaler["Dynamic Cup Size Scaler (4 oz, 6 oz, 8 oz, 12 oz, 16 oz, or custom)"]
+    Scaler --> Proportions["Visual Proportional Layer Bar (% Coffee, % Water, % Milk, % Ice)"]
+    Proportions --> LiveBridge["🚀 One-Click Bridge to Live Brew Station"]
+```
+
+#### A. Global Drink Matrix with Exact Liquid Formulations
+
+| Drink Name | Category | Glassware | Coffee Base | Water to Use | Milk / Cream to Use | Ice to Use | Additions / Sweeteners |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Espresso Solo** | Espresso Black | 60ml Demitasse | 9g dose → 18g yield | 0 ml (Zero bypass) | 0 ml | 0 g (Hot 65°C) | None |
+| **Espresso Doppio** | Espresso Black | 90ml Demitasse | 18g dose → 36g yield | 0 ml (Zero bypass) | 0 ml | 0 g (Hot 65°C) | Sparkling water side |
+| **Ristretto** | Espresso Black | 60ml Demitasse | 18g dose → 22g yield | 0 ml | 0 ml | 0 g | Restricted sweet cut |
+| **Lungo** | Espresso Black | 120ml Ceramic | 18g dose → 54g yield | 0 ml | 0 ml | 0 g | Extended extraction |
+| **Caffè Americano** | Espresso Black | 240ml Ceramic | 18g dose → 36g yield | 160 ml hot water (92°C) | 0 ml | 0 g | Water poured into espresso |
+| **Long Black** | Espresso Black | 180ml Tulip | 18g dose → 36g yield | 140 ml hot water (90°C) | 0 ml | 0 g | Espresso floated on water (crema preserved) |
+| **Espresso Macchiato** | Espresso Milk | 75ml Demitasse | 18g dose → 36g yield | 0 ml | 20 ml silky microfoam | 0 g | Foam dollop in center |
+| **Cortado / Gibraltar**| Espresso Milk | 135ml Gibraltar | 18g dose → 36g yield | 0 ml | 44 ml warm steamed milk (58°C) | 0 g | 1:1 balance, 2mm microfoam |
+| **Piccolo Latte** | Espresso Milk | 90ml Picardie | 18g dose → 20g ristretto | 0 ml | 70 ml silky microfoam (62°C) | 0 g | 1:2 ratio in 90ml glass |
+| **Flat White** | Espresso Milk | 160ml Tulip | 18g dose → 36g yield | 0 ml | 124 ml glossy wet microfoam (60°C) | 0 g | Flat 2mm microfoam integration |
+| **Traditional Cappuccino**| Espresso Milk | 180ml Round Cup | 18g dose → 36g yield | 0 ml | 65ml steamed + 45ml dense foam | 0 g | 1:1:1 thirds + cocoa dusting |
+| **Caffè Latte** | Espresso Milk | 280ml Tumbler | 18g dose → 36g yield | 0 ml | 220 ml steamed milk (65°C) | 0 g | 8mm microfoam cap |
+| **Caffè Mocha** | Espresso Milk | 300ml Glass Mug | 18g dose → 36g yield | 0 ml | 180 ml steamed whole milk | 0 g | 30g dark chocolate ganache + 20g cream |
+| **Spanish Latte / Bombón**| Espresso Milk | 220ml Clear Glass | 18g dose → 36g yield | 0 ml | 120 ml steamed whole milk | 0 g | 35g sweetened condensed milk (bottom layer) |
+| **Café au Lait** | Espresso Milk | 250ml French Bowl | 15g dose → 120g filter | 0 ml | 120 ml hot steamed milk (68°C) | 0 g | 1:1 French press & steamed milk |
+| **Iced Americano** | Iced & Chilled | 350ml Highball | 18g dose → 36g yield | 120 ml cold filtered water | 0 ml | 150 g dense ice cubes (5-6 cubes) | Clean, zero-calorie cooler |
+| **Iced Caffè Latte** | Iced & Chilled | 350ml Tumbler | 18g dose → 36g yield | 0 ml | 160 ml cold whole/oat milk (4°C) | 130 g ice cubes | Two-toned iced cascade |
+| **Dirty Coffee** | Iced & Chilled | 180ml Rocks Glass | 18g dose → 36g hot espresso | 0 ml | 120 ml chilled heavy milk (70% milk, 30% cream at 2°C) | 0 g (Zero ice! Chilled by glass) | Thermal contrast layering |
+| **Espresso Tonic** | Iced & Chilled | 350ml Highball | 18g dose → 36g yield | 140 ml chilled tonic water | 0 ml | 130 g clear ice cubes | 1 orange wedge + quinine botanicals |
+| **Caffè Shakerato** | Iced & Chilled | 150ml Coupe Glass | 18g dose → 36g yield | 0 ml | 0 ml | 110 g ice in shaker (strained out) | 10 ml simple syrup, shaken 15s |
+| **Freddo Espresso** | Iced & Chilled | 300ml Highball | 18g dose → 40g yield | 0 ml | 0 ml | 60g whipped with mixer + 90g fresh ice | Greek creamy iced espresso |
+| **Freddo Cappuccino** | Iced & Chilled | 350ml Tumbler | 18g dose → 40g whipped | 0 ml | 80 ml frothed cold low-fat foam (Afrogala) | 140 g ice cubes total | Cinnamon dusting over cold foam |
+| **Japanese Flash Brew** | Iced & Chilled | 350ml Server | 20g dose → 180ml hot brew | 180 ml hot water (93°C) | 0 ml | 120 g ice cubes in carafe (melts to 300ml) | 60:40 water-to-ice flash cooling |
+| **Classic Cold Brew** | Iced & Chilled | 300ml Old Fashioned | 20g dose → 120ml concentrate | 60 ml cold water to dilute | 0 ml | 110 g ice cubes | 16-24 hr steep, low acid |
+| **Nitro Cold Brew** | Iced & Chilled | 300ml Craft Pint | 22g dose → 240ml cold brew | 0 ml | 0 ml (Microbubbles create creaminess) | 0 g (Served cold from tap at 3°C) | Pressurized $N_2$ cascade |
+| **Affogato al Caffè** | Iced & Chilled | 150ml Coupe Glass | 18g dose → 36g hot espresso | 0 ml | 0 ml | 0 g | 70g (1 large scoop) vanilla gelato |
+| **Singapore Kopi (Hot)** | Traditional Heritage | 200ml Kopitiam Cup | 18g dose → 110ml sock essence | 40 ml boiling water | 25g condensed milk + 15g evaporated milk | 0 g | Caramelized wok-roast Robusta |
+| **Singapore Kopi Peng** | Traditional Heritage | 350ml Kopitiam Mug | 22g dose → 110ml sock essence | 20 ml hot water | 35g condensed milk + 20g evaporated milk | 160 g crushed ice | Sweetened to withstand ice melt |
+| **Singapore Kopi-C Peng**| Traditional Heritage | 350ml Kopitiam Mug | 20g dose → 110ml sock essence | 20 ml hot water | 40g evaporated milk (Carnation) | 150 g crushed ice | 14g raw cane sugar |
+| **Singapore Kopi-O Peng**| Traditional Heritage | 350ml Kopitiam Mug | 20g dose → 130ml sock essence | 30 ml hot water | 0 ml (Zero dairy) | 150 g crushed ice | 16g sugar stirred into hot essence |
+| **Vietnamese Cà Phê Sữa Đá** | Traditional Heritage | 250ml Glass | 20g Robusta → 65ml Phin drip | 0 ml (All 85ml water inside Phin) | 35g sweetened condensed milk | 140 g crushed ice | Dark roast gravity drip |
+| **Turkish Coffee** | Traditional Heritage | 70ml Fincan Cup | 8g ultra-fine → 70ml brew | 70 ml cold water into cezve pot | 0 ml | 0 g | 5g sugar + cardamom simmered |
+| **Viennese Einspänner** | Specialty Fusion | 200ml Footed Glass | 18g dose → 36g yield | 35 ml hot water | 65g chilled heavy cream whipped to soft peaks | 0 g | Powdered sugar + cocoa dust |
+| **Traditional Irish Coffee**| Specialty Fusion | 240ml Footed Glass | 16g dose → 120ml drip coffee | 0 ml | 45 ml chilled heavy cream lightly whipped | 0 g | 40 ml Irish Whiskey + 10g brown sugar |
+| **Portuguese Mazagran**| Iced & Chilled | 350ml Highball | 18g dose → 36g yield | 80 ml chilled sparkling water | 0 ml | 130 g ice cubes | 25 ml lemon juice + 15 ml syrup |
+
+#### B. Dynamic Cup Size Scaling Formula
+When the user selects an alternative serving volume ($V_{\text{target}}$) or multiplier ($M = V_{\text{target}} / V_{\text{default}}$):
+$$\text{Water}_{\text{scaled}} = \text{round}(\text{Water}_{\text{default}} \times M)$$
+$$\text{Milk}_{\text{scaled}} = \text{round}(\text{Milk}_{\text{default}} \times M)$$
+$$\text{Ice}_{\text{scaled}} = \text{round}(\text{Ice}_{\text{default}} \times M)$$
+$$\text{Coffee Yield}_{\text{scaled}} = \text{round}(\text{Coffee Yield}_{\text{default}} \times M)$$
+$$\text{Sweeteners}_{\text{scaled}} = \text{round}(\text{Sweeteners}_{\text{default}} \times M)$$
+This guarantees mathematical accuracy whether brewing a 4 oz Cortado or a 16 oz Venti Iced Latte.
+

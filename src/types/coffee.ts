@@ -193,3 +193,68 @@ export interface UserPreferences {
   defaultRecipePerCategory: Partial<Record<CoffeeCategory, string>>;
   hasCompletedOnboarding: boolean;
 }
+
+export type DrinkFamily =
+  | 'espresso_black'
+  | 'espresso_milk'
+  | 'iced_cold'
+  | 'traditional_heritage'
+  | 'specialty_fusion';
+
+export interface CoffeeDrinkRecipe {
+  id: string;
+  name: string;
+  italianOrAltName?: string;
+  family: DrinkFamily;
+  description: string;
+  defaultServingMl: number; // e.g. 180ml
+  defaultCupOz: number; // e.g. 6 oz
+  
+  // Exact Coffee Base
+  coffeeBase: {
+    name: string; // e.g. "Double Espresso (Doppio)"
+    doseGrams: number; // e.g. 18g
+    yieldGrams: number; // e.g. 36g
+    ratio: number; // e.g. 2.0
+    brewType: CoffeeCategory;
+  };
+
+  // Exact Water
+  water: {
+    amountMl: number; // 0 if none
+    type: 'hot_water' | 'cold_water' | 'tonic_water' | 'soda_water' | 'none' | string;
+    description?: string;
+  };
+
+  // Exact Milk
+  milk: {
+    amountMl: number; // 0 if none
+    type: 'whole_steamed' | 'microfoam' | 'cold_whole' | 'heavy_cream' | 'condensed_milk' | 'evaporated_milk' | 'oat_steamed' | 'frothed_cold_foam' | 'none' | string;
+    foamThicknessMm?: number;
+    steamingTempC?: number;
+    description?: string;
+  };
+
+  // Exact Ice
+  ice: {
+    amountGrams: number; // 0 if hot
+    cubesCount?: number;
+    type: 'cubes' | 'crushed' | 'large_clear_sphere' | 'flash_brew_bed' | 'none';
+    description?: string;
+  };
+
+  // Sweeteners & Additions
+  additions?: {
+    name: string;
+    amount: number;
+    unit: 'g' | 'ml' | 'scoop' | 'wedge' | 'stick' | 'dash';
+    description?: string;
+  }[];
+
+  glassware: string;
+  servingTemp: 'hot' | 'iced' | 'chilled_layered' | 'room_temp';
+  assemblySteps: string[];
+  baristaTips: string;
+  tags: string[];
+  isFavorite?: boolean;
+}
