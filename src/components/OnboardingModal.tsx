@@ -541,17 +541,17 @@ export const OnboardingModal: React.FC<Props> = ({ isOpen, onClose }) => {
                   </div>
                   <p className="text-stone-200 font-sans text-xs">{entry.summary}</p>
                   <div className="flex flex-wrap gap-1.5 text-[10px] text-stone-400 pt-1 border-t border-stone-800/60">
-                    {entry.selections.machineModel && (
+                    {entry.selections.machineModel && entry.selections.machineModel !== 'N/A' && (
                       <span className="bg-stone-900 px-1.5 py-0.5 rounded border border-stone-800">
                         Rig: {entry.selections.machineModel}
                       </span>
                     )}
-                    {entry.selections.tamperTool && (
+                    {entry.selections.tamperTool && entry.selections.tamperTool !== 'N/A' && (
                       <span className="bg-stone-900 px-1.5 py-0.5 rounded border border-stone-800">
                         Tamp: {entry.selections.tamperTool}
                       </span>
                     )}
-                    {entry.selections.puckScreenTool && (
+                    {entry.selections.puckScreenTool && entry.selections.puckScreenTool !== 'N/A' && (
                       <span className="bg-stone-900 px-1.5 py-0.5 rounded border border-stone-800">
                         Screen: {entry.selections.puckScreenTool}
                       </span>

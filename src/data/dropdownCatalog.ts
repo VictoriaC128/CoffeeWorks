@@ -1,6 +1,7 @@
 import { DropdownOption } from '../components/SmartDropdownWithOthers';
 
 export const ESPRESSO_MACHINE_OPTIONS: DropdownOption[] = [
+  { label: 'N/A (Generic / No machine specified)', value: 'N/A', group: 'None / Not Applicable' },
   // Artisan & Multi-Boiler
   { label: 'Kees van der Westen Spirit (Flagship Multi-Boiler)', value: 'KvdW Spirit', group: 'Artisan & Multi-Boiler' },
   { label: 'Kees van der Westen Speedster', value: 'KvdW Speedster', group: 'Artisan & Multi-Boiler' },
@@ -50,6 +51,7 @@ export const ESPRESSO_MACHINE_OPTIONS: DropdownOption[] = [
 ];
 
 export const ESPRESSO_BASKET_OPTIONS: DropdownOption[] = [
+  { label: 'N/A (Stock / No precision basket used)', value: 'N/A', group: 'None / Not Applicable' },
   // High Extraction / Zero Deadzone
   { label: 'WAFO Spirit (Hyper-Dense Laser Matrix)', value: 'WAFO Spirit', group: 'High-Extraction Series' },
   { label: 'WAFO Classic (Balanced Flow Rate)', value: 'WAFO Classic', group: 'High-Extraction Series' },
@@ -80,6 +82,7 @@ export const ESPRESSO_BASKET_OPTIONS: DropdownOption[] = [
 ];
 
 export const BASKET_SIZE_OPTIONS: DropdownOption[] = [
+  { label: 'N/A (Standard / Unspecified dose size)', value: 'N/A', group: 'None / Not Applicable' },
   { label: 'Single Dose (7g – 10g)', value: '7g-10g', group: 'Dose Capacity' },
   { label: 'Double Small (14g – 16g)', value: '14g-16g', group: 'Dose Capacity' },
   { label: 'Double Standard (17g – 19g Classic 18g)', value: '17g-19g', group: 'Dose Capacity' },
@@ -89,6 +92,7 @@ export const BASKET_SIZE_OPTIONS: DropdownOption[] = [
 ];
 
 export const BASKET_DIAMETER_OPTIONS: DropdownOption[] = [
+  { label: 'N/A (Standard / Unspecified diameter)', value: 'N/A', group: 'None / Not Applicable' },
   { label: '58.5mm (E61, Decent, Bianca, Linea, Slayer, Flair 58)', value: '58.5mm', group: 'Diameter' },
   { label: '54mm (Breville / Sage Bambino, Barista Express, Dual Boiler)', value: '54mm', group: 'Diameter' },
   { label: '53mm (9Barista Stovetop, La Spaziale)', value: '53mm', group: 'Diameter' },
@@ -98,6 +102,7 @@ export const BASKET_DIAMETER_OPTIONS: DropdownOption[] = [
 ];
 
 export const FILTER_DRIPPER_OPTIONS: DropdownOption[] = [
+  { label: 'N/A (Generic / Custom dripper)', value: 'N/A', group: 'None / Not Applicable' },
   // Orea Series
   { label: 'Orea V4 Modular (Apex Base - Ultra Fast)', value: 'Orea V4 Apex', group: 'Orea Series' },
   { label: 'Orea V4 Modular (Fast Base)', value: 'Orea V4 Fast', group: 'Orea Series' },
@@ -131,6 +136,7 @@ export const FILTER_DRIPPER_OPTIONS: DropdownOption[] = [
 ];
 
 export const FILTER_PAPER_OPTIONS: DropdownOption[] = [
+  { label: 'N/A (No paper filter / cloth / metal mesh)', value: 'N/A', group: 'None / Not Applicable' },
   // Sibarist FAST Series
   { label: 'Sibarist FAST Flat (Orea / Kalita)', value: 'Sibarist FAST Flat', group: 'Sibarist (Spain)' },
   { label: 'Sibarist FAST Cone (V60 / Origami)', value: 'Sibarist FAST Cone', group: 'Sibarist (Spain)' },
@@ -162,6 +168,7 @@ export const FILTER_PAPER_OPTIONS: DropdownOption[] = [
 ];
 
 export const GRINDER_OPTIONS: DropdownOption[] = [
+  { label: 'N/A (Pre-ground / Unbranded grinder)', value: 'N/A', group: 'None / Not Applicable' },
   // High-End Flat Burr Profiling
   { label: 'Option-O Lagom P64 (Mizen / SSP Burrs)', value: 'Lagom P64', group: 'Precision Flat Burrs' },
   { label: 'Option-O Lagom 01 / P01 (102mm / 98mm)', value: 'Lagom 01', group: 'Precision Flat Burrs' },
@@ -188,6 +195,7 @@ export const GRINDER_OPTIONS: DropdownOption[] = [
 ];
 
 export const WDT_OPTIONS: DropdownOption[] = [
+  { label: 'N/A (No needle WDT tool used)', value: 'N/A', group: 'None / Not Applicable' },
   // MHW-3BOMBER (MH3W-Bomber)
   { label: 'MHW-3BOMBER Cyclone Needle WDT Tool (0.25mm / 0.4mm Needles)', value: 'MHW-3BOMBER Cyclone WDT', group: 'MHW-3BOMBER (MH3W)' },
   { label: 'MHW-3BOMBER Lightning Magnetic Stand WDT (0.25mm)', value: 'MHW-3BOMBER Lightning WDT', group: 'MHW-3BOMBER (MH3W)' },
@@ -201,6 +209,7 @@ export const WDT_OPTIONS: DropdownOption[] = [
 ];
 
 export const TAMPER_OPTIONS: DropdownOption[] = [
+  { label: 'N/A (No calibrated tamper / standard palm tamp)', value: 'N/A', group: 'None / Not Applicable' },
   // MHW-3BOMBER (MH3W-Bomber)
   { label: 'MHW-3BOMBER Flash Constant Pressure Tamper (30 lbs / Auto-Leveling)', value: 'MHW-3BOMBER Flash 30lb', group: 'MHW-3BOMBER (MH3W)' },
   { label: 'MHW-3BOMBER Yu Series Calibrated Spring Tamper (30 lbs)', value: 'MHW-3BOMBER Yu 30lb', group: 'MHW-3BOMBER (MH3W)' },
@@ -217,6 +226,7 @@ export const TAMPER_OPTIONS: DropdownOption[] = [
 ];
 
 export const PUCK_SCREEN_OPTIONS: DropdownOption[] = [
+  { label: 'N/A (No puck screen used)', value: 'N/A', group: 'None / Not Applicable' },
   // MHW-3BOMBER (MH3W-Bomber)
   { label: 'MHW-3BOMBER 0.8mm Titanium Coated Contact Puck Screen', value: '0.8mm MHW-3BOMBER Titanium', group: 'MHW-3BOMBER (MH3W)' },
   { label: 'MHW-3BOMBER 1.7mm Penta-Layer Sintered Mesh Screen', value: '1.7mm MHW-3BOMBER Mesh', group: 'MHW-3BOMBER (MH3W)' },
@@ -231,6 +241,7 @@ export const PUCK_SCREEN_OPTIONS: DropdownOption[] = [
 ];
 
 export const DISPERSION_OPTIONS: DropdownOption[] = [
+  { label: 'N/A (No dispersion tool / direct kettle pour)', value: 'N/A', group: 'None / Not Applicable' },
   { label: 'Melodrip (Collimated Zero-Agitation Water Shower)', value: 'melodrip', group: 'Water Dispersion' },
   { label: 'Hario Drip-Assist (Dual Concentric Ring Shower)', value: 'Hario Drip-Assist', group: 'Water Dispersion' },
   { label: 'Gabi Master A (Precision Shower Drip)', value: 'Gabi Master A', group: 'Water Dispersion' },
@@ -238,6 +249,7 @@ export const DISPERSION_OPTIONS: DropdownOption[] = [
 ];
 
 export const WATER_SOURCE_OPTIONS: DropdownOption[] = [
+  { label: 'N/A (Standard municipal / unspecified water)', value: 'N/A', group: 'None / Not Applicable' },
   { label: 'Municipal Tap Water', value: 'tap', group: 'Tap & Municipal' },
   { label: 'Bottled Spring / Mineral Water (Volvic, Crystal Geyser, Evian)', value: 'bottled_spring', group: 'Bottled Spring' },
   { label: 'Remineralized RO (Third Wave Water / Lotus Drops / Barista Hustle Recipe)', value: 'remineralized_ro', group: 'Remineralized RO' },

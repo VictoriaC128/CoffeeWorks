@@ -47,13 +47,13 @@ export const DialInHistory: React.FC = () => {
                   <h3 className="font-bold text-lg text-white mt-1">{session.recipeTitle}</h3>
                   <div className="flex flex-wrap items-center gap-2 mt-1 text-xs text-stone-400">
                     <span>Bean: <strong className="text-stone-300">{session.beanName}</strong></span>
-                    {session.toolsUsed?.machine && (
+                    {session.toolsUsed?.machine && session.toolsUsed.machine !== 'N/A' && (
                       <span className="text-stone-500">• Machine: <strong className="text-stone-400">{session.toolsUsed.machine}</strong></span>
                     )}
-                    {session.toolsUsed?.tamper && (
+                    {session.toolsUsed?.tamper && session.toolsUsed.tamper !== 'N/A' && (
                       <span className="text-stone-500">• Tamper: <strong className="text-amber-400">{session.toolsUsed.tamper}</strong></span>
                     )}
-                    {session.toolsUsed?.puckScreen && (
+                    {session.toolsUsed?.puckScreen && session.toolsUsed.puckScreen !== 'N/A' && (
                       <span className="text-stone-500">• Screen: <strong className="text-cyan-400">{session.toolsUsed.puckScreen}</strong></span>
                     )}
                   </div>

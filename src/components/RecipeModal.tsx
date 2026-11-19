@@ -233,7 +233,7 @@ export const RecipeModal: React.FC<Props> = ({ isOpen, onClose, recipeToEdit }) 
     if (!title.trim()) return;
 
     const basketSpec: BasketSpec | undefined =
-      category === 'espresso' || category === 'manual_lever'
+      (category === 'espresso' || category === 'manual_lever') && basketBrand && basketBrand !== 'N/A'
         ? {
             brand: basketBrand,
             sizeGrams: basketSize,
@@ -245,7 +245,7 @@ export const RecipeModal: React.FC<Props> = ({ isOpen, onClose, recipeToEdit }) 
       title,
       category,
       beanId: beanId || undefined,
-      waterProfileId: waterProfileId || undefined,
+      waterProfileId: (waterProfileId && waterProfileId !== 'N/A') ? waterProfileId : undefined,
       doseGrams,
       yieldGrams,
       ratio: Number((yieldGrams / (doseGrams || 1)).toFixed(2)),
@@ -262,8 +262,10 @@ export const RecipeModal: React.FC<Props> = ({ isOpen, onClose, recipeToEdit }) 
       pourStages: category === 'filter' || category === 'immersion' ? pourStages : undefined,
       basketSpec,
       isDefault,
-      notes: `${notes} [Machine: ${machineModel}] [Grinder: ${grinderModel}] ${
-        category === 'filter' ? `[Dripper: ${dripperModel}] [Paper: ${filterPaperType}]` : ''
+      notes: `${notes} ${machineModel && machineModel !== 'N/A' ? `[Machine: ${machineModel}]` : ''} ${grinderModel && grinderModel !== 'N/A' ? `[Grinder: ${grinderModel}]` : ''} ${
+        category === 'filter'
+          ? `${dripperModel && dripperModel !== 'N/A' ? `[Dripper: ${dripperModel}]` : ''} ${filterPaperType && filterPaperType !== 'N/A' ? `[Paper: ${filterPaperType}]` : ''}`
+          : ''
       }`.trim(),
       tags: [category.replace('_', ' ')],
     };
@@ -302,12 +304,16 @@ export const RecipeModal: React.FC<Props> = ({ isOpen, onClose, recipeToEdit }) 
 
   // Recommended tamper calculation
   const recommendedTamper =
-    basketDiameter === '58.5mm'
-      ? '58.55mm Precision Tamper (Pullman / Normcore / BigStep)'
+    tamperTool === 'N/A'
+      ? 'No tamper specified (N/A)'
+      : basketDiameter === '58.5mm'
+      ? '58.55mm Precision Tamper (Pullman / Normcore / BigStep / MHW-3BOMBER)'
       : basketDiameter === '54mm'
       ? '53.3mm Precision Tamper (Breville 54mm fit)'
       : basketDiameter === '53mm'
       ? '53.0mm Tamper (9Barista standard)'
+      : basketDiameter === 'N/A'
+      ? 'Standard fit base'
       : `${basketDiameter} matching base`;
 
   return (

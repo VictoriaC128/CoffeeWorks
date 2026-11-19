@@ -163,7 +163,7 @@ export const RecipeCard: React.FC<Props> = ({ recipe, onEdit, onLaunchBrew }) =>
 
         {/* Equipment & Tool Badges */}
         <div className="space-y-1 text-[11px] text-stone-300">
-          {gear && (
+          {gear && (gear.dripperModel || gear.machineModel) && (gear.dripperModel !== 'N/A' && gear.machineModel !== 'N/A') && (
             <div className="flex items-center space-x-1.5 truncate">
               <Layers className="w-3.5 h-3.5 text-stone-400 shrink-0" />
               <span className="text-stone-300 truncate">
@@ -172,16 +172,16 @@ export const RecipeCard: React.FC<Props> = ({ recipe, onEdit, onLaunchBrew }) =>
             </div>
           )}
 
-          {recipe.basketSpec && (
+          {recipe.basketSpec && recipe.basketSpec.brand && recipe.basketSpec.brand !== 'N/A' && (
             <div className="flex items-center space-x-1.5 text-stone-300 truncate font-mono text-[10px]">
               <span className="text-amber-400 font-semibold">Basket:</span>
               <span className="truncate">
-                {recipe.basketSpec.brand} · {recipe.basketSpec.sizeGrams} ({recipe.basketSpec.diameterMm})
+                {recipe.basketSpec.brand} {recipe.basketSpec.sizeGrams && recipe.basketSpec.sizeGrams !== 'N/A' ? `· ${recipe.basketSpec.sizeGrams}` : ''} {recipe.basketSpec.diameterMm && recipe.basketSpec.diameterMm !== 'N/A' ? `(${recipe.basketSpec.diameterMm})` : ''}
               </span>
             </div>
           )}
 
-          {gear?.filterPaperType && (
+          {gear?.filterPaperType && gear.filterPaperType !== 'N/A' && (
             <div className="flex items-center space-x-1.5 text-amber-400/90 font-medium truncate">
               <ShieldCheck className="w-3.5 h-3.5 text-amber-400 shrink-0" />
               <span className="truncate">Filter: {gear.filterPaperType}</span>

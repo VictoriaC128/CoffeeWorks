@@ -17,6 +17,8 @@ interface Props {
   customVariableGroup: string; // e.g. "machines", "grinders", "baskets", "papers", "waters"
   placeholder?: string;
   className?: string;
+  allowNA?: boolean; // defaults to true
+  naLabel?: string; // custom label for N/A option
 }
 
 export const SmartDropdownWithOthers: React.FC<Props> = ({
@@ -28,6 +30,8 @@ export const SmartDropdownWithOthers: React.FC<Props> = ({
   customVariableGroup,
   placeholder = 'Select option...',
   className = '',
+  allowNA = true,
+  naLabel,
 }) => {
   const { customVariables, addCustomVariable } = useCoffee();
   const [isEditingCustom, setIsEditingCustom] = useState<boolean>(false);
@@ -35,21 +39,22 @@ export const SmartDropdownWithOthers: React.FC<Props> = ({
 
   const savedCustoms: string[] = customVariables[customVariableGroup] || [];
 
-  // Check if current value matches one of the standard options
-  const isPresetValue = options.some(opt => opt.value === value);
-  const isCustomValue = savedCustoms.includes(value);
+  // Check if current value matches N/A or one of the standard options
+  const isNA = value === 'N/A' || value === 'None' || value === 'none';
+  const isPresetValue = isNA || options.some(opt => opt.value === value);
+  const isCustomValue = !isNA && savedCustoms.includes(value);
 
   useEffect(() => {
-    // If current value is not in presets and is not empty, it's a custom value
-    if (value && !isPresetValue) {
+    // If current value is not in presets, not N/A, and is not empty, it's a custom value
+    if (value && !isPresetValue && !isNA) {
       setCustomInputText(value);
     }
-  }, [value, isPresetValue]);
+  }, [value, isPresetValue, isNA]);
 
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selected = e.target.value;
     if (selected === '__others__') {
-      setCustomInputText(value || '');
+      setCustomInputText(isNA ? '' : (value || ''));
       setIsEditingCustom(true);
     } else {
       setIsEditingCustom(false);
@@ -89,7 +94,7 @@ export const SmartDropdownWithOthers: React.FC<Props> = ({
           <button
             type="button"
             onClick={() => {
-              setCustomInputText(value || '');
+              setCustomInputText(isNA ? '' : (value || ''));
               setIsEditingCustom(true);
             }}
             className="text-[11px] text-amber-400 hover:text-amber-300 font-mono font-medium flex items-center space-x-1 px-2 py-0.5 rounded bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 transition-all shadow-sm"
@@ -147,7 +152,7 @@ export const SmartDropdownWithOthers: React.FC<Props> = ({
       ) : (
         <select
           id={id}
-          value={!isPresetValue && value ? value : value}
+          value={isNA ? 'N/A' : value}
           onChange={handleSelectChange}
           className="w-full bg-stone-950 border border-stone-800 rounded-xl px-3 py-2 text-xs text-stone-200 focus:outline-none focus:border-amber-500"
         >
@@ -155,10 +160,17 @@ export const SmartDropdownWithOthers: React.FC<Props> = ({
             {placeholder}
           </option>
 
+          {/* Universal N/A Option when user is not using this tool */}
+          {allowNA && (
+            <option value="N/A" className="text-stone-400 font-medium">
+              🚫 {naLabel || 'N/A (Not using this tool / None)'}
+            </option>
+          )}
+
           {/* User's Previously Saved Custom Values */}
           {savedCustoms.length > 0 && (
             <optgroup label="⭐ Your Custom & Minority Brands">
-              {savedCustoms.map(cust => (
+              {savedCustoms.filter(cust => cust !== 'N/A').map(cust => (
                 <option key={`custom-${cust}`} value={cust}>
                   {cust}
                 </option>
@@ -169,7 +181,7 @@ export const SmartDropdownWithOthers: React.FC<Props> = ({
           {/* Grouped Standard Presets */}
           {Object.entries(groupedOptions).map(([groupName, groupList]) => (
             <optgroup key={groupName} label={groupName}>
-              {groupList.map(opt => (
+              {groupList.filter(opt => opt.value !== 'N/A').map(opt => (
                 <option key={opt.value} value={opt.value}>
                   {opt.label}
                 </option>
