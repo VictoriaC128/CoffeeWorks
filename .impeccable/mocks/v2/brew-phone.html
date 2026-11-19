@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>CoffeeWorks — Brew running (phone)</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#151515;--mute:#6B6B66;--rule:#E3E2DD;--tint:#F3F2EE;--flow:#E8590C;--filter:#2747D6}
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:390px;height:844px;overflow:hidden;background:#fff;color:var(--ink);font-family:Archivo,sans-serif;font-variant-numeric:tabular-nums;display:flex;flex-direction:column}
+.label{background:var(--filter);color:#fff;padding:14px 16px 12px}
+.lot{font-size:11px;letter-spacing:.12em;font-weight:700;text-transform:uppercase;opacity:.85}
+.title{font-weight:900;font-stretch:115%;font-size:21px;line-height:1.05;letter-spacing:-.02em;margin-top:4px}
+.k{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);font-weight:700}
+.step{padding:12px 16px 10px;border-bottom:1px solid var(--ink)}
+.nm{font-size:18px;font-weight:700;margin-top:4px}
+.count{font-weight:800;font-stretch:76%;font-size:136px;line-height:.85;letter-spacing:-.04em;margin:8px 0 6px}
+.count small{font-size:28px;font-stretch:100%;color:var(--mute);font-weight:600;letter-spacing:0;margin-left:6px}
+.target{font-size:16px;font-weight:600}
+.row{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--rule)}
+.row div{padding:10px 16px}
+.row div:first-child{border-right:1px solid var(--rule)}
+.v{font-size:30px;font-weight:700;font-stretch:88%;line-height:1.1}
+.v u{text-decoration:none;font-size:13px;color:var(--mute);font-weight:500;font-stretch:100%;margin-left:3px}
+.flow,.flow u{color:var(--flow)}
+.list{flex:1;overflow:hidden}
+.s{display:grid;grid-template-columns:26px 1fr 58px 54px;padding:6px 16px;border-bottom:1px solid var(--rule);font-size:14px;align-items:baseline}
+.s .d{font-size:20px;font-weight:800;font-stretch:85%;text-align:right}
+.s .g{text-align:right;color:var(--mute);font-size:13px}
+.s.done{color:var(--mute)}
+.s.done .t{text-decoration:line-through}
+.s.now{background:var(--filter);color:#fff;font-weight:700}
+.s.now .g{color:rgba(255,255,255,.85)}
+.adv{margin:8px 16px;padding:8px 10px;border:1px solid var(--ink);font-size:13px;line-height:1.35}
+.adv b{font-size:10px;letter-spacing:.1em;text-transform:uppercase;background:var(--ink);color:#fff;padding:2px 5px;margin-right:6px}
+.act{display:grid;grid-template-columns:1fr 1.4fr;gap:8px;padding:8px 16px}
+button{font:inherit;font-weight:700;font-size:16px;height:56px;border:1px solid var(--ink);background:#fff;color:var(--ink);border-radius:0}
+button.p{background:var(--ink);color:#fff}
+.tl{padding:10px 16px 8px;border-bottom:1px solid var(--rule)}
+.tl .names,.tl .bar{display:flex}
+.tl .names span{font-size:11px;font-weight:700;color:var(--mute);padding:0 0 3px 4px}
+.tl .names span.on{color:var(--filter)}
+.tl .bar{position:relative;height:30px;border:1px solid var(--ink)}
+.tl .seg{position:relative;border-right:2px solid var(--ink);background:repeating-linear-gradient(90deg,transparent 0 calc(100% / var(--n) - 1px),var(--rule) calc(100% / var(--n) - 1px) calc(100% / var(--n)))}
+.tl .seg:last-child{border-right:0}
+.tl .seg.done{background:var(--ink);border-right-color:#fff}
+.tl .seg.now i{position:absolute;left:0;top:0;bottom:0;width:25%;background:var(--filter)}
+.tl .head{position:absolute;left:69.3%;top:-6px;bottom:-6px;width:3px;background:var(--flow)}
+.tl .times{position:relative;height:14px;margin-top:4px;font-size:10.5px;color:var(--mute)}
+.tl .times span{position:absolute;transform:translateX(-50%)}
+.tl .times span:first-child{transform:none}
+.tl .times span:last-child{transform:translateX(-100%)}
+.tabs{display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--ink);height:62px;padding-bottom:8px}
+.tabs a{display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--mute);text-decoration:none}
+.tabs a.on{color:var(--ink);box-shadow:inset 0 3px 0 var(--ink)}
+</style></head><body>
+<header class="label"><div class="lot">CW-014 · Filter · 15 → 250 g · 92 °C</div><div class="title">Orea V4 Apex · Negotiated 5&#8209;Pour</div></header>
+<section class="step">
+  <div class="k">Step 4 of 5 · time left</div>
+  <div class="nm">Spiral pour, slow edge</div>
+  <div class="count">0:15<small>/ 0:20</small></div>
+  <div class="target">Pour to 200 g · on scale 186 g</div>
+</section>
+<div class="row">
+  <div><div class="k">Total</div><div class="v">1:44<u>/ 2:30</u></div></div>
+  <div><div class="k flow">Flow</div><div class="v flow">4.2<u>g/s · aim 3.8</u></div></div>
+</div>
+<section class="tl" aria-label="Brew timeline">
+  <div class="names"><span style="width:30%">Bloom</span><span style="width:20%">2</span><span style="width:16.7%">3</span><span class="on" style="width:13.3%">4 now</span><span style="width:20%">5</span></div>
+  <div class="bar">
+    <div class="seg done" style="width:30%"></div>
+    <div class="seg done" style="width:20%"></div>
+    <div class="seg done" style="width:16.7%"></div>
+    <div class="seg now" style="width:13.3%;--n:4"><i></i></div>
+    <div class="seg" style="width:20%;--n:6"></div>
+    <div class="head"></div>
+  </div>
+  <div class="times"><span style="left:0">0:00</span><span style="left:30%">0:45</span><span style="left:50%">1:15</span><span style="left:66.7%">1:40</span><span style="left:80%">2:00</span><span style="left:100%">2:30</span></div>
+</section>
+<div class="list">
+  <div class="s done"><span>01</span><span class="t">Bloom</span><span class="d">0:47</span><span class="g">50 g</span></div>
+  <div class="s done"><span>02</span><span class="t">Centre pour</span><span class="d">0:30</span><span class="g">100 g</span></div>
+  <div class="s done"><span>03</span><span class="t">Negotiate</span><span class="d">0:22</span><span class="g">150 g</span></div>
+  <div class="s now"><span>04</span><span class="t">Spiral</span><span class="d">0:20</span><span class="g">200 g</span></div>
+  <div class="s"><span>05</span><span class="t">Final + draw</span><span class="d">0:30</span><span class="g">250 g</span></div>
+</div>
+<div class="adv"><b>Dial-in</b>Flow 0.4 g/s fast. If thin, try Ode #4.9 next.</div>
+<div class="act"><button>Next step</button><button class="p">Finish &amp; taste</button></div>
+<nav class="tabs"><a class="on" href="#">Brew</a><a href="#">Recipes</a><a href="#">Kopi</a><a href="#">Beans</a><a href="#">More</a></nav>
+</body></html>

@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>CoffeeWorks — Edit steps, filter (iPad)</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#FFFFFF;--ink:#151515;--mute:#6B6B66;--rule:#E3E2DD;--tint:#F3F2EE;--flow:#E8590C;--c:#2747D6;--on:#fff}
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:1194px;height:834px;overflow:hidden;background:var(--paper);color:var(--ink);font-family:Archivo,sans-serif;font-variant-numeric:tabular-nums;display:grid;grid-template-columns:212px 1fr}
+.rail{border-right:1px solid var(--rule);padding:22px 0}
+.mark{padding:0 20px 20px;font-weight:900;font-stretch:112%;font-size:20px;letter-spacing:-.02em;border-bottom:1px solid var(--rule)}
+.mark small{display:block;font-weight:500;font-stretch:100%;font-size:11px;letter-spacing:.08em;color:var(--mute);margin-top:4px;text-transform:uppercase}
+nav{padding:12px 0;border-bottom:1px solid var(--rule)}
+nav a{display:flex;justify-content:space-between;padding:10px 20px;font-size:15px;font-weight:500;color:var(--ink);text-decoration:none}
+nav a span{font-size:11px;color:var(--mute)}
+nav a.on{background:var(--ink);color:#fff;font-weight:700}
+nav a.on span{color:#bbb}
+.h{padding:16px 20px 8px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);font-weight:600}
+.drv{display:grid;grid-template-columns:14px 1fr auto;gap:10px;align-items:center;padding:8px 20px;font-size:13px}
+.drv i{width:14px;height:14px;display:block}
+.drv b{font-weight:600}.drv em{font-style:normal;font-size:11px;color:var(--mute)}
+.drv.on{background:var(--tint)}
+main{display:grid;grid-template-rows:auto auto 1fr auto;min-width:0}
+.label{background:var(--c);color:var(--on);padding:14px 28px;display:flex;align-items:flex-end;gap:20px}
+.lot{font-size:12px;letter-spacing:.12em;font-weight:700;text-transform:uppercase;opacity:.85}
+.title{font-weight:900;font-stretch:106%;font-size:26px;line-height:1.05;letter-spacing:-.02em;margin-top:6px}
+.base{margin-left:auto;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--on);padding:5px 9px;white-space:nowrap}
+.k{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);font-weight:700}
+.tl{padding:12px 28px 10px;border-bottom:1px solid var(--ink)}
+.tl .cap{display:flex;justify-content:space-between;font-size:11px;color:var(--mute);margin-bottom:5px;font-weight:600}
+.bar{display:flex;height:34px;border:1px solid var(--ink)}
+.seg{border-right:2px solid #fff;background:var(--ink);color:#fff;font-size:11px;font-weight:700;padding:4px 6px;overflow:hidden;white-space:nowrap}
+.seg.new{background:var(--c)}
+.seg.ed{box-shadow:inset 0 -6px 0 #8FA3F0}
+.seg:last-child{border-right:0}
+.ghost{display:flex;height:8px;margin-top:4px}
+.ghost i{border-right:2px solid #fff;background:var(--rule)}
+.times{position:relative;height:14px;margin-top:3px;font-size:11px;color:var(--mute)}
+.times span{position:absolute;transform:translateX(-50%)}
+.times span:first-child{transform:none}.times span:last-child{transform:translateX(-100%)}
+.work{display:grid;grid-template-columns:1fr 268px;min-height:0}
+table{width:100%;border-collapse:collapse}
+th{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);font-weight:700;text-align:left;padding:10px 8px 6px;border-bottom:1px solid var(--ink)}
+th:first-child,td:first-child{padding-left:28px}
+td{padding:6px 8px;border-bottom:1px solid var(--rule);font-size:14px;vertical-align:middle;height:47px}
+.grip{color:#B5B3AD;font-size:16px;letter-spacing:-3px;width:14px}
+.in{border:1px solid var(--rule);height:34px;padding:0 9px;display:flex;align-items:center;font-size:14px;font-weight:600;background:#fff}
+.in.sel{justify-content:space-between}
+.in.sel:after{content:"▾";font-size:11px;color:var(--mute)}
+.step{display:grid;grid-template-columns:30px 54px 30px;border:1px solid var(--ink);height:34px;width:max-content}
+.step span{display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px}
+.step span.m{border-left:1px solid var(--ink);border-right:1px solid var(--ink);font-size:16px;font-stretch:90%}
+.was{display:block;font-size:11px;color:var(--mute);text-decoration:line-through;margin-top:2px}
+.chg{color:var(--c)}
+.chg .m{color:var(--c)}
+tr.new td{background:#EEF1FD}
+.tag{font-size:10px;font-weight:800;letter-spacing:.08em;background:var(--c);color:#fff;padding:2px 5px;margin-left:6px;vertical-align:middle}
+.st{color:var(--mute);font-size:13px}
+.acts{color:var(--mute);font-size:13px;white-space:nowrap}
+.add{margin:10px 28px;display:flex;gap:10px}
+.add button{height:44px;font-size:14px}
+aside.sum{border-left:1px solid var(--rule);padding:14px 20px;display:flex;flex-direction:column;gap:12px}
+.row{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--rule);padding-bottom:8px}
+.v{font-size:28px;font-weight:700;font-stretch:88%}
+.v small{font-size:13px;color:var(--mute);font-weight:500;margin-left:4px;font-stretch:100%}
+.ok{color:#1F7A55;font-size:13px;font-weight:700}
+.opt{border:1px solid var(--rule);padding:9px 11px;font-size:13px;line-height:1.35;display:grid;grid-template-columns:18px 1fr;gap:8px}
+.opt i{width:16px;height:16px;border:1.5px solid var(--ink);border-radius:50%;margin-top:1px}
+.opt.on{border-color:var(--ink)}
+.opt.on i{background:radial-gradient(circle,var(--ink) 0 4px,#fff 5px)}
+.opt b{display:block;font-size:14px}
+footer{border-top:1px solid var(--ink);display:flex;gap:12px;padding:12px 28px;align-items:center}
+button{font:inherit;font-weight:700;font-size:16px;height:56px;padding:0 24px;border:1px solid var(--ink);background:#fff;color:var(--ink);border-radius:0}
+button.p{background:var(--ink);color:#fff;margin-left:auto;padding:0 32px}
+.lnk{font-size:14px;font-weight:600;text-decoration:underline;color:var(--ink)}
+.prepbar{display:flex;gap:12px;align-items:center;margin:10px 28px 2px;padding:0 14px;height:42px;background:var(--tint);border:1px solid var(--ink);box-shadow:inset 5px 0 0 var(--c);color:var(--ink);text-decoration:none;font-size:14px;white-space:nowrap;overflow:hidden}
+.prepbar .pn{font-size:11px;font-weight:800;color:var(--mute);letter-spacing:.06em;padding-left:4px}
+.prepbar .pv{color:var(--mute);font-size:13px;overflow:hidden;text-overflow:ellipsis}
+.prepbar .go{margin-left:auto;font-weight:800;text-decoration:underline;font-size:13px}
+</style></head><body>
+<aside class="rail">
+  <div class="mark">CoffeeWorks<small>Brew station</small></div>
+  <nav>
+    <a class="on" href="#">Brew <span>editing</span></a><a href="#">Recipes <span>14</span></a><a href="#">Drink Lab <span>62</span></a><a href="#">Kopi <span>9</span></a><a href="#">Beans <span>5</span></a><a href="#">Gear <span>11</span></a><a href="#">Water <span>15</span></a><a href="#">History <span>48</span></a>
+  </nav>
+  <div class="h">Daily drivers</div>
+  <div class="drv"><i style="background:#D62828"></i><b>Espresso</b><em>CW-001</em></div>
+  <div class="drv"><i style="background:#5D6B2F"></i><b>Lever</b><em>CW-002</em></div>
+  <div class="drv"><i style="background:#E9B523"></i><b>Moka</b><em>CW-003</em></div>
+  <div class="drv on"><i style="background:#2747D6"></i><b>Filter</b><em>CW-014</em></div>
+  <div class="drv"><i style="background:#1F7A8C"></i><b>Immersion</b><em>CW-006</em></div>
+  <div class="drv"><i style="background:#1F7A55"></i><b>Kopi</b><em>CW-007</em></div>
+</aside>
+<main>
+  <header class="label">
+    <div><div class="lot">CW-014·B · Filter · 15 g → 250 g · 92 °C</div><h1 class="title">Edit steps · Orea V4 Apex, my version</h1></div>
+    <span class="base">Based on preset CW-014 · 6 changes</span>
+  </header>
+  <section class="tl">
+    <div class="cap"><span>Your timeline · 2:45</span><span>blue underline = changed · blue block = new step · grey line = preset (2:30)</span></div>
+    <div class="bar">
+      <div class="seg ed" style="width:24.24%">Bloom</div>
+      <div class="seg" style="width:18.18%">Centre</div>
+      <div class="seg ed" style="width:18.18%">Negotiate</div>
+      <div class="seg" style="width:12.12%">Spiral</div>
+      <div class="seg ed" style="width:9.09%">Final</div>
+      <div class="seg new" style="width:3.03%"></div>
+      <div class="seg new" style="width:15.15%">Draw</div>
+    </div>
+    <div class="ghost"><i style="width:27.27%"></i><i style="width:18.18%"></i><i style="width:15.15%"></i><i style="width:12.12%"></i><i style="width:18.18%"></i></div>
+    <div class="times"><span style="left:0">0:00</span><span style="left:24.24%">0:40</span><span style="left:42.42%">1:10</span><span style="left:60.6%">1:40</span><span style="left:72.73%">2:00</span><span style="left:84.85%">2:20</span><span style="left:100%">2:45</span></div>
+  </section>
+  <section class="work">
+    <div>
+      <a class="prepbar" href="prep-filter.html"><span class="pn">00 ✓</span><b>Brew prep</b><span class="pv">15.0 g · Ode #4.9 · 92 °C · PUB 70 ppm · rinse, Negotiator</span><span class="go">Open prep →</span></a>
+      <table>
+        <thead><tr><th></th><th>Step</th><th>Action</th><th>Starts</th><th>Duration</th><th>Pour to</th><th></th></tr></thead>
+        <tbody>
+          <tr><td class="grip">⋮⋮</td><td><div class="in">Bloom, swirl</div></td><td><div class="in sel">Pour + swirl</div></td><td class="st">0:00</td><td class="chg"><div class="step"><span>−</span><span class="m">0:40</span><span>+</span></div><span class="was">0:45</span></td><td class="chg"><div class="in" style="width:72px">45 g</div><span class="was">50 g</span></td><td class="acts">⧉ ✕</td></tr>
+          <tr><td class="grip">⋮⋮</td><td><div class="in">Centre pour</div></td><td><div class="in sel">Pour</div></td><td class="st">0:40</td><td><div class="step"><span>−</span><span class="m">0:30</span><span>+</span></div></td><td><div class="in" style="width:72px">100 g</div></td><td class="acts">⧉ ✕</td></tr>
+          <tr><td class="grip">⋮⋮</td><td><div class="in">Negotiate paper</div></td><td><div class="in sel">Pour</div></td><td class="st">1:10</td><td class="chg"><div class="step"><span>−</span><span class="m">0:30</span><span>+</span></div><span class="was">0:25</span></td><td><div class="in" style="width:72px">150 g</div></td><td class="acts">⧉ ✕</td></tr>
+          <tr><td class="grip">⋮⋮</td><td><div class="in">Spiral, slow edge</div></td><td><div class="in sel">Pour</div></td><td class="st">1:40</td><td><div class="step"><span>−</span><span class="m">0:20</span><span>+</span></div></td><td><div class="in" style="width:72px">200 g</div></td><td class="acts">⧉ ✕</td></tr>
+          <tr><td class="grip">⋮⋮</td><td><div class="in">Final pour</div></td><td><div class="in sel">Pour</div></td><td class="st">2:00</td><td class="chg"><div class="step"><span>−</span><span class="m">0:15</span><span>+</span></div><span class="was">0:30</span></td><td><div class="in" style="width:72px">250 g</div></td><td class="acts">⧉ ✕</td></tr>
+          <tr class="new"><td class="grip">⋮⋮</td><td><div class="in">Rao spin<span class="tag">NEW</span></div></td><td><div class="in sel">Swirl</div></td><td class="st">2:15</td><td><div class="step"><span>−</span><span class="m">0:05</span><span>+</span></div></td><td class="st">—</td><td class="acts">⧉ ✕</td></tr>
+          <tr class="new"><td class="grip">⋮⋮</td><td><div class="in">Drawdown<span class="tag">NEW</span></div></td><td><div class="in sel">Wait</div></td><td class="st">2:20</td><td><div class="step"><span>−</span><span class="m">0:25</span><span>+</span></div></td><td class="st">—</td><td class="acts">⧉ ✕</td></tr>
+        </tbody>
+      </table>
+      <div class="add"><button>+ Add step</button><button>+ From step library</button></div>
+    </div>
+    <aside class="sum">
+      <div class="row"><span class="k">Total time</span><span class="v">2:45<small>preset 2:30</small></span></div>
+      <div class="row"><span class="k">Water</span><span class="v">250<small>g</small> <span class="ok">✓ matches yield</span></span></div>
+      <div class="row"><span class="k">Steps</span><span class="v">7<small>preset 5</small></span></div>
+      <div class="k" style="margin-top:4px">Save these steps as</div>
+      <div class="opt on"><i></i><span><b>My version · CW-014·B</b>Keeps the preset untouched</span></div>
+      <div class="opt"><i></i><span><b>Update CW-014</b>Replace the preset's steps</span></div>
+      <div class="opt"><i></i><span><b>This brew only</b>Logged in History, not saved</span></div>
+    </aside>
+  </section>
+  <footer>
+    <button>Cancel</button><a class="lnk" href="#">Reset to preset</a>
+    <button class="p">Save &amp; start brew</button>
+  </footer>
+</main>
+</body></html>

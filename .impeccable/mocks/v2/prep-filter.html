@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>CoffeeWorks — filter prep (iPad)</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#FFFFFF;--ink:#151515;--mute:#6B6B66;--rule:#E3E2DD;--tint:#F3F2EE;--flow:#E8590C;--c:#2747D6;--ct:#EEF1FD;--on:#fff}
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:1194px;height:834px;overflow:hidden;background:var(--paper);color:var(--ink);font-family:Archivo,sans-serif;font-variant-numeric:tabular-nums;display:grid;grid-template-columns:212px 1fr}
+.rail{border-right:1px solid var(--rule);padding:22px 0;display:flex;flex-direction:column}
+.mark{padding:0 20px 20px;font-weight:900;font-stretch:112%;font-size:20px;letter-spacing:-.02em;border-bottom:1px solid var(--rule)}
+.mark small{display:block;font-weight:500;font-stretch:100%;font-size:11px;letter-spacing:.08em;color:var(--mute);margin-top:4px;text-transform:uppercase}
+nav{padding:12px 0;border-bottom:1px solid var(--rule)}
+nav a{display:flex;justify-content:space-between;padding:10px 20px;font-size:15px;font-weight:500;color:var(--ink);text-decoration:none}
+nav a span{font-size:11px;color:var(--mute)}
+nav a.on{background:var(--ink);color:#fff;font-weight:700}
+nav a.on span{color:#bbb}
+.h{padding:16px 20px 8px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);font-weight:600}
+.drv{display:grid;grid-template-columns:14px 1fr auto;gap:10px;align-items:center;padding:8px 20px;font-size:13px}
+.drv i{width:14px;height:14px;display:block}
+.drv b{font-weight:600}.drv em{font-style:normal;font-size:11px;color:var(--mute)}
+.drv.on{background:var(--tint)}
+main{display:grid;grid-template-rows:auto auto 1fr auto;min-width:0;min-height:0}
+.label{background:var(--c);color:var(--on);padding:14px 28px;display:flex;align-items:flex-end;gap:20px}
+.lot{font-size:12px;letter-spacing:.12em;font-weight:700;text-transform:uppercase;opacity:.85}
+.title{font-weight:900;font-stretch:106%;font-size:26px;line-height:1.05;letter-spacing:-.02em;margin-top:6px}
+.base{margin-left:auto;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--on);padding:5px 9px;white-space:nowrap}
+.k{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);font-weight:700}
+.dials{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid var(--ink)}
+.dial{padding:12px 20px 14px;border-right:1px solid var(--rule);min-width:0}
+.dial:last-child{border-right:0}
+.big{font-size:58px;font-weight:800;font-stretch:80%;letter-spacing:-.03em;line-height:.95;margin:8px 0 4px;white-space:nowrap}
+.big small{font-size:19px;font-weight:600;color:var(--mute);margin-left:4px;font-stretch:100%;letter-spacing:0}
+.chg .big{color:var(--c)}
+.was{font-size:15px;color:var(--mute);text-decoration:line-through;margin-left:6px;font-weight:600}
+.from{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;background:var(--c);color:#fff;padding:2px 5px;margin-left:6px;vertical-align:2px}
+.sub{font-size:13px;color:var(--mute);line-height:1.35;min-height:35px}
+.sub b{color:var(--ink);font-weight:600}
+.ctl{display:flex;gap:8px;align-items:center;margin-top:9px}
+.pm{display:grid;grid-template-columns:44px 44px;border:1px solid var(--ink);height:40px}
+.pm span{display:flex;align-items:center;justify-content:center;font-weight:800;font-size:19px}
+.pm span+span{border-left:1px solid var(--ink)}
+.ctl em{font-style:normal;font-size:12px;color:var(--mute)}
+.in{border:1px solid var(--rule);height:40px;padding:0 9px;display:flex;align-items:center;justify-content:space-between;font-size:13.5px;font-weight:600;background:#fff;flex:1;min-width:0;white-space:nowrap;overflow:hidden}
+.in:after{content:"▾";font-size:11px;color:var(--mute);margin-left:6px}
+.rng{position:relative;height:12px;border:1px solid var(--ink);margin-top:12px;background:#fff}
+.rng .band{position:absolute;top:0;bottom:0;background:var(--ct)}
+.rng .pt{position:absolute;top:-5px;bottom:-5px;width:3px;background:var(--ink)}
+.rlab{position:relative;height:13px;font-size:10.5px;color:var(--mute);margin-top:3px}
+.rlab span{position:absolute;transform:translateX(-50%)}
+.rlab span:first-child{transform:none}.rlab span:last-child{transform:translateX(-100%)}
+.work{display:grid;grid-template-columns:1fr 344px;min-height:0}
+table{width:100%;border-collapse:collapse}
+th{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);font-weight:700;text-align:left;padding:9px 8px 6px;border-bottom:1px solid var(--ink)}
+th:first-child,td:first-child{padding-left:28px}
+td{padding:4px 8px;border-bottom:1px solid var(--rule);font-size:14px;vertical-align:middle;height:45px}
+td .in{height:34px;flex:none;width:188px}
+.cb{width:24px;height:24px;border:1.5px solid var(--ink);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;color:#fff}
+.cb.on{background:var(--ink)}
+.no{font-size:11px;font-weight:800;color:var(--mute);letter-spacing:.06em}
+.nm{font-weight:700}
+.set{font-size:13px;color:var(--mute)}
+.sw{display:grid;grid-template-columns:repeat(2,52px);border:1px solid var(--ink);height:32px;font-size:13px;font-weight:700}
+.sw span{display:flex;align-items:center;justify-content:center}
+.sw span+span{border-left:1px solid var(--ink)}
+.sw span.on{background:var(--ink);color:#fff}
+tr.skip .nm,tr.skip .set,tr.skip .in{color:var(--mute);text-decoration:line-through}
+tr.now td{background:var(--ct)}
+tr.now td:first-child{box-shadow:inset 5px 0 0 var(--c)}
+tr.now .nm:after{content:"now";font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;background:var(--c);color:#fff;padding:2px 5px;margin-left:8px;vertical-align:2px}
+.gear{margin:9px 28px;font-size:12.5px;color:var(--mute)}
+.gear a{color:var(--ink);font-weight:700}
+aside.why{border-left:1px solid var(--rule);padding:12px 20px;display:flex;flex-direction:column;gap:10px;min-height:0;overflow:hidden}
+.adv{border:1px solid var(--ink);padding:10px 12px;font-size:13.5px;line-height:1.4}
+.adv b.t{background:var(--ink);color:#fff;font-size:10.5px;letter-spacing:.1em;padding:3px 6px;text-transform:uppercase;margin-right:6px}
+.fx{display:grid;grid-template-columns:88px 1fr;font-size:12.5px;line-height:1.35;border-top:1px solid var(--ink)}
+.fx dt,.fx dd{padding:5px 0;border-bottom:1px solid var(--rule)}
+.fx dt{font-weight:700}
+.fx dd{color:#3A3A37}
+.hist{width:100%;font-size:12px}
+.hist th{font-size:10px;padding:4px 4px 4px 0;border-bottom:1px solid var(--ink)}
+.hist td{height:auto;padding:5px 4px 5px 0;font-size:12px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.3}
+.hist th:first-child,.hist td:first-child{padding-left:0}
+.hist td.hi{color:var(--c);font-weight:700}
+.cup{font-weight:700}
+footer{border-top:1px solid var(--ink);display:flex;gap:12px;padding:12px 28px;align-items:center}
+button{font:inherit;font-weight:700;font-size:16px;height:56px;padding:0 24px;border:1px solid var(--ink);background:#fff;color:var(--ink);border-radius:0}
+button.p{background:var(--ink);color:#fff;margin-left:auto;padding:0 32px}
+.lnk{font-size:14px;font-weight:600;text-decoration:underline;color:var(--ink)}
+.chip{font-size:12px;color:var(--mute)}
+</style></head><body>
+<aside class="rail">
+  <div class="mark">CoffeeWorks<small>Brew station</small></div>
+  <nav>
+    <a class="on" href="#">Brew <span>prep</span></a><a href="#">Recipes <span>14</span></a><a href="#">Drink Lab <span>62</span></a><a href="#">Kopi <span>9</span></a><a href="#">Beans <span>5</span></a><a href="#">Gear <span>11</span></a><a href="#">Water <span>15</span></a><a href="#">History <span>48</span></a>
+  </nav>
+  <div class="h">Daily drivers</div>
+  <div class="drv"><i style="background:#D62828"></i><b>Espresso</b><em>CW-001</em></div><div class="drv"><i style="background:#5D6B2F"></i><b>Lever</b><em>CW-002</em></div><div class="drv"><i style="background:#E9B523"></i><b>Moka</b><em>CW-003</em></div><div class="drv on"><i style="background:#2747D6"></i><b>Filter</b><em>CW-014</em></div><div class="drv"><i style="background:#1F7A8C"></i><b>Immersion</b><em>CW-006</em></div><div class="drv"><i style="background:#1F7A55"></i><b>Kopi</b><em>CW-007</em></div>
+</aside>
+<main>
+  <header class="label">
+    <div><div class="lot">CW-014 · Filter · before brew 50 · step 00</div><h1 class="title">Brew prep · Orea V4 Apex</h1></div>
+    <span class="base">Then 5 pours · Edit steps</span>
+  </header>
+  <section class="dials"><div class="dial">
+  <div class="k">Dose</div>
+  <div class="big">15.0<small>g</small></div>
+  <div class="sub">Scale reads <b>15.0 g</b> · to 250 g water<br>Ratio 1:16.7</div>
+  <div class="ctl"><div class="pm"><span>−</span><span>+</span></div><em>± 0.1 g</em></div>
+</div><div class="dial chg">
+  <div class="k">Grind<span class="from">dial-in</span></div>
+  <div class="big">#4.9<small></small><span class="was">#5.1</span></div>
+  <div class="sub">Fellow Ode Gen 2 · SSP MP<br>Bean 25 d off roast</div>
+  <div class="ctl"><div class="pm"><span>−</span><span>+</span></div><em>± 0.1 step</em></div>
+</div><div class="dial">
+  <div class="k">Water temp</div>
+  <div class="big">92<small>°C</small></div>
+  <div class="sub"><div class="rng" style="margin-top:6px"><span class="band" style="left:46.7%;width:26.6%"></span><span class="pt" style="left:46.2%"></span></div>
+<div class="rlab"><span style="left:0">85</span><span style="left:46.7%">92</span><span style="left:73.3%">96</span><span style="left:100%">100</span></div></div>
+  <div class="ctl"><div class="pm"><span>−</span><span>+</span></div><em>Kettle <b style="color:#151515">91.6 °C</b> · heating</em></div>
+</div><div class="dial">
+  <div class="k">Water · hardness</div>
+  <div class="big">70<small>ppm</small></div>
+  <div class="sub">GH <b>45</b> · KH <b>35</b> · pH 7.2<br>Bean likes 50–80 ppm ✓</div>
+  <div class="ctl"><div class="in">Singapore PUB tap</div></div>
+</div></section>
+  <section class="work">
+    <div>
+      <table>
+        <thead><tr><th style="width:54px">Done</th><th style="width:30px">#</th><th>Prep, in order</th><th>Tool · from your Gear</th><th>Setting</th><th style="width:130px">This brew</th></tr></thead>
+        <tbody><tr class=""><td><div class="cb on">✓</div></td>
+<td class="no">01</td><td class="nm">Dripper</td>
+<td><div class="in">Orea V4 · Apex fast base</div></td><td class="set">On server</td>
+<td><div class="sw"><span class="on">Use</span><span>Skip</span></div></td></tr><tr class=""><td><div class="cb on">✓</div></td>
+<td class="no">02</td><td class="nm">Paper</td>
+<td><div class="in">Sibarist FAST flat</div></td><td class="set">Seated flat</td>
+<td><div class="sw"><span class="on">Use</span><span>Skip</span></div></td></tr><tr class=""><td><div class="cb on">✓</div></td>
+<td class="no">03</td><td class="nm">Rinse + preheat</td>
+<td><div class="in">Kettle water</div></td><td class="set">150 g, discard</td>
+<td><div class="sw"><span class="on">Use</span><span>Skip</span></div></td></tr><tr class=""><td><div class="cb on">✓</div></td>
+<td class="no">04</td><td class="nm">Negotiator</td>
+<td><div class="in">Orea Negotiator</div></td><td class="set">Ring in</td>
+<td><div class="sw"><span class="on">Use</span><span>Skip</span></div></td></tr><tr class="now"><td><div class="cb"></div></td>
+<td class="no">05</td><td class="nm">Grind + level</td>
+<td><div class="in">Fellow Ode Gen 2</div></td><td class="set">Shake bed flat</td>
+<td><div class="sw"><span class="on">Use</span><span>Skip</span></div></td></tr><tr class="skip"><td><div class="cb"></div></td>
+<td class="no">06</td><td class="nm">Dispersion</td>
+<td><div class="in">Melodrip</div></td><td class="set">Pours 4–5 only</td>
+<td><div class="sw"><span>Use</span><span class="on">Skip</span></div></td></tr><tr class=""><td><div class="cb"></div></td>
+<td class="no">07</td><td class="nm">Tare + timer</td>
+<td><div class="in">Acaia Pearl</div></td><td class="set">Auto-start on pour</td>
+<td><div class="sw"><span class="on">Use</span><span>Skip</span></div></td></tr></tbody>
+      </table>
+      <p class="gear">Rows come from your Gear. Tools you don’t own are hidden; Skip leaves one out of this brew only. <a href="#">Edit tools in Gear</a> · drag rows to change the order.</p>
+    </div>
+    <aside class="why">
+      <div class="adv"><b class="t">Dial-in</b>Brew 49 tasted thin. Grind moved <b>#5.1 → #4.9</b>; water stays 92 °C so you can tell which change worked.</div>
+      <div><div class="k" style="margin-bottom:5px">What each one does to the cup</div><dl class="fx"><dt>Water temp</dt><dd>Hotter: fuller, sweeter. Cooler: brighter, lighter. Shaded band: light washed 92–96 °C.</dd><dt>Hardness</dt><dd>Soft: sparkling acid, light body. Hard or KH over ~50: heavier, duller fruit.</dd><dt>Grind</dt><dd>Finer: slower drawdown, more body. Too fine: bitter, stalls.</dd><dt>Dose</dt><dd>More coffee at the same water: stronger cup.</dd></dl></div>
+      <div><div class="k" style="margin-bottom:4px">Last brews · this bean</div>
+        <table class="hist"><thead><tr><th>Brew</th><th>Temp · water</th><th>Grind</th><th>Time</th><th>Cup</th></tr></thead>
+        <tbody><tr><td>49</td><td>92° · PUB 70</td><td>#5.1</td><td>2:31</td><td class="cup">Thin</td></tr><tr><td>45</td><td>94° · PUB 70</td><td>#5.1</td><td>2:36</td><td class="cup">Sweet 4/5</td></tr><tr><td>41</td><td>92° · TWW 150</td><td>#5.1</td><td>2:40</td><td class="cup">Flat, heavy</td></tr></tbody></table>
+      </div>
+    </aside>
+  </section>
+  <footer>
+    <button>Back</button><a class="lnk" href="#">Save prep to recipe</a>
+    <span class="chip" style="margin-left:8px">4 of 6 done · 1 skipped · saved with the brew</span>
+    <button class="p">Prep done · start brew</button>
+  </footer>
+</main>
+</body></html>

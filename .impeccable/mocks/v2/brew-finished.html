@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>CoffeeWorks — Brew finished, taste (iPad)</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#FFFFFF;--ink:#151515;--mute:#6B6B66;--rule:#E3E2DD;--tint:#F3F2EE;--flow:#E8590C;--filter:#2747D6;--espresso:#D62828;--lever:#5D6B2F;--moka:#E9B523;--immersion:#1F7A8C;--kopi:#1F7A55}
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:1194px;height:834px;overflow:hidden;background:var(--paper);color:var(--ink);font-family:Archivo,sans-serif;font-variant-numeric:tabular-nums;display:grid;grid-template-columns:212px 1fr}
+.rail{border-right:1px solid var(--rule);padding:22px 0}
+.mark{padding:0 20px 20px;font-weight:900;font-stretch:112%;font-size:20px;letter-spacing:-.02em;border-bottom:1px solid var(--rule)}
+.mark small{display:block;font-weight:500;font-stretch:100%;font-size:11px;letter-spacing:.08em;color:var(--mute);margin-top:4px;text-transform:uppercase}
+nav{padding:12px 0;border-bottom:1px solid var(--rule)}
+nav a{display:flex;justify-content:space-between;padding:10px 20px;font-size:15px;font-weight:500;color:var(--ink);text-decoration:none}
+nav a span{font-size:11px;color:var(--mute)}
+nav a.on{background:var(--ink);color:#fff;font-weight:700}
+nav a.on span{color:#bbb}
+.h{padding:16px 20px 8px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);font-weight:600}
+.drv{display:grid;grid-template-columns:14px 1fr auto;gap:10px;align-items:center;padding:8px 20px;font-size:13px}
+.drv i{width:14px;height:14px;display:block}
+.drv b{font-weight:600}.drv em{font-style:normal;font-size:11px;color:var(--mute)}
+.drv.on{background:var(--tint)}
+main{display:grid;grid-template-rows:auto auto 1fr auto;min-width:0}
+.label{background:var(--filter);color:#fff;padding:12px 28px;display:flex;align-items:baseline;gap:16px}
+.lot{font-size:12px;letter-spacing:.14em;font-weight:700;text-transform:uppercase;opacity:.85}
+.title{font-weight:800;font-stretch:112%;font-size:20px;letter-spacing:-.01em}
+.done{margin-left:auto;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border:1px solid #fff;padding:4px 8px}
+.k{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);font-weight:700}
+.sum{display:grid;grid-template-columns:repeat(6,auto) 1fr;border-bottom:1px solid var(--ink);font-size:14px}
+.sum>div{padding:10px 18px;border-right:1px solid var(--rule)}
+.sum .v{font-size:20px;font-weight:700;font-stretch:90%;margin-top:2px}
+.flow{color:var(--flow)}
+.sum input{width:62px;font:inherit;font-size:18px;font-weight:700;border:0;border-bottom:1px solid var(--ink);padding:1px 0;margin-top:2px}
+.st{display:flex;gap:14px;font-size:13px;color:var(--mute);margin-top:5px}
+.st b{color:var(--ink);font-weight:700}
+.body{display:grid;grid-template-columns:1fr 380px;min-height:0}
+.taste{padding:18px 28px;border-right:1px solid var(--rule);display:flex;flex-direction:column;gap:16px}
+h2{font-size:24px;font-weight:800;font-stretch:110%;letter-spacing:-.01em}
+.seg{display:grid;grid-template-columns:repeat(5,1fr);border:1px solid var(--ink)}
+.seg span{padding:12px 6px;text-align:center;font-size:14px;font-weight:600;border-right:1px solid var(--ink)}
+.seg span:last-child{border-right:0}
+.seg span.on{background:var(--ink);color:#fff}
+.sc{display:grid;grid-template-columns:110px repeat(5,52px) 1fr;align-items:center;gap:0}
+.sc .lb{font-size:15px;font-weight:600}
+.sc i{height:44px;border:1px solid var(--ink);margin-left:-1px;display:flex;align-items:center;justify-content:center;font-style:normal;font-size:15px;font-weight:600}
+.sc i.on{background:var(--filter);color:#fff;border-color:var(--filter)}
+.sc .hint{font-size:12px;color:var(--mute);padding-left:12px}
+.tags{display:flex;flex-wrap:wrap;gap:8px}
+.tags span{border:1px solid var(--ink);padding:7px 12px;font-size:14px;font-weight:500}
+.tags span.on{background:var(--ink);color:#fff}
+.notes{padding:18px 22px;display:flex;flex-direction:column;gap:12px}
+textarea{width:100%;font:inherit;font-size:15px;line-height:1.45;border:1px solid var(--ink);padding:10px 12px;resize:none;border-radius:0;color:var(--ink)}
+.adv{border:1px solid var(--ink);padding:12px 14px;font-size:15px;line-height:1.4}
+.adv b.t{display:inline-block;background:var(--ink);color:#fff;font-size:11px;letter-spacing:.1em;padding:4px 7px;text-transform:uppercase;margin-bottom:8px}
+.adv .ln{display:flex;justify-content:space-between;border-top:1px solid var(--rule);padding-top:8px;margin-top:8px;font-size:13px}
+footer{border-top:1px solid var(--ink);display:flex;gap:12px;padding:14px 28px;align-items:center}
+button{font:inherit;font-weight:700;font-size:16px;height:56px;padding:0 24px;border:1px solid var(--ink);background:#fff;color:var(--ink);border-radius:0}
+button.p{background:var(--ink);color:#fff;margin-left:auto;padding:0 30px}
+.small{font-size:13px;color:var(--mute)}
+.sum>div.prepl{grid-column:1/-1;border-top:1px solid var(--rule);border-right:0;padding:6px 18px;font-size:13px;color:var(--mute)}
+.prepl b{color:var(--ink)}
+</style></head><body>
+<aside class="rail">
+  <div class="mark">CoffeeWorks<small>Brew station</small></div>
+  <nav>
+    <a class="on" href="#">Brew <span>tasting</span></a>
+    <a href="#">Recipes <span>14</span></a>
+    <a href="#">Drink Lab <span>62</span></a>
+    <a href="#">Kopi <span>9</span></a>
+    <a href="#">Beans <span>5</span></a>
+    <a href="#">Gear <span>11</span></a>
+    <a href="#">Water <span>15</span></a>
+    <a href="#">History <span>48</span></a>
+  </nav>
+  <div class="h">Daily drivers</div>
+  <div class="drv"><i style="background:var(--espresso)"></i><b>Espresso</b><em>CW-001</em></div>
+  <div class="drv"><i style="background:var(--lever)"></i><b>Lever</b><em>CW-002</em></div>
+  <div class="drv"><i style="background:var(--moka)"></i><b>Moka</b><em>CW-003</em></div>
+  <div class="drv on"><i style="background:var(--filter)"></i><b>Filter</b><em>CW-014</em></div>
+  <div class="drv"><i style="background:var(--immersion)"></i><b>Immersion</b><em>CW-006</em></div>
+  <div class="drv"><i style="background:var(--kopi)"></i><b>Kopi</b><em>CW-007</em></div>
+</aside>
+<main>
+  <header class="label"><span class="lot">CW-014 · shot 49</span><span class="title">Orea V4 Apex · Negotiated 5&#8209;Pour</span><span class="done">Brew finished</span></header>
+  <section class="sum">
+    <div><div class="k">Total</div><div class="v">2:31</div></div>
+    <div><div class="k">In → out</div><div class="v">15 → 252 g</div></div>
+    <div><div class="k">Ratio</div><div class="v">1:16.8</div></div>
+    <div><div class="k flow">Avg flow</div><div class="v flow">3.9 g/s</div></div>
+    <div><div class="k">TDS %</div><input value="1.38" aria-label="TDS percent"></div>
+    <div><div class="k">EY</div><div class="v">23.2 %</div></div>
+    <div><div class="k">Step times · plan</div><div class="st"><span>Bloom <b>0:47</b> 0:45</span><span>P2 <b>0:30</b> 0:30</span><span>P3 <b>0:22</b> 0:25</span><span>P4 <b>0:21</b> 0:20</span><span>P5 <b>0:31</b> 0:30</span></div></div>
+    <div class="prepl">Prep saved with this brew · <b>15.0 g</b> · <b>Ode #5.1</b> · <b>92 °C</b> · <b>PUB 70 ppm, GH 45</b> · Sibarist FAST · rinsed · Negotiator · Melodrip skipped</div>
+  </section>
+  <section class="body">
+    <div class="taste">
+      <h2>How does it taste?</h2>
+      <div>
+        <div class="k" style="margin-bottom:6px">Verdict</div>
+        <div class="seg"><span class="on">Under-extracted</span><span>Balanced</span><span>Over-extracted</span><span>Channeling</span><span>Stalled</span></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div class="sc"><span class="lb">Acidity</span><i>1</i><i>2</i><i>3</i><i class="on">4</i><i>5</i><span class="hint">bright, a touch sharp</span></div>
+        <div class="sc"><span class="lb">Sweetness</span><i>1</i><i>2</i><i class="on">3</i><i>4</i><i>5</i><span class="hint"></span></div>
+        <div class="sc"><span class="lb">Bitterness</span><i class="on">1</i><i>2</i><i>3</i><i>4</i><i>5</i><span class="hint"></span></div>
+        <div class="sc"><span class="lb">Body</span><i>1</i><i class="on">2</i><i>3</i><i>4</i><i>5</i><span class="hint">thin as it cools</span></div>
+        <div class="sc"><span class="lb">Overall</span><i>1</i><i>2</i><i>3</i><i class="on">4</i><i>5</i><span class="hint"></span></div>
+      </div>
+      <div>
+        <div class="k" style="margin-bottom:6px">Flavour notes</div>
+        <div class="tags"><span class="on">Jasmine</span><span class="on">Bergamot</span><span>White peach</span><span>Earl Grey</span><span class="on">Lemon</span><span>Honey</span><span>+ Add</span></div>
+      </div>
+    </div>
+    <div class="notes">
+      <div class="k">Pour notes</div>
+      <textarea rows="3">Pour 3 ran fast after negotiating the paper. Bed flat at drawdown, no channels.</textarea>
+      <div class="k">Taste notes</div>
+      <textarea rows="3">Jasmine and bergamot up front. A bit sharp, body thins as it cools.</textarea>
+      <div class="adv"><b class="t">Dial-in · next brew</b><br>Sour-leaning with fast flow. Go two steps finer and keep 92 °C.
+        <div class="ln"><span>Grind</span><span><s>#5.1</s> → <b>#4.9</b></span></div>
+        <div class="ln"><span>Temp</span><span>92 °C, no change</span></div>
+      </div>
+    </div>
+  </section>
+  <footer>
+    <button>Skip</button><span class="small">Saves to History as CW-014 · shot 49</span>
+    <button style="margin-left:auto">Save</button>
+    <button class="p" style="margin-left:0">Save &amp; use #4.9 next</button>
+  </footer>
+</main>
+</body></html>
