@@ -8,6 +8,8 @@ import {
   CoffeeCategory,
   UserPreferences,
   CoffeeDrinkRecipe,
+  CategoryToolSelections,
+  SetupChangeLog,
 } from '../types/coffee';
 import { PRESET_BEANS } from '../data/presetBeans';
 import { PRESET_GEARS } from '../data/presetGear';
@@ -20,7 +22,7 @@ interface CoffeeContextType {
   setActiveCategory: (cat: CoffeeCategory | 'all') => void;
 
   userPreferences: UserPreferences;
-  setUserPreferences: (prefs: UserPreferences) => void;
+  setUserPreferences: React.Dispatch<React.SetStateAction<UserPreferences>>;
   setDefaultRecipeForCategory: (cat: CoffeeCategory, recipeId: string) => void;
 
   customVariables: Record<string, string[]>;
@@ -60,9 +62,14 @@ interface CoffeeContextType {
 
   // Recipe CRUD
   addRecipe: (recipe: Omit<Recipe, 'id' | 'createdAt' | 'updatedAt'>) => Recipe;
-  updateRecipe: (id: string, updates: Partial<Recipe>) => void;
+  updateRecipe: (id: string, updates: Partial<Recipe>, createNewRevision?: boolean) => Recipe | void;
   deleteRecipe: (id: string) => void;
   duplicateRecipe: (id: string, newTitle?: string) => Recipe;
+
+  // Previous Tool Selections per Category (Start with previous selections)
+  updateLastUsedTools: (category: CoffeeCategory, tools: Partial<CategoryToolSelections>) => void;
+  getLastUsedTools: (category: CoffeeCategory) => CategoryToolSelections | undefined;
+  recordSetupChange: (category: CoffeeCategory, summary: string, selections: CategoryToolSelections) => void;
 
   // Session Logging
   logBrewSession: (session: Omit<BrewSession, 'id' | 'timestamp'>) => BrewSession;
@@ -109,6 +116,69 @@ const DEFAULT_PREFERENCES: UserPreferences = {
     singaporean_kopi: 'recipe-kopi-singaporean-gao',
   },
   hasCompletedOnboarding: false,
+  lastUsedToolsPerCategory: {
+    espresso: {
+      machineModel: 'Lelit Bianca V3',
+      grinderModel: 'Option-O Lagom P64',
+      waterProfileId: 'water-tww-espresso',
+      basketBrand: 'MHW-3BOMBER DEX / Sniper High-Flow Basket (58.5mm)',
+      basketSize: '20g-22g',
+      basketDiameter: '58.5mm',
+      tamperTool: 'MHW-3BOMBER Flash Constant Pressure Tamper (30 lbs / Auto-Leveling)',
+      puckScreenTool: '0.8mm MHW-3BOMBER Titanium Coated Contact Puck Screen',
+      wdtTool: 'MHW-3BOMBER Cyclone Needle WDT Tool (0.25mm / 0.4mm Needles)',
+      doseGrams: 18.0,
+      yieldGrams: 40.0,
+      waterTempC: 93,
+      grindSetting: '1.4',
+    },
+    filter: {
+      dripperModel: 'Orea V4 Modular (Apex Base)',
+      grinderModel: 'Fellow Ode Gen 2',
+      filterPaperType: 'Sibarist FAST Flat',
+      dispersionTool: 'Kettle Direct Pour',
+      doseGrams: 15.0,
+      yieldGrams: 250.0,
+      waterTempC: 92,
+      grindSetting: '5.1',
+    },
+    manual_lever: {
+      machineModel: 'Flair 58+',
+      grinderModel: 'Zerno Z1',
+      tamperTool: 'MHW-3BOMBER Flash Constant Pressure Tamper (30 lbs / Auto-Leveling)',
+      puckScreenTool: '0.8mm MHW-3BOMBER Titanium Coated Contact Puck Screen',
+      basketBrand: 'Weber Workshops Unibasket',
+      doseGrams: 18.0,
+      yieldGrams: 45.0,
+      waterTempC: 95,
+      grindSetting: '2.2',
+    },
+    moka_stovetop: {
+      machineModel: '9Barista Twin Boiler 9-Bar Stovetop',
+      grinderModel: '1Zpresso J-Ultra',
+      doseGrams: 18.0,
+      yieldGrams: 36.0,
+      waterTempC: 99,
+      grindSetting: '1.1.5',
+    },
+    singaporean_kopi: {
+      machineModel: 'Long-Spout Stainless Kettle + Flannel Cloth Sock',
+      grinderModel: 'Commercial Coarse Roller Mill / Mortar Grind',
+      doseGrams: 22.0,
+      yieldGrams: 110.0,
+      waterTempC: 98,
+      grindSetting: 'Coarse',
+    },
+    immersion: {
+      machineModel: 'AeroPress Clear',
+      grinderModel: 'Baratza Encore ESP',
+      doseGrams: 18.0,
+      yieldGrams: 200.0,
+      waterTempC: 90,
+      grindSetting: 'Medium-Fine',
+    },
+  },
+  setupHistory: [],
 };
 
 const CoffeeContext = createContext<CoffeeContextType | undefined>(undefined);
@@ -276,16 +346,75 @@ export const CoffeeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     setWaterProfiles(prev => prev.filter(w => w.id !== id));
   };
 
-  // Recipe Actions
+  const getFormattedDateTime = (d = new Date()) => {
+    const dateStr = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    const timeStr = d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    return `${dateStr}, ${timeStr}`;
+  };
+
+  // Previous Tool Selections Persistence per Category
+  const updateLastUsedTools = (category: CoffeeCategory, tools: Partial<CategoryToolSelections>) => {
+    setUserPreferences(prev => {
+      const existing = prev.lastUsedToolsPerCategory?.[category] || {};
+      const timestampStr = getFormattedDateTime();
+      return {
+        ...prev,
+        lastUsedToolsPerCategory: {
+          ...prev.lastUsedToolsPerCategory,
+          [category]: {
+            ...existing,
+            ...tools,
+            updatedAt: timestampStr,
+          },
+        },
+      };
+    });
+  };
+
+  const getLastUsedTools = (category: CoffeeCategory): CategoryToolSelections | undefined => {
+    return userPreferences.lastUsedToolsPerCategory?.[category];
+  };
+
+  const recordSetupChange = (category: CoffeeCategory, summary: string, selections: CategoryToolSelections) => {
+    const now = new Date();
+    const timestampStr = getFormattedDateTime(now);
+    const logEntry: SetupChangeLog = {
+      id: `setup-log-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+      timestamp: now.toISOString(),
+      formattedDateTime: timestampStr,
+      category,
+      summary,
+      selections,
+    };
+    setUserPreferences(prev => ({
+      ...prev,
+      setupHistory: [logEntry, ...(prev.setupHistory || [])],
+    }));
+  };
+
+  // Recipe Actions (Saved separately without override, dated and time-stamped)
   const addRecipe = (recipeData: Omit<Recipe, 'id' | 'createdAt' | 'updatedAt'>) => {
-    const dateStr = new Date().toISOString().split('T')[0];
+    const timestampStr = getFormattedDateTime();
     const newRecipe: Recipe = {
       ...recipeData,
-      id: `recipe-${Date.now()}`,
-      createdAt: dateStr,
-      updatedAt: dateStr,
+      id: `recipe-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+      createdAt: timestampStr,
+      updatedAt: timestampStr,
     };
     setRecipes(prev => [newRecipe, ...prev]);
+
+    // Remember last used tools for this category so new recipes start with previous selections
+    updateLastUsedTools(newRecipe.category, {
+      machineModel: newRecipe.gearId ? gearProfiles.find(g => g.id === newRecipe.gearId)?.machineModel : undefined,
+      waterProfileId: newRecipe.waterProfileId,
+      doseGrams: newRecipe.doseGrams,
+      yieldGrams: newRecipe.yieldGrams,
+      waterTempC: newRecipe.waterTempC,
+      grindSetting: newRecipe.grindSetting,
+      basketBrand: newRecipe.basketSpec?.brand,
+      basketSize: newRecipe.basketSpec?.sizeGrams,
+      basketDiameter: newRecipe.basketSpec?.diameterMm,
+    });
 
     // If marked as default or first recipe in category, set as default
     if (newRecipe.isDefault || !userPreferences.defaultRecipePerCategory[newRecipe.category]) {
@@ -295,13 +424,59 @@ export const CoffeeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     return newRecipe;
   };
 
-  const updateRecipe = (id: string, updates: Partial<Recipe>) => {
-    const dateStr = new Date().toISOString().split('T')[0];
-    setRecipes(prev =>
-      prev.map(r => (r.id === id ? { ...r, ...updates, updatedAt: dateStr } : r))
-    );
-    if (updates.isDefault && updates.category) {
-      setDefaultRecipeForCategory(updates.category, id);
+  const updateRecipe = (id: string, updates: Partial<Recipe>, createNewRevision = false) => {
+    const timestampStr = getFormattedDateTime();
+
+    if (createNewRevision) {
+      // Save as separate entry without override, dated and time-stamped
+      const original = recipes.find(r => r.id === id);
+      const revision: Recipe = {
+        ...(original || {}),
+        ...updates,
+        id: `recipe-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+        title: updates.title || `${original?.title || 'Recipe'} (Rev ${timestampStr})`,
+        createdAt: timestampStr,
+        updatedAt: timestampStr,
+      } as Recipe;
+
+      setRecipes(prev => [revision, ...prev]);
+
+      if (revision.category) {
+        updateLastUsedTools(revision.category, {
+          doseGrams: revision.doseGrams,
+          yieldGrams: revision.yieldGrams,
+          waterTempC: revision.waterTempC,
+          grindSetting: revision.grindSetting,
+          basketBrand: revision.basketSpec?.brand,
+          basketSize: revision.basketSpec?.sizeGrams,
+          basketDiameter: revision.basketSpec?.diameterMm,
+        });
+      }
+
+      if (updates.isDefault && updates.category) {
+        setDefaultRecipeForCategory(updates.category, revision.id);
+      }
+      return revision;
+    } else {
+      setRecipes(prev =>
+        prev.map(r => (r.id === id ? { ...r, ...updates, updatedAt: timestampStr } : r))
+      );
+
+      if (updates.category) {
+        updateLastUsedTools(updates.category, {
+          doseGrams: updates.doseGrams,
+          yieldGrams: updates.yieldGrams,
+          waterTempC: updates.waterTempC,
+          grindSetting: updates.grindSetting,
+          basketBrand: updates.basketSpec?.brand,
+          basketSize: updates.basketSpec?.sizeGrams,
+          basketDiameter: updates.basketSpec?.diameterMm,
+        });
+      }
+
+      if (updates.isDefault && updates.category) {
+        setDefaultRecipeForCategory(updates.category, id);
+      }
     }
   };
 
@@ -312,14 +487,14 @@ export const CoffeeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const duplicateRecipe = (id: string, newTitle?: string) => {
     const original = recipes.find(r => r.id === id);
     if (!original) throw new Error('Recipe not found');
-    const dateStr = new Date().toISOString().split('T')[0];
+    const timestampStr = getFormattedDateTime();
     const forked: Recipe = {
       ...original,
-      id: `recipe-${Date.now()}`,
-      title: newTitle || `${original.title} (Customized)`,
+      id: `recipe-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+      title: newTitle || `${original.title} (Revision ${timestampStr})`,
       isDefault: false,
-      createdAt: dateStr,
-      updatedAt: dateStr,
+      createdAt: timestampStr,
+      updatedAt: timestampStr,
     };
     setRecipes(prev => [forked, ...prev]);
     return forked;
@@ -329,7 +504,7 @@ export const CoffeeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const addCoffeeDrink = (drinkData: Omit<CoffeeDrinkRecipe, 'id'>) => {
     const newDrink: CoffeeDrinkRecipe = {
       ...drinkData,
-      id: `drink-${Date.now()}`,
+      id: `drink-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
     };
     setCoffeeDrinks(prev => [newDrink, ...prev]);
     return newDrink;
@@ -350,21 +525,36 @@ export const CoffeeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     if (!original) throw new Error('Drink recipe not found');
     const forked: CoffeeDrinkRecipe = {
       ...original,
-      id: `drink-${Date.now()}`,
+      id: `drink-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
       name: newName || `${original.name} (Custom)`,
     };
     setCoffeeDrinks(prev => [forked, ...prev]);
     return forked;
   };
 
-  // Session Logging
+  // Session Logging (Saved separately without override, dated and time-stamped)
   const logBrewSession = (sessionData: Omit<BrewSession, 'id' | 'timestamp'>) => {
+    const now = new Date();
+    const timestampStr = getFormattedDateTime(now);
     const newSession: BrewSession = {
       ...sessionData,
-      id: `session-${Date.now()}`,
-      timestamp: new Date().toISOString(),
+      id: `session-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+      timestamp: now.toISOString(),
+      formattedDateTime: timestampStr,
     };
     setSessions(prev => [newSession, ...prev]);
+
+    // Save previous selections for this category
+    updateLastUsedTools(sessionData.category, {
+      doseGrams: sessionData.actualDoseGrams,
+      yieldGrams: sessionData.actualYieldGrams,
+      tamperTool: sessionData.toolsUsed?.tamper,
+      puckScreenTool: sessionData.toolsUsed?.puckScreen,
+      machineModel: sessionData.toolsUsed?.machine,
+      grinderModel: sessionData.toolsUsed?.grinder,
+      waterProfileId: sessionData.toolsUsed?.water,
+    });
+
     return newSession;
   };
 
@@ -524,6 +714,9 @@ export const CoffeeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         updateRecipe,
         deleteRecipe,
         duplicateRecipe,
+        updateLastUsedTools,
+        getLastUsedTools,
+        recordSetupChange,
         logBrewSession,
         deleteSession,
         calculateExtractionYield,

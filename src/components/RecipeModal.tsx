@@ -31,12 +31,15 @@ export const RecipeModal: React.FC<Props> = ({ isOpen, onClose, recipeToEdit }) 
     updateRecipe,
     userPreferences,
     setDefaultRecipeForCategory,
+    getLastUsedTools,
+    updateLastUsedTools,
   } = useCoffee();
 
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState<CoffeeCategory>('espresso');
   const [beanId, setBeanId] = useState<string>('');
   const [waterProfileId, setWaterProfileId] = useState<string>('');
+  const [saveAsNewRevision, setSaveAsNewRevision] = useState<boolean>(true);
 
   // Equipment & Tools
   const [machineModel, setMachineModel] = useState<string>('Lelit Bianca V3');
@@ -45,14 +48,14 @@ export const RecipeModal: React.FC<Props> = ({ isOpen, onClose, recipeToEdit }) 
   const [filterPaperType, setFilterPaperType] = useState<string>('Sibarist FAST Flat');
 
   // Basket Specs for Espresso / Levers
-  const [basketBrand, setBasketBrand] = useState<string>('WAFO Spirit');
+  const [basketBrand, setBasketBrand] = useState<string>('MHW-3BOMBER DEX / Sniper High-Flow Basket (58.5mm)');
   const [basketSize, setBasketSize] = useState<string>('20g-22g');
   const [basketDiameter, setBasketDiameter] = useState<string>('58.5mm');
 
   // Puck Prep Tools
-  const [wdtTool, setWdtTool] = useState<string>('Subminimal Flick 0.25mm');
-  const [tamperTool, setTamperTool] = useState<string>('calibrated_30lb');
-  const [puckScreenTool, setPuckScreenTool] = useState<string>('0.2mm Sworks Billet');
+  const [wdtTool, setWdtTool] = useState<string>('MHW-3BOMBER Cyclone WDT');
+  const [tamperTool, setTamperTool] = useState<string>('MHW-3BOMBER Flash 30lb');
+  const [puckScreenTool, setPuckScreenTool] = useState<string>('0.8mm MHW-3BOMBER Titanium');
   const [hasBottomPaper, setHasBottomPaper] = useState<boolean>(true);
   const [hasFlowControl, setHasFlowControl] = useState<boolean>(true);
   const [hasPreInfusion, setHasPreInfusion] = useState<boolean>(true);
@@ -77,6 +80,90 @@ export const RecipeModal: React.FC<Props> = ({ isOpen, onClose, recipeToEdit }) 
 
   const [pourStages, setPourStages] = useState<PourStage[]>([]);
 
+  // Apply user's previous tool selections for category
+  const applyPreviousSelectionsForCategory = (cat: CoffeeCategory) => {
+    const prev = getLastUsedTools(cat);
+    if (prev) {
+      if (prev.machineModel) setMachineModel(prev.machineModel);
+      if (prev.grinderModel) setGrinderModel(prev.grinderModel);
+      if (prev.waterProfileId) setWaterProfileId(prev.waterProfileId);
+      if (prev.dripperModel) setDripperModel(prev.dripperModel);
+      if (prev.filterPaperType) setFilterPaperType(prev.filterPaperType);
+      if (prev.dispersionTool) setDispersionTool(prev.dispersionTool);
+      if (prev.basketBrand) setBasketBrand(prev.basketBrand);
+      if (prev.basketSize) setBasketSize(prev.basketSize);
+      if (prev.basketDiameter) setBasketDiameter(prev.basketDiameter);
+      if (prev.tamperTool) setTamperTool(prev.tamperTool);
+      if (prev.puckScreenTool) setPuckScreenTool(prev.puckScreenTool);
+      if (prev.wdtTool) setWdtTool(prev.wdtTool);
+      if (prev.doseGrams !== undefined) setDoseGrams(prev.doseGrams);
+      if (prev.yieldGrams !== undefined) setYieldGrams(prev.yieldGrams);
+      if (prev.waterTempC !== undefined) setWaterTempC(prev.waterTempC);
+      if (prev.grindSetting !== undefined) setGrindSetting(prev.grindSetting);
+      if (prev.grindMicrons !== undefined) setGrindMicrons(prev.grindMicrons);
+      return;
+    }
+
+    // Default Fallbacks by category
+    if (cat === 'espresso') {
+      setDoseGrams(18);
+      setYieldGrams(38);
+      setTargetTotalTimeSeconds(32);
+      setWaterTempC(93);
+      setMachineModel('Lelit Bianca V3');
+      setBasketBrand('MHW-3BOMBER DEX / Sniper High-Flow Basket (58.5mm)');
+      setTamperTool('MHW-3BOMBER Flash 30lb');
+      setPuckScreenTool('0.8mm MHW-3BOMBER Titanium');
+      setWdtTool('MHW-3BOMBER Cyclone WDT');
+      setGrindSetting('1.4');
+      setGrindMicrons(260);
+    } else if (cat === 'filter') {
+      setDoseGrams(15);
+      setYieldGrams(250);
+      setTargetTotalTimeSeconds(150);
+      setWaterTempC(92);
+      setDripperModel('Orea V4 Modular (Apex Base)');
+      setFilterPaperType('Sibarist FAST Flat');
+      setDispersionTool('Kettle Direct Pour');
+      setGrindSetting('5.1');
+      setGrindMicrons(680);
+    } else if (cat === 'manual_lever') {
+      setDoseGrams(18);
+      setYieldGrams(45);
+      setTargetTotalTimeSeconds(38);
+      setWaterTempC(95);
+      setMachineModel('Flair 58+ Heated Chamber');
+      setTamperTool('MHW-3BOMBER Flash 30lb');
+      setPuckScreenTool('0.8mm MHW-3BOMBER Titanium');
+      setGrindSetting('2.2');
+      setGrindMicrons(280);
+    } else if (cat === 'moka_stovetop') {
+      setDoseGrams(18);
+      setYieldGrams(36);
+      setTargetTotalTimeSeconds(330);
+      setWaterTempC(99);
+      setMachineModel('9Barista Twin Boiler 9-Bar Stovetop');
+      setGrindSetting('1.1.5');
+      setGrindMicrons(300);
+    } else if (cat === 'singaporean_kopi') {
+      setDoseGrams(25);
+      setYieldGrams(160);
+      setTargetTotalTimeSeconds(180);
+      setWaterTempC(100);
+      setMachineModel('Long-Spout Stainless Kettle + Flannel Sock');
+      setGrindSetting('Coarse Nanyang Sand Grind');
+      setGrindMicrons(1100);
+    } else if (cat === 'immersion') {
+      setDoseGrams(18);
+      setYieldGrams(200);
+      setTargetTotalTimeSeconds(120);
+      setWaterTempC(86);
+      setMachineModel('AeroPress Clear + Flow Control Cap');
+      setGrindSetting('22');
+      setGrindMicrons(750);
+    }
+  };
+
   useEffect(() => {
     if (recipeToEdit) {
       setTitle(recipeToEdit.title);
@@ -94,6 +181,7 @@ export const RecipeModal: React.FC<Props> = ({ isOpen, onClose, recipeToEdit }) 
       setNotes(recipeToEdit.notes || '');
       setPourStages(recipeToEdit.pourStages || []);
       setIsDefault(userPreferences.defaultRecipePerCategory[recipeToEdit.category] === recipeToEdit.id);
+      setSaveAsNewRevision(true);
 
       if (recipeToEdit.basketSpec) {
         setBasketBrand(recipeToEdit.basketSpec.brand);
@@ -102,25 +190,18 @@ export const RecipeModal: React.FC<Props> = ({ isOpen, onClose, recipeToEdit }) 
       }
     } else {
       setTitle('');
-      setCategory('espresso');
+      const startingCat = (userPreferences.primaryCategory as CoffeeCategory) || 'espresso';
+      setCategory(startingCat);
       setBeanId(beans[0]?.id || '');
       setWaterProfileId(waterProfiles[0]?.id || '');
-      setDoseGrams(18);
-      setYieldGrams(36);
-      setWaterTempC(93);
-      setGrindSetting('1.4');
-      setGrindMicrons(260);
       setPreInfusionSeconds(5);
       setTargetTotalTimeSeconds(30);
       setTargetTdsPercent(9.5);
       setNotes('');
       setPourStages([]);
       setIsDefault(false);
-      setMachineModel('Lelit Bianca V3');
-      setGrinderModel('Option-O Lagom P64');
-      setBasketBrand('WAFO Spirit');
-      setBasketSize('20g-22g');
-      setBasketDiameter('58.5mm');
+      setSaveAsNewRevision(true);
+      applyPreviousSelectionsForCategory(startingCat);
     }
   }, [recipeToEdit, isOpen]);
 
@@ -128,56 +209,7 @@ export const RecipeModal: React.FC<Props> = ({ isOpen, onClose, recipeToEdit }) 
 
   const handleCategorySwitch = (newCat: CoffeeCategory) => {
     setCategory(newCat);
-    if (newCat === 'espresso') {
-      setDoseGrams(18);
-      setYieldGrams(38);
-      setTargetTotalTimeSeconds(32);
-      setWaterTempC(93);
-      setMachineModel('Lelit Bianca V3');
-      setGrindSetting('1.4');
-      setGrindMicrons(260);
-    } else if (newCat === 'filter') {
-      setDoseGrams(15);
-      setYieldGrams(250);
-      setTargetTotalTimeSeconds(150);
-      setWaterTempC(92);
-      setDripperModel('Orea V4 Modular (Apex Base)');
-      setFilterPaperType('Sibarist FAST Flat');
-      setGrindSetting('5.1');
-      setGrindMicrons(680);
-    } else if (newCat === 'manual_lever') {
-      setDoseGrams(18);
-      setYieldGrams(45);
-      setTargetTotalTimeSeconds(38);
-      setWaterTempC(95);
-      setMachineModel('Flair 58+ Heated Chamber');
-      setGrindSetting('2.2');
-      setGrindMicrons(280);
-    } else if (newCat === 'moka_stovetop') {
-      setDoseGrams(18);
-      setYieldGrams(36);
-      setTargetTotalTimeSeconds(330);
-      setWaterTempC(99);
-      setMachineModel('9Barista Twin Boiler 9-Bar Stovetop');
-      setGrindSetting('1.1.5');
-      setGrindMicrons(300);
-    } else if (newCat === 'singaporean_kopi') {
-      setDoseGrams(25);
-      setYieldGrams(160);
-      setTargetTotalTimeSeconds(180);
-      setWaterTempC(100);
-      setMachineModel('Long-Spout Stainless Kettle + Flannel Sock');
-      setGrindSetting('Coarse Nanyang Sand Grind');
-      setGrindMicrons(1100);
-    } else if (newCat === 'immersion') {
-      setDoseGrams(18);
-      setYieldGrams(200);
-      setTargetTotalTimeSeconds(120);
-      setWaterTempC(86);
-      setMachineModel('AeroPress Clear + Flow Control Cap');
-      setGrindSetting('22');
-      setGrindMicrons(750);
-    }
+    applyPreviousSelectionsForCategory(newCat);
   };
 
   const handleAddPourStage = () => {
@@ -236,8 +268,29 @@ export const RecipeModal: React.FC<Props> = ({ isOpen, onClose, recipeToEdit }) 
       tags: [category.replace('_', ' ')],
     };
 
+    // Update last used selections for this category so future workflows start with previous selections
+    updateLastUsedTools(category, {
+      machineModel,
+      grinderModel,
+      dripperModel: category === 'filter' ? dripperModel : undefined,
+      filterPaperType: category === 'filter' ? filterPaperType : undefined,
+      dispersionTool: category === 'filter' ? dispersionTool : undefined,
+      waterProfileId,
+      basketBrand: (category === 'espresso' || category === 'manual_lever') ? basketBrand : undefined,
+      basketSize: (category === 'espresso' || category === 'manual_lever') ? basketSize : undefined,
+      basketDiameter: (category === 'espresso' || category === 'manual_lever') ? basketDiameter : undefined,
+      tamperTool: (category === 'espresso' || category === 'manual_lever') ? tamperTool : undefined,
+      puckScreenTool: (category === 'espresso' || category === 'manual_lever') ? puckScreenTool : undefined,
+      wdtTool: (category === 'espresso' || category === 'manual_lever') ? wdtTool : undefined,
+      doseGrams,
+      yieldGrams,
+      waterTempC,
+      grindSetting,
+      grindMicrons,
+    });
+
     if (recipeToEdit) {
-      updateRecipe(recipeToEdit.id, recipeData);
+      updateRecipe(recipeToEdit.id, recipeData, saveAsNewRevision);
       if (isDefault) setDefaultRecipeForCategory(category, recipeToEdit.id);
     } else {
       const created = addRecipe(recipeData);
@@ -726,6 +779,26 @@ export const RecipeModal: React.FC<Props> = ({ isOpen, onClose, recipeToEdit }) 
               className="w-full bg-stone-950 border border-stone-800 rounded-xl p-2.5 text-xs text-stone-200 focus:outline-none focus:border-amber-500"
             />
           </div>
+
+          {/* Revision Preservation Option */}
+          {recipeToEdit && (
+            <div className="p-3 bg-stone-950 rounded-xl border border-stone-800 flex items-center justify-between">
+              <div>
+                <span className="text-xs font-bold text-amber-300 block">
+                  Save as new dated revision (keep previous entry intact)
+                </span>
+                <span className="text-[11px] text-stone-400">
+                  Saves as a separate entry with date & time stamp without overriding the original recipe.
+                </span>
+              </div>
+              <input
+                type="checkbox"
+                checked={saveAsNewRevision}
+                onChange={e => setSaveAsNewRevision(e.target.checked)}
+                className="accent-amber-500 w-4 h-4 cursor-pointer ml-3 shrink-0"
+              />
+            </div>
+          )}
 
           {/* Submit CTA */}
           <div className="pt-4 border-t border-stone-800 flex justify-end space-x-3">

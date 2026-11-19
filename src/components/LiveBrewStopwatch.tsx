@@ -17,11 +17,16 @@ import {
   Bookmark,
   Save,
   X,
-  Plus
+  Plus,
+  Settings
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useCoffee } from '../context/CoffeeContext';
 import { Recipe, PourStage, SensoryRating, CoffeeCategory } from '../types/coffee';
+
+interface Props {
+  onOpenSetup?: () => void;
+}
 
 const CATEGORY_FILTER_TABS: { id: CoffeeCategory | 'all'; label: string; icon: string }[] = [
   { id: 'all', label: 'All Profiles', icon: '📋' },
@@ -33,7 +38,7 @@ const CATEGORY_FILTER_TABS: { id: CoffeeCategory | 'all'; label: string; icon: s
   { id: 'immersion', label: 'Immersion', icon: '⏳' },
 ];
 
-export const LiveBrewStopwatch: React.FC = () => {
+export const LiveBrewStopwatch: React.FC<Props> = ({ onOpenSetup }) => {
   const {
     recipes,
     selectedRecipeForBrew,
@@ -48,6 +53,7 @@ export const LiveBrewStopwatch: React.FC = () => {
     calculateFlowRate,
     getDialInAdvice,
     logBrewSession,
+    getLastUsedTools,
   } = useCoffee();
 
   // Category filter state for profile switcher
@@ -181,11 +187,12 @@ export const LiveBrewStopwatch: React.FC = () => {
   );
 
   const handleSaveBrewSession = () => {
+    const prevTools = getLastUsedTools(activeRecipe.category);
     logBrewSession({
       recipeId: activeRecipe.id,
       recipeTitle: activeRecipe.title,
       category: activeRecipe.category,
-      beanName: selectedBean ? selectedBean.name : 'Unknown Bean',
+      beanName: selectedBean ? selectedBean.name : 'Selected Bean',
       actualDoseGrams: actualDose,
       actualYieldGrams: actualYield,
       actualRatio: Number((actualYield / actualDose).toFixed(2)),
@@ -197,6 +204,13 @@ export const LiveBrewStopwatch: React.FC = () => {
       sensory: sensoryRating,
       sensoryNotes: sensoryNotes.trim() || 'Brew session completed cleanly.',
       dialInAdvice: adviceList,
+      toolsUsed: {
+        machine: selectedGear?.machineModel || prevTools?.machineModel,
+        grinder: selectedGear?.grinderModel || prevTools?.grinderModel,
+        tamper: prevTools?.tamperTool,
+        puckScreen: prevTools?.puckScreenTool,
+        water: selectedWater?.name || prevTools?.waterProfileId,
+      },
     });
     setSaveSuccess(true);
     confetti({ particleCount: 100, spread: 90, origin: { y: 0.6 } });
@@ -308,6 +322,17 @@ export const LiveBrewStopwatch: React.FC = () => {
           </div>
 
           <div className="flex items-center space-x-2">
+            {onOpenSetup && (
+              <button
+                onClick={onOpenSetup}
+                title="Customise Setup & Rig Settings at any point in time"
+                className="px-3 py-1.5 rounded-xl bg-stone-950 hover:bg-stone-800 text-amber-300 border border-stone-800 hover:border-amber-500/40 text-xs font-mono font-medium flex items-center space-x-1.5 transition-all shadow-sm"
+              >
+                <Settings className="w-3.5 h-3.5 text-amber-400" />
+                <span className="hidden sm:inline">Customise Rig</span>
+              </button>
+            )}
+
             <button
               onClick={handleLoadDefaultRig}
               title="Instantly load category default daily driver rig"

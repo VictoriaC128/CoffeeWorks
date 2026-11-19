@@ -9,7 +9,8 @@ import {
   ShieldCheck,
   Droplets,
   Star,
-  Check
+  Check,
+  Clock
 } from 'lucide-react';
 import { Recipe } from '../types/coffee';
 import { useCoffee } from '../context/CoffeeContext';
@@ -225,6 +226,14 @@ export const RecipeCard: React.FC<Props> = ({ recipe, onEdit, onLaunchBrew }) =>
           <span>Grind: {recipe.grindSetting}</span>
           <span className="text-red-400 font-semibold">{recipe.waterTempC}°C</span>
         </div>
+
+        {/* Date & Time Timestamp (Saved without override) */}
+        {(recipe.updatedAt || recipe.createdAt) && (
+          <div className="mt-1.5 text-[10px] font-mono text-stone-500 flex items-center space-x-1 truncate">
+            <Clock className="w-3 h-3 text-stone-600 shrink-0" />
+            <span className="truncate">Saved: {recipe.updatedAt || recipe.createdAt}</span>
+          </div>
+        )}
       </div>
 
       {/* Launch CTA */}

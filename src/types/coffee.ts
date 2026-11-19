@@ -170,7 +170,19 @@ export interface BrewSession {
   recipeTitle: string;
   category: CoffeeCategory;
   beanName: string;
-  timestamp: string;
+  timestamp: string; // ISO date-time string
+  formattedDateTime?: string; // Formatted date and time string e.g. "19 Nov 2026, 4:15:30 PM"
+  toolsUsed?: {
+    machine?: string;
+    grinder?: string;
+    water?: string;
+    tamper?: string;
+    puckScreen?: string;
+    basket?: string;
+    paper?: string;
+    dripper?: string;
+    dispersion?: string;
+  };
   
   actualDoseGrams: number;
   actualYieldGrams: number;
@@ -188,10 +200,42 @@ export interface BrewSession {
   dialInAdvice: string[];
 }
 
+export interface CategoryToolSelections {
+  machineModel?: string;
+  grinderModel?: string;
+  waterProfileId?: string;
+  dripperModel?: string;
+  filterPaperType?: string;
+  basketBrand?: string;
+  basketSize?: string;
+  basketDiameter?: string;
+  wdtTool?: string;
+  tamperTool?: string;
+  puckScreenTool?: string;
+  dispersionTool?: string;
+  doseGrams?: number;
+  yieldGrams?: number;
+  waterTempC?: number;
+  grindSetting?: string;
+  grindMicrons?: number;
+  updatedAt?: string;
+}
+
+export interface SetupChangeLog {
+  id: string;
+  timestamp: string; // ISO date-time string
+  formattedDateTime: string; // e.g. "19 Nov 2026, 4:15:30 PM"
+  category: CoffeeCategory;
+  summary: string;
+  selections: CategoryToolSelections;
+}
+
 export interface UserPreferences {
   primaryCategory: CoffeeCategory;
   defaultRecipePerCategory: Partial<Record<CoffeeCategory, string>>;
   hasCompletedOnboarding: boolean;
+  lastUsedToolsPerCategory?: Partial<Record<CoffeeCategory, CategoryToolSelections>>;
+  setupHistory?: SetupChangeLog[];
 }
 
 export type DrinkFamily =

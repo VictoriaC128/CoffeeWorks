@@ -40,12 +40,23 @@ export const DialInHistory: React.FC = () => {
                       {session.category.replace('_', ' ')}
                     </span>
                     <span className="text-xs text-stone-400 flex items-center space-x-1 font-mono">
-                      <Calendar className="w-3.5 h-3.5" />
-                      <span>{new Date(session.timestamp).toLocaleString()}</span>
+                      <Calendar className="w-3.5 h-3.5 text-amber-500" />
+                      <span className="text-stone-300 font-semibold">{session.formattedDateTime || new Date(session.timestamp).toLocaleString()}</span>
                     </span>
                   </div>
                   <h3 className="font-bold text-lg text-white mt-1">{session.recipeTitle}</h3>
-                  <p className="text-xs text-stone-400">Bean: {session.beanName}</p>
+                  <div className="flex flex-wrap items-center gap-2 mt-1 text-xs text-stone-400">
+                    <span>Bean: <strong className="text-stone-300">{session.beanName}</strong></span>
+                    {session.toolsUsed?.machine && (
+                      <span className="text-stone-500">• Machine: <strong className="text-stone-400">{session.toolsUsed.machine}</strong></span>
+                    )}
+                    {session.toolsUsed?.tamper && (
+                      <span className="text-stone-500">• Tamper: <strong className="text-amber-400">{session.toolsUsed.tamper}</strong></span>
+                    )}
+                    {session.toolsUsed?.puckScreen && (
+                      <span className="text-stone-500">• Screen: <strong className="text-cyan-400">{session.toolsUsed.puckScreen}</strong></span>
+                    )}
+                  </div>
                 </div>
 
                 <div className="flex items-center space-x-3">

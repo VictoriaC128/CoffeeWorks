@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Search, Sparkles, BookOpen } from 'lucide-react';
+import { Plus, Search, Sparkles, BookOpen, Settings } from 'lucide-react';
 import { useCoffee } from '../context/CoffeeContext';
 import { Recipe } from '../types/coffee';
 import { CategoryPillSelector } from './CategoryPillSelector';
@@ -8,9 +8,10 @@ import { RecipeModal } from './RecipeModal';
 
 interface Props {
   onLaunchBrew: (recipe: Recipe) => void;
+  onOpenSetup?: () => void;
 }
 
-export const RecipeVault: React.FC<Props> = ({ onLaunchBrew }) => {
+export const RecipeVault: React.FC<Props> = ({ onLaunchBrew, onOpenSetup }) => {
   const { recipes, activeCategory, setActiveCategory } = useCoffee();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -63,6 +64,17 @@ export const RecipeVault: React.FC<Props> = ({ onLaunchBrew }) => {
               className="w-full bg-stone-900 border border-stone-800 rounded-xl pl-9 pr-4 py-2 text-xs text-stone-200 placeholder-stone-500 focus:outline-none focus:border-amber-500"
             />
           </div>
+
+          {onOpenSetup && (
+            <button
+              onClick={onOpenSetup}
+              title="Customise Setup & Rig at any point in time"
+              className="px-3.5 py-2 rounded-xl bg-stone-900 hover:bg-stone-800 border border-stone-800 hover:border-amber-500/50 text-amber-300 text-xs font-semibold flex items-center space-x-1.5 shadow-md whitespace-nowrap transition-all"
+            >
+              <Settings className="w-3.5 h-3.5 text-amber-400" />
+              <span className="hidden sm:inline">Customise Rig</span>
+            </button>
+          )}
 
           <button
             onClick={handleCreateNew}

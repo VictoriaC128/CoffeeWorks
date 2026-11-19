@@ -11,7 +11,8 @@ import {
   Sparkles,
   Milestone,
   GlassWater,
-  RefreshCw
+  RefreshCw,
+  Settings
 } from 'lucide-react';
 import { useCoffee } from '../context/CoffeeContext';
 
@@ -189,11 +190,12 @@ export const Navbar: React.FC<Props> = ({ currentTab, onSelectTab, onOpenSetup }
               {onOpenSetup && (
                 <button
                   onClick={onOpenSetup}
-                  title="Configure Default Brewing Method & Rig"
-                  className="px-2.5 py-1.5 rounded-lg bg-stone-900 border border-stone-800 text-amber-400 hover:text-amber-300 hover:border-amber-500/40 text-xs font-medium flex items-center space-x-1.5 transition-colors"
+                  title="Customise Setup & Equipment Settings at any point in time"
+                  className="px-3 py-1.5 rounded-lg bg-amber-600/20 hover:bg-amber-600/30 border border-amber-500/40 text-amber-300 hover:text-amber-200 text-xs font-semibold flex items-center space-x-1.5 transition-all shadow-sm"
                 >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">Daily Defaults</span>
+                  <Settings className="w-3.5 h-3.5 text-amber-400" />
+                  <span className="hidden sm:inline">Customise Setup & Tools</span>
+                  <span className="sm:hidden">Setup</span>
                 </button>
               )}
 
@@ -210,6 +212,15 @@ export const Navbar: React.FC<Props> = ({ currentTab, onSelectTab, onOpenSetup }
 
         {/* Mobile Sub-Navigation Bar */}
         <div className="lg:hidden flex items-center space-x-1 px-4 py-2 border-t border-stone-800/80 overflow-x-auto scrollbar-none bg-stone-950">
+          {onOpenSetup && (
+            <button
+              onClick={onOpenSetup}
+              className="px-2.5 py-1.5 rounded-lg text-xs whitespace-nowrap font-semibold bg-amber-600/20 text-amber-300 border border-amber-500/30 flex items-center space-x-1"
+            >
+              <Settings className="w-3.5 h-3.5 text-amber-400" />
+              <span>Customise</span>
+            </button>
+          )}
           <button
             onClick={() => onSelectTab('recipes')}
             className={`px-3 py-1.5 rounded-lg text-xs whitespace-nowrap font-medium ${

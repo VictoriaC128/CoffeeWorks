@@ -48,9 +48,16 @@ const MainContent: React.FC = () => {
       />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        {currentTab === 'recipes' && <RecipeVault onLaunchBrew={handleLaunchBrew} />}
+        {currentTab === 'recipes' && (
+          <RecipeVault
+            onLaunchBrew={handleLaunchBrew}
+            onOpenSetup={() => setIsOnboardingOpen(true)}
+          />
+        )}
         {currentTab === 'drinks' && <DrinkLab onLaunchBrew={handleLaunchBrewFromDrink} />}
-        {currentTab === 'brew' && <LiveBrewStopwatch />}
+        {currentTab === 'brew' && (
+          <LiveBrewStopwatch onOpenSetup={() => setIsOnboardingOpen(true)} />
+        )}
         {currentTab === 'kopi' && <KopiCalculator />}
         {currentTab === 'beans' && <BeanCellar />}
         {currentTab === 'gear' && <GearLocker />}

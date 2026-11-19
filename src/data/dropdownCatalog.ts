@@ -188,6 +188,11 @@ export const GRINDER_OPTIONS: DropdownOption[] = [
 ];
 
 export const WDT_OPTIONS: DropdownOption[] = [
+  // MHW-3BOMBER (MH3W-Bomber)
+  { label: 'MHW-3BOMBER Cyclone Needle WDT Tool (0.25mm / 0.4mm Needles)', value: 'MHW-3BOMBER Cyclone WDT', group: 'MHW-3BOMBER (MH3W)' },
+  { label: 'MHW-3BOMBER Lightning Magnetic Stand WDT (0.25mm)', value: 'MHW-3BOMBER Lightning WDT', group: 'MHW-3BOMBER (MH3W)' },
+
+  // Precision WDT Tools
   { label: 'Subminimal Flick WDT (Retractable 0.25mm Needles)', value: 'Subminimal Flick 0.25mm', group: 'WDT Tools' },
   { label: 'SworksDesign Billet WDT (0.22mm Interchangeable)', value: 'SworksDesign Billet 0.22mm', group: 'WDT Tools' },
   { label: 'Umikot Planetary Gear 3D Printed WDT', value: 'Umikot Planetary Gear', group: 'WDT Tools' },
@@ -196,6 +201,14 @@ export const WDT_OPTIONS: DropdownOption[] = [
 ];
 
 export const TAMPER_OPTIONS: DropdownOption[] = [
+  // MHW-3BOMBER (MH3W-Bomber)
+  { label: 'MHW-3BOMBER Flash Constant Pressure Tamper (30 lbs / Auto-Leveling)', value: 'MHW-3BOMBER Flash 30lb', group: 'MHW-3BOMBER (MH3W)' },
+  { label: 'MHW-3BOMBER Yu Series Calibrated Spring Tamper (30 lbs)', value: 'MHW-3BOMBER Yu 30lb', group: 'MHW-3BOMBER (MH3W)' },
+  { label: 'MHW-3BOMBER Sonic Impact Tamper (30 lbs Acoustic Click Feedback)', value: 'MHW-3BOMBER Sonic Impact', group: 'MHW-3BOMBER (MH3W)' },
+  { label: 'MHW-3BOMBER Palm / Push Leveling Tamper (58.35mm / 53.3mm)', value: 'MHW-3BOMBER Palm Push', group: 'MHW-3BOMBER (MH3W)' },
+  { label: 'MHW-3BOMBER 2-in-1 Dual Head Distributor & Tamper', value: 'MHW-3BOMBER 2-in-1', group: 'MHW-3BOMBER (MH3W)' },
+
+  // Precision & Calibrated Systems
   { label: 'Normcore V4 Calibrated Spring Tamper (30 lbs)', value: 'calibrated_30lb', group: 'Tamping Systems' },
   { label: 'Normcore V4 Calibrated Spring Tamper (25 lbs)', value: 'calibrated_25lb', group: 'Tamping Systems' },
   { label: 'The Force Tamper (Automatic Leveling Impact Mechanism)', value: 'force_tamper', group: 'Tamping Systems' },
@@ -204,6 +217,13 @@ export const TAMPER_OPTIONS: DropdownOption[] = [
 ];
 
 export const PUCK_SCREEN_OPTIONS: DropdownOption[] = [
+  // MHW-3BOMBER (MH3W-Bomber)
+  { label: 'MHW-3BOMBER 0.8mm Titanium Coated Contact Puck Screen', value: '0.8mm MHW-3BOMBER Titanium', group: 'MHW-3BOMBER (MH3W)' },
+  { label: 'MHW-3BOMBER 1.7mm Penta-Layer Sintered Mesh Screen', value: '1.7mm MHW-3BOMBER Mesh', group: 'MHW-3BOMBER (MH3W)' },
+  { label: 'MHW-3BOMBER 0.2mm Laser Ultra-Thin Contact Screen', value: '0.2mm MHW-3BOMBER Laser', group: 'MHW-3BOMBER (MH3W)' },
+  { label: 'MHW-3BOMBER Honeycomb Dispersion Contact Screen', value: 'MHW-3BOMBER Honeycomb', group: 'MHW-3BOMBER (MH3W)' },
+
+  // Artisan & Laser Screens
   { label: 'SworksDesign 0.2mm Billet Puck Screen (Ultra-Thin Laser Drilled)', value: '0.2mm Sworks Billet', group: 'Puck Screens' },
   { label: 'Normcore 0.8mm Titanium Coated Screen', value: '0.8mm Normcore Titanium', group: 'Puck Screens' },
   { label: 'Normcore 1.7mm Stainless Steel Mesh Screen', value: '1.7mm Stainless Mesh', group: 'Puck Screens' },
