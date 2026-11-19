@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>CoffeeWorks — Cupping Sheet</title>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#FBFBF8;--ink:#1B2230;--mute:#667085;--rule:#D5D8DD;--fruit:#D8432F;--sour:#F08A24;--green:#7BA23F;--floral:#C9518F;--sweet:#E2B33B;--roast:#8A5A3C;--spice:#8E4FA0}
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:1194px;height:834px;overflow:hidden;background:var(--paper);color:var(--ink);font-family:Figtree,sans-serif;font-variant-numeric:tabular-nums}
+.top{height:60px;display:flex;align-items:center;gap:28px;padding:0 28px;border-bottom:2px solid var(--ink)}
+.brand{font-weight:800;font-size:19px}
+.tabs{display:flex;gap:4px}
+.tabs a{padding:8px 13px;font-size:14px;font-weight:600;color:var(--mute);text-decoration:none;border-radius:6px}
+.tabs a.on{color:var(--ink);background:#ECEEF1}
+.sess{margin-left:auto;font-size:13px;color:var(--mute)}
+.form{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;border-bottom:1px solid var(--ink)}
+.f{padding:10px 16px 12px;border-right:1px solid var(--rule)}
+.f:last-child{border-right:0}
+.l{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);font-weight:700}
+.fv{font-size:17px;font-weight:600;margin-top:4px}
+.grid{display:grid;grid-template-columns:1fr 400px;height:calc(834px - 60px - 64px - 76px)}
+.left{padding:22px 28px;border-right:1px solid var(--ink);display:flex;flex-direction:column;gap:18px}
+.row{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--ink)}
+.box{padding:12px 14px;border-right:1px solid var(--rule)}
+.box:last-child{border-right:0}
+.big{font-size:44px;font-weight:700;letter-spacing:-.02em;line-height:1.05}
+.big small{font-size:15px;color:var(--mute);font-weight:500}
+.timer{font-size:112px;font-weight:800;letter-spacing:-.04em;line-height:.95}
+.timer small{font-size:44px;color:var(--mute)}
+.ticks{display:grid;grid-template-columns:repeat(15,1fr);height:34px;border:1px solid var(--ink)}
+.ticks i{border-right:1px solid var(--rule);display:block}
+.ticks i.p{background:var(--ink)}
+.ticks i.c{background:var(--sour)}
+.tl{display:flex;justify-content:space-between;font-size:12px;color:var(--mute)}
+.pours{border-top:1px solid var(--ink)}
+.pr{display:grid;grid-template-columns:30px 1fr 70px 70px;padding:8px 0;border-bottom:1px solid var(--rule);font-size:15px}
+.pr.d{color:var(--mute)}
+.pr.n{font-weight:700}
+.right{padding:20px 22px;min-width:0;display:flex;flex-direction:column;gap:14px}
+.wheel{display:flex;gap:16px;align-items:center}
+.scale{display:grid;grid-template-columns:84px 1fr 20px;gap:10px;align-items:center;font-size:13px;font-weight:600}
+.sc{display:grid;grid-template-columns:repeat(10,1fr);height:18px;border:1px solid var(--ink)}
+.sc i{border-right:1px solid var(--rule)}
+.sc i.f{background:var(--ink)}
+.adv{border:2px solid var(--ink);padding:12px 14px;font-size:14px;line-height:1.4}
+.adv .l{color:var(--fruit)}
+.bar{height:76px;border-top:2px solid var(--ink);display:flex;align-items:center;gap:12px;padding:0 28px}
+button{font:inherit;font-size:16px;font-weight:700;height:52px;padding:0 24px;border:2px solid var(--ink);background:transparent;color:var(--ink);border-radius:8px}
+button.p{margin-left:auto;background:var(--ink);color:#fff}
+</style></head><body>
+<header class="top">
+  <div class="brand">CoffeeWorks</div>
+  <nav class="tabs"><a href="#">Recipes</a><a class="on" href="#">Brew</a><a href="#">Drink Lab</a><a href="#">Kopi</a><a href="#">Beans</a><a href="#">Gear</a><a href="#">Water</a><a href="#">History</a></nav>
+  <div class="sess">Session 49 · Thu 19 Nov</div>
+</header>
+<section class="form">
+  <div class="f"><div class="l">Recipe</div><div class="fv">Orea V4 Apex · 5-Pour</div></div>
+  <div class="f"><div class="l">Coffee</div><div class="fv">Gedeb Chelchele · Washed · 25 d</div></div>
+  <div class="f"><div class="l">Grind</div><div class="fv">Fellow Ode Gen 2 · #5.1</div></div>
+  <div class="f"><div class="l">Water</div><div class="fv">SG PUB · 70 ppm · 92 °C</div></div>
+</section>
+<section class="grid">
+  <div class="left">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between">
+      <div><div class="l">Brew time · target 2:30</div><div class="timer">1:44<small>.6</small></div></div>
+      <div style="text-align:right"><div class="l">Pour 4 of 5</div><div class="big">186<small> / 200 g</small></div></div>
+    </div>
+    <div class="row">
+      <div class="box"><div class="l">Dose</div><div class="big">15<small> g</small></div></div>
+      <div class="box"><div class="l">Yield</div><div class="big">250<small> g</small></div></div>
+      <div class="box"><div class="l">Ratio</div><div class="big">16.7</div></div>
+      <div class="box"><div class="l">Flow</div><div class="big" style="color:var(--sour)">4.2<small> g/s</small></div></div>
+    </div>
+    <div>
+      <div class="ticks"><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="c"></i><i></i><i></i><i></i><i></i></div>
+      <div class="tl"><span>0:00</span><span>0:45</span><span>1:15</span><span>1:40</span><span>2:00</span><span>2:30</span></div>
+    </div>
+    <div class="pours">
+      <div class="pr d"><span>1</span>Bloom, swirl<span>0:00</span><span>50 g</span></div>
+      <div class="pr d"><span>2</span>Centre pour<span>0:45</span><span>100 g</span></div>
+      <div class="pr d"><span>3</span>Negotiate paper<span>1:15</span><span>150 g</span></div>
+      <div class="pr n"><span>4</span>Spiral, slow edge<span>1:40</span><span>200 g</span></div>
+    </div>
+  </div>
+  <div class="right">
+    <div class="l">Last cup · CW-014 · shot 48</div>
+    <div class="wheel">
+      <svg width="150" height="150" viewBox="-75 -75 150 150" aria-label="Flavour wheel">
+        <circle r="70" fill="none" stroke="#D5D8DD" stroke-width="22"/>
+        <circle r="70" fill="none" stroke="#C9518F" stroke-width="22" stroke-dasharray="70 370" transform="rotate(-90)"/>
+        <circle r="70" fill="none" stroke="#D8432F" stroke-width="22" stroke-dasharray="90 350" stroke-dashoffset="-72" transform="rotate(-90)"/>
+        <circle r="70" fill="none" stroke="#F08A24" stroke-width="22" stroke-dasharray="60 380" stroke-dashoffset="-164" transform="rotate(-90)"/>
+        <text y="6" text-anchor="middle" font-size="20" font-weight="800" fill="#1B2230">84.5</text>
+      </svg>
+      <div style="font-size:14px;line-height:1.6"><b>Floral</b> jasmine, bergamot<br><b>Fruity</b> white peach<br><b>Sour</b> bright, a touch sharp</div>
+    </div>
+    <div class="scale">Acidity<div class="sc"><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i></i><i></i></div>8</div>
+    <div class="scale">Sweetness<div class="sc"><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i></i><i></i><i></i><i></i></div>6</div>
+    <div class="scale">Body<div class="sc"><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i></i><i></i><i></i><i></i><i></i></div>5</div>
+    <div class="scale">Finish<div class="sc"><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i></i><i></i><i></i></div>7</div>
+    <div class="adv"><div class="l">Dial-in advice</div>Sour-leaning and flow ran fast. Go two steps finer (<b>Ode #4.9</b>) and keep 92 °C.</div>
+  </div>
+</section>
+<footer class="bar"><button>Pause</button><button>Mark pour</button><button class="p">Finish &amp; score cup</button></footer>
+</body></html>

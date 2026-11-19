@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>CoffeeWorks — Edit steps, espresso (iPad)</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#FFFFFF;--ink:#151515;--mute:#6B6B66;--rule:#E3E2DD;--tint:#F3F2EE;--flow:#E8590C;--c:#D62828;--on:#fff}
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:1194px;height:834px;overflow:hidden;background:var(--paper);color:var(--ink);font-family:Archivo,sans-serif;font-variant-numeric:tabular-nums;display:grid;grid-template-columns:212px 1fr}
+.rail{border-right:1px solid var(--rule);padding:22px 0}
+.mark{padding:0 20px 20px;font-weight:900;font-stretch:112%;font-size:20px;letter-spacing:-.02em;border-bottom:1px solid var(--rule)}
+.mark small{display:block;font-weight:500;font-stretch:100%;font-size:11px;letter-spacing:.08em;color:var(--mute);margin-top:4px;text-transform:uppercase}
+nav{padding:12px 0;border-bottom:1px solid var(--rule)}
+nav a{display:flex;justify-content:space-between;padding:10px 20px;font-size:15px;font-weight:500;color:var(--ink);text-decoration:none}
+nav a span{font-size:11px;color:var(--mute)}
+nav a.on{background:var(--ink);color:#fff;font-weight:700}
+nav a.on span{color:#bbb}
+.h{padding:16px 20px 8px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);font-weight:600}
+.drv{display:grid;grid-template-columns:14px 1fr auto;gap:10px;align-items:center;padding:8px 20px;font-size:13px}
+.drv i{width:14px;height:14px;display:block}
+.drv b{font-weight:600}.drv em{font-style:normal;font-size:11px;color:var(--mute)}
+.drv.on{background:var(--tint)}
+main{display:grid;grid-template-rows:auto auto 1fr auto;min-width:0}
+.label{background:var(--c);color:var(--on);padding:14px 28px;display:flex;align-items:flex-end;gap:20px}
+.lot{font-size:12px;letter-spacing:.12em;font-weight:700;text-transform:uppercase;opacity:.85}
+.title{font-weight:900;font-stretch:106%;font-size:26px;line-height:1.05;letter-spacing:-.02em;margin-top:6px}
+.base{margin-left:auto;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--on);padding:5px 9px;white-space:nowrap}
+.k{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);font-weight:700}
+.tl{padding:12px 28px 10px;border-bottom:1px solid var(--ink)}
+.tl .cap{display:flex;justify-content:space-between;font-size:11px;color:var(--mute);margin-bottom:5px;font-weight:600}
+.bar{display:flex;height:34px;border:1px solid var(--ink)}
+.seg{border-right:2px solid #fff;background:var(--ink);color:#fff;font-size:11px;font-weight:700;padding:4px 6px;overflow:hidden;white-space:nowrap}
+.seg.new{background:var(--c)}
+.tl svg{width:100%}
+.seg.ed{box-shadow:inset 0 -6px 0 #8FA3F0}
+.seg:last-child{border-right:0}
+.ghost{display:flex;height:8px;margin-top:4px}
+.ghost i{border-right:2px solid #fff;background:var(--rule)}
+.times{position:relative;height:14px;margin-top:3px;font-size:11px;color:var(--mute)}
+.times span{position:absolute;transform:translateX(-50%)}
+.times span:first-child{transform:none}.times span:last-child{transform:translateX(-100%)}
+.work{display:grid;grid-template-columns:1fr 268px;min-height:0}
+table{width:100%;border-collapse:collapse}
+th{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);font-weight:700;text-align:left;padding:10px 8px 6px;border-bottom:1px solid var(--ink)}
+th:first-child,td:first-child{padding-left:28px}
+td{padding:6px 8px;border-bottom:1px solid var(--rule);font-size:14px;vertical-align:middle;height:47px}
+.grip{color:#B5B3AD;font-size:16px;letter-spacing:-3px;width:14px}
+.in{border:1px solid var(--rule);height:34px;padding:0 9px;display:flex;align-items:center;font-size:14px;font-weight:600;background:#fff}
+.in.sel{justify-content:space-between}
+.in.sel:after{content:"▾";font-size:11px;color:var(--mute)}
+.step{display:grid;grid-template-columns:30px 54px 30px;border:1px solid var(--ink);height:34px;width:max-content}
+.step span{display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px}
+.step span.m{border-left:1px solid var(--ink);border-right:1px solid var(--ink);font-size:16px;font-stretch:90%}
+.was{display:block;font-size:11px;color:var(--mute);text-decoration:line-through;margin-top:2px}
+.chg{color:var(--c)}
+.chg .m{color:var(--c)}
+tr.new td{background:#FBE9E9}
+.tag{font-size:10px;font-weight:800;letter-spacing:.08em;background:var(--c);color:#fff;padding:2px 5px;margin-left:6px;vertical-align:middle}
+.st{color:var(--mute);font-size:13px}
+.acts{color:var(--mute);font-size:13px;white-space:nowrap}
+.add{margin:10px 28px;display:flex;gap:10px}
+.add button{height:44px;font-size:14px}
+aside.sum{border-left:1px solid var(--rule);padding:14px 20px;display:flex;flex-direction:column;gap:12px}
+.row{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--rule);padding-bottom:8px}
+.v{font-size:28px;font-weight:700;font-stretch:88%}
+.v small{font-size:13px;color:var(--mute);font-weight:500;margin-left:4px;font-stretch:100%}
+.ok{color:#1F7A55;font-size:13px;font-weight:700}
+.opt{border:1px solid var(--rule);padding:9px 11px;font-size:13px;line-height:1.35;display:grid;grid-template-columns:18px 1fr;gap:8px}
+.opt i{width:16px;height:16px;border:1.5px solid var(--ink);border-radius:50%;margin-top:1px}
+.opt.on{border-color:var(--ink)}
+.opt.on i{background:radial-gradient(circle,var(--ink) 0 4px,#fff 5px)}
+.opt b{display:block;font-size:14px}
+footer{border-top:1px solid var(--ink);display:flex;gap:12px;padding:12px 28px;align-items:center}
+button{font:inherit;font-weight:700;font-size:16px;height:56px;padding:0 24px;border:1px solid var(--ink);background:#fff;color:var(--ink);border-radius:0}
+button.p{background:var(--ink);color:#fff;margin-left:auto;padding:0 32px}
+.lnk{font-size:14px;font-weight:600;text-decoration:underline;color:var(--ink)}
+.prepbar{display:flex;gap:12px;align-items:center;margin:10px 28px 2px;padding:0 14px;height:42px;background:var(--tint);border:1px solid var(--ink);box-shadow:inset 5px 0 0 var(--c);color:var(--ink);text-decoration:none;font-size:14px;white-space:nowrap;overflow:hidden}
+.prepbar .pn{font-size:11px;font-weight:800;color:var(--mute);letter-spacing:.06em;padding-left:4px}
+.prepbar .pv{color:var(--mute);font-size:13px;overflow:hidden;text-overflow:ellipsis}
+.prepbar .go{margin-left:auto;font-weight:800;text-decoration:underline;font-size:13px}
+</style></head><body>
+<aside class="rail">
+  <div class="mark">CoffeeWorks<small>Brew station</small></div>
+  <nav>
+    <a class="on" href="#">Brew <span>editing</span></a><a href="#">Recipes <span>14</span></a><a href="#">Drink Lab <span>62</span></a><a href="#">Kopi <span>9</span></a><a href="#">Beans <span>5</span></a><a href="#">Gear <span>11</span></a><a href="#">Water <span>15</span></a><a href="#">History <span>48</span></a>
+  </nav>
+  <div class="h">Daily drivers</div>
+  <div class="drv on"><i style="background:#D62828"></i><b>Espresso</b><em>CW-001</em></div>
+  <div class="drv"><i style="background:#5D6B2F"></i><b>Lever</b><em>CW-002</em></div>
+  <div class="drv"><i style="background:#E9B523"></i><b>Moka</b><em>CW-003</em></div>
+  <div class="drv"><i style="background:#2747D6"></i><b>Filter</b><em>CW-014</em></div>
+  <div class="drv"><i style="background:#1F7A8C"></i><b>Immersion</b><em>CW-006</em></div>
+  <div class="drv"><i style="background:#1F7A55"></i><b>Kopi</b><em>CW-007</em></div>
+</aside>
+<main>
+  <header class="label">
+    <div><div class="lot">CW-001·B · Espresso · 18 g → 40 g · 1:2.2 · 93 °C</div><h1 class="title">Edit steps · Slayer 1:2.2, my version</h1></div>
+    <span class="base">Based on preset CW-001 · 4 changes</span>
+  </header>
+  <section class="tl">
+    <div class="cap"><span>Your pressure profile · 0:37</span><span>red = yours · dashed grey = preset (0:32)</span></div>
+    <svg width="926" height="96" viewBox="0 0 926 96" role="img" aria-label="Pressure profile" style="display:block;border:1px solid #151515">
+      <g stroke="#E3E2DD" stroke-width="1"><line x1="0" y1="57.5" x2="926" y2="57.5"/><line x1="0" y1="35" x2="926" y2="35"/><line x1="0" y1="12.5" x2="926" y2="12.5"/></g>
+      <g stroke="#E3E2DD" stroke-width="1"><line x1="200" y1="0" x2="200" y2="96"/><line x1="325" y1="0" x2="325" y2="96"/><line x1="476" y1="0" x2="476" y2="96"/><line x1="726" y1="0" x2="726" y2="96"/></g>
+      <rect x="200" y="0" width="125" height="96" fill="#FBE9E9"/>
+      <polyline points="0,57.5 200,57.5 350,12.5 601,12.5 801,35" fill="none" stroke="#9C9A94" stroke-width="2" stroke-dasharray="5 4"/>
+      <polyline points="0,57.5 200,57.5 200,86 325,86 476,16.25 726,16.25 926,35" fill="none" stroke="#D62828" stroke-width="3.5" stroke-linejoin="round"/>
+      <g font-family="Archivo" font-size="10.5" fill="#6B6B66"><text x="6" y="54">3 bar</text><text x="6" y="31">6 bar</text><text x="6" y="10">9 bar</text></g>
+      <g font-family="Archivo" font-size="11" font-weight="700" fill="#151515"><text x="206" y="92">Soak · NEW</text><text x="482" y="30">Hold 8.5</text><text x="732" y="30">→ 40 g</text></g>
+    </svg>
+    <div class="times"><span style="left:0">0:00</span><span style="left:21.6%">0:08</span><span style="left:35.1%">0:13</span><span style="left:51.4%">0:19</span><span style="left:78.4%">0:29</span><span style="left:100%">0:37</span></div>
+  </section>
+  <section class="work">
+    <div>
+      <a class="prepbar" href="prep-espresso.html"><span class="pn">00 ✓</span><b>Beans prep</b><span class="pv">18.0 g · P64 #1.3 · 93 °C · bottom paper, WDT, 30 lb tamp, 0.2 mm screen</span><span class="go">Open prep →</span></a>
+      <table>
+        <thead><tr><th></th><th>Step</th><th>Control</th><th>Target</th><th>Duration</th><th>Ends when</th><th></th></tr></thead>
+        <tbody>
+          <tr><td class="grip">⋮⋮</td><td><div class="in">Pre-infuse</div></td><td><div class="in sel">Pressure</div></td><td><div class="in" style="width:84px">3.0 bar</div></td><td><div class="step"><span>−</span><span class="m">0:08</span><span>+</span></div></td><td><div class="in sel" style="width:120px">Time</div></td><td class="acts">⧉ ✕</td></tr>
+          <tr class="new"><td class="grip">⋮⋮</td><td><div class="in">Soak<span class="tag">NEW</span></div></td><td><div class="in sel">Pressure</div></td><td><div class="in" style="width:84px">0 bar</div></td><td><div class="step"><span>−</span><span class="m">0:05</span><span>+</span></div></td><td><div class="in sel" style="width:120px">Time</div></td><td class="acts">⧉ ✕</td></tr>
+          <tr><td class="grip">⋮⋮</td><td><div class="in">Ramp up</div></td><td><div class="in sel">Pressure</div></td><td class="chg"><div class="in" style="width:84px">→ 8.5 bar</div><span class="was">→ 9.0</span></td><td><div class="step"><span>−</span><span class="m">0:06</span><span>+</span></div></td><td><div class="in sel" style="width:120px">Time</div></td><td class="acts">⧉ ✕</td></tr>
+          <tr><td class="grip">⋮⋮</td><td><div class="in">Hold peak</div></td><td><div class="in sel">Pressure</div></td><td class="chg"><div class="in" style="width:84px">8.5 bar</div><span class="was">9.0</span></td><td><div class="step"><span>−</span><span class="m">0:10</span><span>+</span></div></td><td><div class="in sel" style="width:120px">Time</div></td><td class="acts">⧉ ✕</td></tr>
+          <tr><td class="grip">⋮⋮</td><td><div class="in">Declining tail</div></td><td><div class="in sel">Pressure</div></td><td><div class="in" style="width:84px">→ 6.0 bar</div></td><td><div class="step"><span>−</span><span class="m">0:08</span><span>+</span></div></td><td class="chg"><div class="in sel" style="width:120px">Weight 40 g</div><span class="was">Time</span></td><td class="acts">⧉ ✕</td></tr>
+        </tbody>
+      </table>
+      <div class="add"><button>+ Add step</button><button>+ From step library</button></div>
+      <p style="margin:4px 28px;font-size:13px;color:#6B6B66;line-height:1.45">Control can be <b style="color:#151515">Pressure</b> (bar) or <b style="color:#151515">Flow</b> (ml/s). "Ends when" can be time, weight in cup, or first drops. On a machine without profiling, targets show as reminders you follow by hand.</p>
+    </div>
+    <aside class="sum">
+      <div class="row"><span class="k">Total time</span><span class="v">0:37<small>preset 0:32</small></span></div>
+      <div class="row"><span class="k">Yield</span><span class="v">40<small>g</small> <span class="ok">✓ last step</span></span></div>
+      <div class="row"><span class="k">Peak</span><span class="v">8.5<small>bar · preset 9.0</small></span></div>
+      <div class="k" style="margin-top:4px">Save these steps as</div>
+      <div class="opt on"><i></i><span><b>My version · CW-001·B</b>Keeps the preset untouched</span></div>
+      <div class="opt"><i></i><span><b>Update CW-001</b>Replace the preset's steps</span></div>
+      <div class="opt"><i></i><span><b>This shot only</b>Logged in History, not saved</span></div>
+    </aside>
+  </section>
+  <footer>
+    <button>Cancel</button><a class="lnk" href="#">Reset to preset</a>
+    <button class="p">Save &amp; pull shot</button>
+  </footer>
+</main>
+</body></html>

@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>CoffeeWorks — kopi brewing (iPad)</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#FFFFFF;--ink:#151515;--mute:#6B6B66;--rule:#E3E2DD;--tint:#F3F2EE;--flow:#E8590C;--c:#1F7A55;--on:#fff}
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:1194px;height:834px;overflow:hidden;background:var(--paper);color:var(--ink);font-family:Archivo,sans-serif;font-variant-numeric:tabular-nums;display:grid;grid-template-columns:212px 1fr}
+.rail{border-right:1px solid var(--rule);padding:22px 0;display:flex;flex-direction:column}
+.mark{padding:0 20px 20px;font-weight:900;font-stretch:112%;font-size:20px;letter-spacing:-.02em;border-bottom:1px solid var(--rule)}
+.mark small{display:block;font-weight:500;font-stretch:100%;font-size:11px;letter-spacing:.08em;color:var(--mute);margin-top:4px;text-transform:uppercase}
+nav{padding:12px 0;border-bottom:1px solid var(--rule)}
+nav a{display:flex;justify-content:space-between;padding:10px 20px;font-size:15px;font-weight:500;color:var(--ink);text-decoration:none}
+nav a span{font-size:11px;color:var(--mute)}
+nav a.on{background:var(--ink);color:#fff;font-weight:700}
+nav a.on span{color:#bbb}
+.h{padding:16px 20px 8px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);font-weight:600}
+.drv{display:grid;grid-template-columns:14px 1fr auto;gap:10px;align-items:center;padding:8px 20px;font-size:13px}
+.drv i{width:14px;height:14px;display:block}
+.drv b{font-weight:600}.drv em{font-style:normal;font-size:11px;color:var(--mute)}
+.drv.on{background:var(--tint)}
+main{display:grid;grid-template-rows:auto auto auto auto 1fr auto;min-width:0}
+.label{background:var(--c);color:var(--on);padding:16px 28px;display:grid;grid-template-columns:1fr 330px;gap:24px;align-items:end}
+.lot{font-size:12px;letter-spacing:.12em;font-weight:700;text-transform:uppercase;opacity:.85}
+.title{font-weight:900;font-stretch:106%;font-size:29px;line-height:1.02;letter-spacing:-.025em;margin-top:8px}
+.spec{display:grid;grid-template-columns:72px 1fr;font-size:12.5px;border-top:1px solid color-mix(in srgb,var(--on) 45%,transparent)}
+.spec dt,.spec dd{padding:4px 0;border-bottom:1px solid color-mix(in srgb,var(--on) 30%,transparent)}
+.spec dt{text-transform:uppercase;font-size:10.5px;letter-spacing:.1em;opacity:.8;padding-top:6px}
+.spec dd{font-weight:600}
+.k{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);font-weight:700}
+.clock{display:grid;grid-template-columns:1fr 300px;border-bottom:1px solid var(--ink)}
+.step{padding:16px 28px 14px}
+.stepname{font-size:22px;font-weight:700;margin-top:6px}
+.count{font-weight:800;font-stretch:78%;font-size:176px;line-height:.82;letter-spacing:-.04em;margin:10px 0 10px}
+.count small{font-size:38px;font-stretch:100%;font-weight:600;color:var(--mute);letter-spacing:0;margin-left:10px}
+.target{font-size:20px;font-weight:600}
+.target b{font-weight:800}
+.side{border-left:1px solid var(--rule);display:grid;grid-template-rows:repeat(3,1fr)}
+.side div{padding:12px 22px;border-bottom:1px solid var(--rule)}
+.side div:last-child{border-bottom:0}
+.v{font-size:42px;font-weight:700;font-stretch:88%;letter-spacing:-.02em;line-height:1.05}
+.v u{text-decoration:none;font-size:15px;color:var(--mute);font-weight:500;margin-left:4px;font-stretch:100%}
+.flow,.flow u{color:var(--flow)}
+.steps{display:grid;border-bottom:1px solid var(--rule)}
+.s{padding:11px 16px 12px;border-right:1px solid var(--rule)}
+.s:last-child{border-right:0}
+.s .n{font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--mute)}
+.s .nm{font-size:14px;font-weight:600;margin-top:2px}
+.s .d{font-size:36px;font-weight:800;font-stretch:85%;letter-spacing:-.02em;margin-top:6px;line-height:1}
+.s .g{font-size:13px;color:var(--mute);margin-top:4px}
+.s.done .nm{text-decoration:line-through;color:var(--mute)}
+.s.done .d{color:var(--mute)}
+.s.now{background:var(--c);color:var(--on)}
+.s.now .n,.s.now .g{color:var(--on);opacity:.85}
+.tl{padding:8px 28px 0}
+.tl .cap{display:flex;justify-content:space-between;font-size:11px;color:var(--mute);margin-bottom:4px;font-weight:600}
+.tl .bar{position:relative;display:flex;height:26px;border:1px solid var(--ink)}
+.tl .seg{position:relative;border-right:2px solid var(--ink);background:repeating-linear-gradient(90deg,transparent 0 calc(var(--tick) - 1px),var(--rule) calc(var(--tick) - 1px) var(--tick))}
+.tl .seg:last-child{border-right:0}
+.tl .seg.done{background:var(--ink);border-right-color:#fff}
+.tl .seg.now i{position:absolute;left:0;top:0;bottom:0;background:var(--c)}
+.tl .head{position:absolute;top:-6px;bottom:-6px;width:3px;background:var(--flow)}
+.tl .times{position:relative;height:14px;margin-top:4px;font-size:11px;color:var(--mute)}
+.tl .times span{position:absolute;transform:translateX(-50%)}
+.tl .times span:first-child{transform:none}
+.tl .times span:last-child{transform:translateX(-100%)}
+.adv{margin:12px 28px 0;display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center;padding:11px 16px;border:1px solid var(--ink);font-size:15px;line-height:1.4;align-self:start}
+.adv b{background:var(--ink);color:#fff;font-size:11px;letter-spacing:.1em;padding:4px 7px;text-transform:uppercase}
+footer{border-top:1px solid var(--ink);display:flex;gap:12px;padding:12px 28px;align-items:center}
+button{font:inherit;font-weight:700;font-size:16px;height:56px;padding:0 26px;border:1px solid var(--ink);background:#fff;color:var(--ink);border-radius:0}
+button.p{background:var(--ink);color:#fff;margin-left:auto;padding:0 34px}
+.chip{font-size:12px;color:var(--mute);margin-left:8px}
+</style></head><body>
+<aside class="rail">
+  <div class="mark">CoffeeWorks<small>Brew station</small></div>
+  <nav>
+    <a class="on" href="#">Brew <span>running</span></a><a href="#">Recipes <span>14</span></a><a href="#">Drink Lab <span>62</span></a><a href="#">Kopi <span>9</span></a><a href="#">Beans <span>5</span></a><a href="#">Gear <span>11</span></a><a href="#">Water <span>15</span></a><a href="#">History <span>48</span></a>
+  </nav>
+  <div class="h">Daily drivers</div>
+  <div class="drv"><i style="background:#D62828"></i><b>Espresso</b><em>CW-001</em></div><div class="drv"><i style="background:#5D6B2F"></i><b>Lever</b><em>CW-002</em></div><div class="drv"><i style="background:#E9B523"></i><b>Moka</b><em>CW-003</em></div><div class="drv"><i style="background:#2747D6"></i><b>Filter</b><em>CW-014</em></div><div class="drv"><i style="background:#1F7A8C"></i><b>Immersion</b><em>CW-006</em></div><div class="drv on"><i style="background:#1F7A55"></i><b>Kopi</b><em>CW-007</em></div>
+</aside>
+<main>
+  <header class="label">
+    <div><div class="lot">CW-007 · Kopi · 25 g · 180 ml water → 140 ml essence · 100 °C</div><h1 class="title">Kopi Gao · Thick &amp; Rich</h1></div>
+    <dl class="spec"><dt>Bean</dt><dd>Wok-roast Robusta · butter &amp; sugar · 18 d</dd><dt>Gear</dt><dd>Long-spout kettle · flannel sock</dd><dt>Cup</dt><dd>Condensed 30 g · evap 15 g · sugar 0</dd><dt>Order</dt><dd>Kopi Gao · hot</dd></dl>
+  </header>
+  <section class="clock">
+    <div class="step">
+      <div class="k">Step 3 of 4 · time left in this step</div>
+      <div class="stepname">Lift &amp; dip the sock</div>
+      <div class="count">0:25<small>of 0:40</small></div>
+      <div class="target">Dip <b>3 of 4</b> · pull high for body</div>
+    </div>
+    <div class="side"><div><div class="k">Total time</div><div class="v">2:15<u>/ 3:00</u></div></div><div><div class="k flow">Flow rate</div><div class="v flow">0.9<u>g/s · aim 0.88</u></div></div><div><div class="k">Next</div><div class="v">Pour<u>over milk, stir</u></div></div></div>
+  </section>
+  <section class="steps" style="grid-template-columns:repeat(4,1fr)"><div class="s done"><div class="n">01 ✓</div><div class="nm">Pour water through sock</div><div class="d">0:30</div><div class="g">plan 0:30</div></div><div class="s done"><div class="n">02 ✓</div><div class="nm">Steep in pot</div><div class="d">1:30</div><div class="g">plan 1:30</div></div><div class="s now"><div class="n">03 · now</div><div class="nm">Lift &amp; dip ×4</div><div class="d">0:40</div><div class="g">dip 3 of 4</div></div><div class="s "><div class="n">04</div><div class="nm">Pour over milk, stir</div><div class="d">0:20</div><div class="g">140 ml</div></div></section>
+  <div class="tl" aria-label="Brew timeline">
+    <div class="cap"><span>Timeline · planned · <a href="#" style="color:var(--ink);font-weight:700">Edit steps</a></span><span>each tick = 5 s</span></div>
+    <div class="bar" style="--tick:25.72px"><div class="seg done" style="width:16.67%"></div><div class="seg done" style="width:50.00%"></div><div class="seg now" style="width:22.22%"><i style="width:37.5%"></i></div><div class="seg " style="width:11.11%"></div><div class="head" style="left:75.00%"></div></div>
+    <div class="times"><span style="left:0.00%">0:00</span><span style="left:16.67%">0:30</span><span style="left:66.67%">2:00</span><span style="left:88.89%">2:40</span><span style="left:100.00%">3:00</span></div>
+  </div>
+  <div class="adv"><b>Dial-in</b><span>Last Kopi Gao came out a touch thin. Add one more dip, or go 2 g up to 27 g in the sock.</span></div>
+  <footer>
+    <button>Pause</button><button>+5 s</button><button>Next step</button><span class="chip">Lot CW-007 · shot 49</span>
+    <button class="p">Serve &amp; taste</button>
+  </footer>
+</main>
+</body></html>
