@@ -255,3 +255,119 @@ export const WATER_SOURCE_OPTIONS: DropdownOption[] = [
   { label: 'Remineralized RO (Third Wave Water / Lotus Drops / Barista Hustle Recipe)', value: 'remineralized_ro', group: 'Remineralized RO' },
   { label: 'Filtration Jug (Peak Water Ion-Exchange / Brita / ZeroWater)', value: 'filtration_jug', group: 'Filtration Jugs' },
 ];
+
+export const PORTAFILTER_OPTIONS: DropdownOption[] = [
+  // None / Not specified
+  { label: 'N/A (Standard / Unspecified portafilter)', value: 'N/A', group: 'None / Not Applicable' },
+
+  // MHW-3BOMBER (MH3W)
+  { label: 'MHW-3BOMBER 58mm Bottomless Naked Portafilter (Solid Wood Handle)', value: 'MHW-3BOMBER 58mm Bottomless', group: 'MHW-3BOMBER (MH3W)' },
+  { label: 'MHW-3BOMBER 58mm Double Spout Portafilter (Modular Spout)', value: 'MHW-3BOMBER 58mm Double Spout', group: 'MHW-3BOMBER (MH3W)' },
+  { label: 'MHW-3BOMBER 58mm Single Spout Portafilter', value: 'MHW-3BOMBER 58mm Single Spout', group: 'MHW-3BOMBER (MH3W)' },
+  { label: 'MHW-3BOMBER 54mm Breville Bottomless Naked Portafilter', value: 'MHW-3BOMBER 54mm Breville Bottomless', group: 'MHW-3BOMBER (MH3W)' },
+  { label: 'MHW-3BOMBER 51mm Bottomless Portafilter (Delonghi / La Pavoni)', value: 'MHW-3BOMBER 51mm Bottomless', group: 'MHW-3BOMBER (MH3W)' },
+
+  // Pesado
+  { label: 'Pesado 58.5 Modular Bottomless Naked Portafilter', value: 'Pesado 58.5 Bottomless', group: 'Pesado' },
+  { label: 'Pesado 58.5 Double Spout Modular Portafilter', value: 'Pesado 58.5 Double Spout', group: 'Pesado' },
+  { label: 'Pesado 58.5 Single Spout Modular Portafilter', value: 'Pesado 58.5 Single Spout', group: 'Pesado' },
+  { label: 'Pesado 54mm Breville Hybrid Bottomless Portafilter', value: 'Pesado 54mm Breville Bottomless', group: 'Pesado' },
+
+  // IKAPE
+  { label: 'IKAPE 58mm Bottomless Naked Portafilter (Wood Ergonomic Handle)', value: 'IKAPE 58mm Bottomless', group: 'IKAPE' },
+  { label: 'IKAPE 58mm Double Spout Portafilter', value: 'IKAPE 58mm Double Spout', group: 'IKAPE' },
+  { label: 'IKAPE 58mm Single Spout Portafilter', value: 'IKAPE 58mm Single Spout', group: 'IKAPE' },
+  { label: 'IKAPE 54mm Breville Bottomless Naked Portafilter', value: 'IKAPE 54mm Breville Bottomless', group: 'IKAPE' },
+
+  // Normcore
+  { label: 'Normcore 58mm Bottomless Naked Portafilter (Walnut / Anodized)', value: 'Normcore 58mm Bottomless', group: 'Normcore' },
+  { label: 'Normcore 58mm Detachable Double Spout Portafilter', value: 'Normcore 58mm Double Spout', group: 'Normcore' },
+  { label: 'Normcore 58mm Single Spout Portafilter', value: 'Normcore 58mm Single Spout', group: 'Normcore' },
+  { label: 'Normcore 54mm Breville Bottomless Naked Portafilter', value: 'Normcore 54mm Breville Bottomless', group: 'Normcore' },
+
+  // Artisan & Monolithic Billet
+  { label: 'Weber Workshops Buck (Monolithic 58mm Naked)', value: 'Weber Buck Bottomless', group: 'Artisan & Billet' },
+  { label: 'Weber Workshops Unifilter (Zero Bypass Integrated Billet)', value: 'Weber Unifilter', group: 'Artisan & Billet' },
+  { label: 'SworksDesign Billet Modular Bottomless Portafilter (58mm)', value: 'SworksDesign Billet Bottomless', group: 'Artisan & Billet' },
+
+  // La Marzocco OEM
+  { label: 'La Marzocco OEM Stainless Steel Bottomless Naked Portafilter', value: 'La Marzocco OEM Bottomless', group: 'La Marzocco OEM' },
+  { label: 'La Marzocco OEM Stainless Double Spout Portafilter', value: 'La Marzocco OEM Double Spout', group: 'La Marzocco OEM' },
+  { label: 'La Marzocco OEM Stainless Single Spout Portafilter', value: 'La Marzocco OEM Single Spout', group: 'La Marzocco OEM' },
+
+  // Lelit OEM
+  { label: 'Lelit 58mm Bottomless Naked Portafilter (Walnut Handle)', value: 'Lelit OEM Bottomless Walnut', group: 'Lelit OEM' },
+  { label: 'Lelit 58mm Double Spout "Coffee Slide" Portafilter', value: 'Lelit OEM Double Spout', group: 'Lelit OEM' },
+  { label: 'Lelit 58mm Single Spout "Coffee Slide" Portafilter', value: 'Lelit OEM Single Spout', group: 'Lelit OEM' },
+
+  // Breville / Sage OEM
+  { label: 'Breville 54mm Bottomless Naked Portafilter (Bambino / Express)', value: 'Breville 54mm Bottomless', group: 'Breville / Sage OEM' },
+  { label: 'Breville 54mm Double Spout OEM Portafilter', value: 'Breville 54mm Double Spout', group: 'Breville / Sage OEM' },
+  { label: 'Breville 54mm Single Spout OEM Portafilter', value: 'Breville 54mm Single Spout', group: 'Breville / Sage OEM' },
+  { label: 'Breville 58mm Dual Boiler Bottomless Naked Portafilter', value: 'Breville 58mm Bottomless', group: 'Breville / Sage OEM' },
+  { label: 'Breville 58mm Dual Boiler Double Spout OEM Portafilter', value: 'Breville 58mm Double Spout', group: 'Breville / Sage OEM' },
+  { label: 'Breville 58mm Dual Boiler Single Spout OEM Portafilter', value: 'Breville 58mm Single Spout', group: 'Breville / Sage OEM' },
+
+  // Rocket Espresso OEM
+  { label: 'Rocket Espresso 58mm Bottomless Naked Portafilter', value: 'Rocket OEM Bottomless', group: 'Rocket Espresso OEM' },
+  { label: 'Rocket Espresso 58mm Double Spout Portafilter', value: 'Rocket OEM Double Spout', group: 'Rocket Espresso OEM' },
+  { label: 'Rocket Espresso 58mm Single Spout Portafilter', value: 'Rocket OEM Single Spout', group: 'Rocket Espresso OEM' },
+
+  // ECM & Profitec OEM
+  { label: 'ECM / Profitec 58mm Gran Crema Bottomless Naked Portafilter', value: 'ECM Bottomless Naked', group: 'ECM & Profitec OEM' },
+  { label: 'ECM / Profitec 58mm Angled Double Spout Portafilter', value: 'ECM Double Spout', group: 'ECM & Profitec OEM' },
+  { label: 'ECM / Profitec 58mm Angled Single Spout Portafilter', value: 'ECM Single Spout', group: 'ECM & Profitec OEM' },
+
+  // Gaggia OEM
+  { label: 'Gaggia Classic 58mm Bottomless Naked Portafilter', value: 'Gaggia Bottomless Naked', group: 'Gaggia OEM' },
+  { label: 'Gaggia Classic 58mm Double Spout OEM Portafilter', value: 'Gaggia Double Spout OEM', group: 'Gaggia OEM' },
+  { label: 'Gaggia Classic 58mm Single Spout OEM Portafilter', value: 'Gaggia Single Spout OEM', group: 'Gaggia OEM' },
+
+  // Slayer, Synesso & Kees van der Westen
+  { label: 'Slayer Espresso 58mm Hardwood Bottomless Portafilter', value: 'Slayer Bottomless', group: 'Slayer / KvdW / Synesso' },
+  { label: 'Slayer Espresso 58mm Double Spout Portafilter', value: 'Slayer Double Spout', group: 'Slayer / KvdW / Synesso' },
+  { label: 'Kees van der Westen (KvdW) 58mm Naked Bottomless Portafilter', value: 'KvdW Naked Bottomless', group: 'Slayer / KvdW / Synesso' },
+  { label: 'Synesso 58mm Commercial Bottomless Naked Portafilter', value: 'Synesso Bottomless', group: 'Slayer / KvdW / Synesso' },
+
+  // Manual Lever & Portable
+  { label: 'Flair 58 Bottomless Naked Portafilter (Walnut Grip)', value: 'Flair 58 Bottomless', group: 'Manual Lever & Portable' },
+  { label: 'Cafelat Robot Naked Portafilter (Dual Lever)', value: 'Cafelat Robot Naked', group: 'Manual Lever & Portable' },
+  { label: 'Cafelat Robot Spouted Dual Split Portafilter', value: 'Cafelat Robot Spouted', group: 'Manual Lever & Portable' },
+  { label: 'Odyssey Argos 58mm Bottomless Naked Portafilter', value: 'Odyssey Argos Bottomless', group: 'Manual Lever & Portable' },
+  { label: '9Barista Precision 53mm Portafilter Assembly', value: '9Barista Portafilter Assembly', group: 'Manual Lever & Portable' },
+  { label: 'Wacaco Picopresso 52mm Naked Bottomless Portafilter', value: 'Picopresso Naked Portafilter', group: 'Manual Lever & Portable' },
+];
+
+export const SHOWER_SCREEN_OPTIONS: DropdownOption[] = [
+  // None / Not specified
+  { label: 'N/A (Standard factory OEM shower screen)', value: 'N/A', group: 'None / Not Applicable' },
+
+  // Pesado
+  { label: 'Pesado High-Extraction Precision Shower Screen (58.5mm / 200µm Integrated Membrane)', value: 'Pesado High-Extraction Screen', group: 'Pesado' },
+  { label: 'Pesado Reinforced Laser-Cut Dispersion Screen (E61 / La Marzocco)', value: 'Pesado Reinforced Laser Screen', group: 'Pesado' },
+
+  // IKAPE
+  { label: 'IKAPE High-Flow Stainless Steel Shower Screen (58.5mm E61)', value: 'IKAPE 58.5mm Stainless Screen', group: 'IKAPE' },
+  { label: 'IKAPE Nanotech Non-Stick Shower Screen (58mm E61 / La Marzocco)', value: 'IKAPE Nanotech Screen', group: 'IKAPE' },
+  { label: 'IKAPE Breville 54mm Precision Replacement Shower Screen', value: 'IKAPE Breville 54mm Screen', group: 'IKAPE' },
+  { label: 'IKAPE Gaggia Classic 58mm Precision Dispersion Screen', value: 'IKAPE Gaggia Screen', group: 'IKAPE' },
+
+  // MHW-3BOMBER (MH3W)
+  { label: 'MHW-3BOMBER Titanium Coated Precision Shower Screen (58.5mm E61)', value: 'MHW-3BOMBER Titanium Shower Screen', group: 'MHW-3BOMBER (MH3W)' },
+  { label: 'MHW-3BOMBER Sintered Mesh Dispersion Shower Screen', value: 'MHW-3BOMBER Sintered Screen', group: 'MHW-3BOMBER (MH3W)' },
+  { label: 'MHW-3BOMBER Breville 54mm Nano Dispersion Screen', value: 'MHW-3BOMBER Breville 54mm Screen', group: 'MHW-3BOMBER (MH3W)' },
+
+  // IMS Competition & E&B Lab
+  { label: 'IMS Competition Nanotech E61 200 NT (Quartz Nanotechnology)', value: 'IMS E61 200 NT Nanotech', group: 'IMS & E&B Lab' },
+  { label: 'IMS Competition E61 Integrated Membrane (E61 200 IM)', value: 'IMS E61 200 IM', group: 'IMS & E&B Lab' },
+  { label: 'IMS Competition La Marzocco / Slayer / Synesso (MA 200 IM)', value: 'IMS MA 200 IM (LM/Slayer)', group: 'IMS & E&B Lab' },
+  { label: 'IMS Competition Breville 54mm (BV 200 IM / Bambino / Express)', value: 'IMS BV 200 IM (Breville 54mm)', group: 'IMS & E&B Lab' },
+  { label: 'IMS Competition Gaggia Classic (GA 200 IM)', value: 'IMS GA 200 IM (Gaggia)', group: 'IMS & E&B Lab' },
+  { label: 'E&B Lab All-in-One Reinforced Matrix Membrane (E61 200 RNT)', value: 'E&B Lab E61 200 RNT', group: 'IMS & E&B Lab' },
+
+  // Specialty Diffusion & OEM
+  { label: 'SworksDesign Billet Diffusion Dispersion Screen (Ultra-Even Flow)', value: 'SworksDesign Billet Diffusion', group: 'Specialty Diffusion' },
+  { label: 'Matrix Sintered Stainless Multi-Layer Group Dispersion Screen', value: 'Matrix Sintered Group Screen', group: 'Specialty Diffusion' },
+  { label: 'Slayer OEM Precision Saturated Group Screen', value: 'Slayer OEM Dispersion Screen', group: 'Specialty Diffusion' },
+  { label: 'La Marzocco OEM Factory Stainless Screen', value: 'La Marzocco OEM Screen', group: 'Specialty Diffusion' },
+];

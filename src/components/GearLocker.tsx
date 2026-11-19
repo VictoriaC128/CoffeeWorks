@@ -11,6 +11,8 @@ import {
   GRINDER_OPTIONS,
   WDT_OPTIONS,
   PUCK_SCREEN_OPTIONS,
+  PORTAFILTER_OPTIONS,
+  SHOWER_SCREEN_OPTIONS,
 } from '../data/dropdownCatalog';
 
 export const GearLocker: React.FC = () => {
@@ -27,6 +29,8 @@ export const GearLocker: React.FC = () => {
   const [hasFlowControl, setHasFlowControl] = useState(false);
   const [hasPreInfusion, setHasPreInfusion] = useState(false);
   const [basketType, setBasketType] = useState('WAFO Spirit');
+  const [portafilter, setPortafilter] = useState('MHW-3BOMBER 58mm Bottomless');
+  const [showerScreen, setShowerScreen] = useState('Pesado High-Extraction Screen');
   const [dripperModel, setDripperModel] = useState('Orea V4 Modular (Apex Base)');
   const [filterPaperType, setFilterPaperType] = useState('Sibarist FAST Flat');
   const [isCeramicFilter, setIsCeramicFilter] = useState(false);
@@ -52,6 +56,8 @@ export const GearLocker: React.FC = () => {
     setHasFlowControl(true);
     setHasPreInfusion(true);
     setBasketType('WAFO Spirit');
+    setPortafilter('MHW-3BOMBER 58mm Bottomless');
+    setShowerScreen('Pesado High-Extraction Screen');
     setDripperModel('Orea V4 Modular (Apex Base)');
     setFilterPaperType('Sibarist FAST Flat');
     setIsCeramicFilter(false);
@@ -77,6 +83,8 @@ export const GearLocker: React.FC = () => {
     setHasFlowControl(gear.hasFlowControl || false);
     setHasPreInfusion(gear.hasPreInfusion || false);
     setBasketType(gear.basketType || '');
+    setPortafilter(gear.portafilter || 'N/A');
+    setShowerScreen(gear.showerScreen || 'N/A');
     setDripperModel(gear.dripperModel || '');
     setFilterPaperType(gear.filterPaperType || '');
     setIsCeramicFilter(gear.isCeramicFilter || false);
@@ -106,6 +114,8 @@ export const GearLocker: React.FC = () => {
       hasFlowControl: category === 'espresso' || category === 'manual_lever' ? hasFlowControl : undefined,
       hasPreInfusion: category === 'espresso' || category === 'manual_lever' ? hasPreInfusion : undefined,
       basketType: category === 'espresso' || category === 'manual_lever' ? basketType : undefined,
+      portafilter: (category === 'espresso' || category === 'manual_lever') && portafilter !== 'N/A' ? portafilter : undefined,
+      showerScreen: (category === 'espresso' || category === 'manual_lever') && showerScreen !== 'N/A' ? showerScreen : undefined,
       dripperModel: category === 'filter' ? dripperModel : undefined,
       filterPaperType: category === 'filter' ? filterPaperType : undefined,
       isCeramicFilter: category === 'filter' ? isCeramicFilter : undefined,
@@ -251,6 +261,18 @@ export const GearLocker: React.FC = () => {
                   {gear.basketType && (
                     <p className="text-[11px] font-mono text-stone-400 mt-1">
                       Basket: <span className="text-amber-400/90 font-semibold">{gear.basketType}</span>
+                    </p>
+                  )}
+
+                  {gear.portafilter && gear.portafilter !== 'N/A' && (
+                    <p className="text-[11px] font-mono text-stone-400 mt-0.5">
+                      Portafilter: <span className="text-stone-300 font-semibold">{gear.portafilter}</span>
+                    </p>
+                  )}
+
+                  {gear.showerScreen && gear.showerScreen !== 'N/A' && (
+                    <p className="text-[11px] font-mono text-stone-400 mt-0.5">
+                      Shower Screen: <span className="text-purple-400 font-semibold">{gear.showerScreen}</span>
                     </p>
                   )}
 
@@ -453,6 +475,24 @@ export const GearLocker: React.FC = () => {
                       onChange={setPuckScreenThickness}
                       options={PUCK_SCREEN_OPTIONS}
                       customVariableGroup="puck_screens"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                    <SmartDropdownWithOthers
+                      label="Portafilter (Bottomless / Spouted):"
+                      value={portafilter}
+                      onChange={setPortafilter}
+                      options={PORTAFILTER_OPTIONS}
+                      customVariableGroup="portafilters"
+                    />
+
+                    <SmartDropdownWithOthers
+                      label="Shower Screen (Pesado / IKAPE / IMS):"
+                      value={showerScreen}
+                      onChange={setShowerScreen}
+                      options={SHOWER_SCREEN_OPTIONS}
+                      customVariableGroup="shower_screens"
                     />
                   </div>
 

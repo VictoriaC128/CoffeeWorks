@@ -53,6 +53,12 @@ export const DialInHistory: React.FC = () => {
                     {session.toolsUsed?.tamper && session.toolsUsed.tamper !== 'N/A' && (
                       <span className="text-stone-500">• Tamper: <strong className="text-amber-400">{session.toolsUsed.tamper}</strong></span>
                     )}
+                    {session.toolsUsed?.portafilter && session.toolsUsed.portafilter !== 'N/A' && (
+                      <span className="text-stone-500">• Portafilter: <strong className="text-stone-300">{session.toolsUsed.portafilter}</strong></span>
+                    )}
+                    {session.toolsUsed?.showerScreen && session.toolsUsed.showerScreen !== 'N/A' && (
+                      <span className="text-stone-500">• Shower Screen: <strong className="text-purple-400">{session.toolsUsed.showerScreen}</strong></span>
+                    )}
                     {session.toolsUsed?.puckScreen && session.toolsUsed.puckScreen !== 'N/A' && (
                       <span className="text-stone-500">• Screen: <strong className="text-cyan-400">{session.toolsUsed.puckScreen}</strong></span>
                     )}

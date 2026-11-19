@@ -181,6 +181,20 @@ export const RecipeCard: React.FC<Props> = ({ recipe, onEdit, onLaunchBrew }) =>
             </div>
           )}
 
+          {recipe.portafilter && recipe.portafilter !== 'N/A' && (
+            <div className="flex items-center space-x-1.5 text-stone-300 truncate font-mono text-[10px]">
+              <span className="text-stone-400 font-semibold">Portafilter:</span>
+              <span className="truncate">{recipe.portafilter}</span>
+            </div>
+          )}
+
+          {recipe.showerScreen && recipe.showerScreen !== 'N/A' && (
+            <div className="flex items-center space-x-1.5 text-stone-300 truncate font-mono text-[10px]">
+              <span className="text-purple-400 font-semibold">Shower Screen:</span>
+              <span className="truncate">{recipe.showerScreen}</span>
+            </div>
+          )}
+
           {gear?.filterPaperType && gear.filterPaperType !== 'N/A' && (
             <div className="flex items-center space-x-1.5 text-amber-400/90 font-medium truncate">
               <ShieldCheck className="w-3.5 h-3.5 text-amber-400 shrink-0" />

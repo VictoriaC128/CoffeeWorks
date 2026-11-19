@@ -28,6 +28,8 @@ import {
   TAMPER_OPTIONS,
   PUCK_SCREEN_OPTIONS,
   WDT_OPTIONS,
+  PORTAFILTER_OPTIONS,
+  SHOWER_SCREEN_OPTIONS,
 } from '../data/dropdownCatalog';
 
 interface Props {
@@ -106,6 +108,8 @@ export const OnboardingModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const [grinderChoice, setGrinderChoice] = useState<string>('Option-O Lagom P64');
   const [waterChoice, setWaterChoice] = useState<string>('Singapore PUB Tap Water (Ultra-Soft)');
   const [basketChoice, setBasketChoice] = useState<string>('MHW-3BOMBER DEX / Sniper High-Flow Basket (58.5mm)');
+  const [portafilterChoice, setPortafilterChoice] = useState<string>('MHW-3BOMBER 58mm Bottomless');
+  const [showerScreenChoice, setShowerScreenChoice] = useState<string>('Pesado High-Extraction Screen');
   const [tamperChoice, setTamperChoice] = useState<string>('MHW-3BOMBER Flash Constant Pressure Tamper (30 lbs / Auto-Leveling)');
   const [puckScreenChoice, setPuckScreenChoice] = useState<string>('0.8mm MHW-3BOMBER Titanium Coated Contact Puck Screen');
   const [wdtChoice, setWdtChoice] = useState<string>('MHW-3BOMBER Cyclone Needle WDT Tool (0.25mm / 0.4mm Needles)');
@@ -123,6 +127,8 @@ export const OnboardingModal: React.FC<Props> = ({ isOpen, onClose }) => {
         if (matchingWater) setWaterChoice(matchingWater.name);
       }
       if (prev.basketBrand) setBasketChoice(prev.basketBrand);
+      if (prev.portafilter) setPortafilterChoice(prev.portafilter);
+      if (prev.showerScreen) setShowerScreenChoice(prev.showerScreen);
       if (prev.tamperTool) setTamperChoice(prev.tamperTool);
       if (prev.puckScreenTool) setPuckScreenChoice(prev.puckScreenTool);
       if (prev.wdtTool) setWdtChoice(prev.wdtTool);
@@ -137,6 +143,8 @@ export const OnboardingModal: React.FC<Props> = ({ isOpen, onClose }) => {
       setMachineChoice('Lelit Bianca V3');
       setGrinderChoice('Option-O Lagom P64');
       setBasketChoice('MHW-3BOMBER DEX / Sniper High-Flow Basket (58.5mm)');
+      setPortafilterChoice('MHW-3BOMBER 58mm Bottomless');
+      setShowerScreenChoice('Pesado High-Extraction Screen');
       setTamperChoice('MHW-3BOMBER Flash Constant Pressure Tamper (30 lbs / Auto-Leveling)');
       setPuckScreenChoice('0.8mm MHW-3BOMBER Titanium Coated Contact Puck Screen');
       setWdtChoice('MHW-3BOMBER Cyclone Needle WDT Tool (0.25mm / 0.4mm Needles)');
@@ -149,6 +157,8 @@ export const OnboardingModal: React.FC<Props> = ({ isOpen, onClose }) => {
       setMachineChoice('Flair 58+ Heated Chamber');
       setGrinderChoice('Zerno Z1');
       setBasketChoice('Weber Workshops Unibasket');
+      setPortafilterChoice('Flair 58 Bottomless');
+      setShowerScreenChoice('IMS E61 200 IM');
       setTamperChoice('MHW-3BOMBER Flash Constant Pressure Tamper (30 lbs / Auto-Leveling)');
       setPuckScreenChoice('0.8mm MHW-3BOMBER Titanium Coated Contact Puck Screen');
     } else if (cat === 'moka_stovetop') {
@@ -189,6 +199,8 @@ export const OnboardingModal: React.FC<Props> = ({ isOpen, onClose }) => {
       dispersionTool: selectedPrimary === 'filter' ? dispersionChoice : undefined,
       waterProfileId: waterProfiles.find(w => w.name === waterChoice)?.id || 'water-pub-tap',
       basketBrand: (selectedPrimary === 'espresso' || selectedPrimary === 'manual_lever') ? basketChoice : undefined,
+      portafilter: (selectedPrimary === 'espresso' || selectedPrimary === 'manual_lever') ? portafilterChoice : undefined,
+      showerScreen: (selectedPrimary === 'espresso' || selectedPrimary === 'manual_lever') ? showerScreenChoice : undefined,
       tamperTool: (selectedPrimary === 'espresso' || selectedPrimary === 'manual_lever') ? tamperChoice : undefined,
       puckScreenTool: (selectedPrimary === 'espresso' || selectedPrimary === 'manual_lever') ? puckScreenChoice : undefined,
       wdtTool: (selectedPrimary === 'espresso' || selectedPrimary === 'manual_lever') ? wdtChoice : undefined,
@@ -450,6 +462,25 @@ export const OnboardingModal: React.FC<Props> = ({ isOpen, onClose }) => {
                     />
                   </div>
 
+                  {/* Portafilter & Shower Screen Selection */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <SmartDropdownWithOthers
+                      label="Portafilter (Bottomless / Spouted):"
+                      value={portafilterChoice}
+                      onChange={setPortafilterChoice}
+                      options={PORTAFILTER_OPTIONS}
+                      customVariableGroup="portafilters"
+                    />
+
+                    <SmartDropdownWithOthers
+                      label="Shower Screen (Pesado / IKAPE / IMS):"
+                      value={showerScreenChoice}
+                      onChange={setShowerScreenChoice}
+                      options={SHOWER_SCREEN_OPTIONS}
+                      customVariableGroup="shower_screens"
+                    />
+                  </div>
+
                   <SmartDropdownWithOthers
                     label="Needle WDT Tool:"
                     value={wdtChoice}
@@ -549,6 +580,16 @@ export const OnboardingModal: React.FC<Props> = ({ isOpen, onClose }) => {
                     {entry.selections.tamperTool && entry.selections.tamperTool !== 'N/A' && (
                       <span className="bg-stone-900 px-1.5 py-0.5 rounded border border-stone-800">
                         Tamp: {entry.selections.tamperTool}
+                      </span>
+                    )}
+                    {entry.selections.portafilter && entry.selections.portafilter !== 'N/A' && (
+                      <span className="bg-stone-900 px-1.5 py-0.5 rounded border border-stone-800">
+                        PF: {entry.selections.portafilter}
+                      </span>
+                    )}
+                    {entry.selections.showerScreen && entry.selections.showerScreen !== 'N/A' && (
+                      <span className="bg-stone-900 px-1.5 py-0.5 rounded border border-stone-800">
+                        Screen: {entry.selections.showerScreen}
                       </span>
                     )}
                     {entry.selections.puckScreenTool && entry.selections.puckScreenTool !== 'N/A' && (

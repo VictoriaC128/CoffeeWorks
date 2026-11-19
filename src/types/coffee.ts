@@ -85,6 +85,8 @@ export interface GearProfile {
   hasPreInfusion?: boolean;
   basketSpec?: BasketSpec;
   basketType?: string; // e.g. "Wafo Spirit", "Weber Unibasket", "Pullman 876", "VST 18g"
+  portafilter?: string; // e.g. "MHW-3BOMBER 58mm Bottomless", "Pesado 58.5 Bottomless", "Lelit OEM Double Spout"
+  showerScreen?: string; // e.g. "Pesado High-Extraction Screen", "IKAPE 58.5mm Stainless Screen", "IMS E61 200 NT"
   puckPrep: PuckPrepTools;
   // Filter specific
   dripperModel?: string; // "Orea V4 Modular", "UFO Dripper", "NextLevel Pulsar", "Graycano", "V60 02"
@@ -148,6 +150,8 @@ export interface Recipe {
   kopiSpecs?: KopiCustomization;
   
   basketSpec?: BasketSpec;
+  portafilter?: string;
+  showerScreen?: string;
   isDefault?: boolean; // Set as default recipe for this category
   notes: string;
   tags: string[];
@@ -178,6 +182,8 @@ export interface BrewSession {
     water?: string;
     tamper?: string;
     puckScreen?: string;
+    portafilter?: string;
+    showerScreen?: string;
     basket?: string;
     paper?: string;
     dripper?: string;
@@ -209,6 +215,8 @@ export interface CategoryToolSelections {
   basketBrand?: string;
   basketSize?: string;
   basketDiameter?: string;
+  portafilter?: string;
+  showerScreen?: string;
   wdtTool?: string;
   tamperTool?: string;
   puckScreenTool?: string;

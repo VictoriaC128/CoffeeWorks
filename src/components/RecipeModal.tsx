@@ -15,6 +15,8 @@ import {
   TAMPER_OPTIONS,
   PUCK_SCREEN_OPTIONS,
   DISPERSION_OPTIONS,
+  PORTAFILTER_OPTIONS,
+  SHOWER_SCREEN_OPTIONS,
 } from '../data/dropdownCatalog';
 
 interface Props {
@@ -51,6 +53,8 @@ export const RecipeModal: React.FC<Props> = ({ isOpen, onClose, recipeToEdit }) 
   const [basketBrand, setBasketBrand] = useState<string>('MHW-3BOMBER DEX / Sniper High-Flow Basket (58.5mm)');
   const [basketSize, setBasketSize] = useState<string>('20g-22g');
   const [basketDiameter, setBasketDiameter] = useState<string>('58.5mm');
+  const [portafilter, setPortafilter] = useState<string>('MHW-3BOMBER 58mm Bottomless');
+  const [showerScreen, setShowerScreen] = useState<string>('Pesado High-Extraction Screen');
 
   // Puck Prep Tools
   const [wdtTool, setWdtTool] = useState<string>('MHW-3BOMBER Cyclone WDT');
@@ -93,6 +97,8 @@ export const RecipeModal: React.FC<Props> = ({ isOpen, onClose, recipeToEdit }) 
       if (prev.basketBrand) setBasketBrand(prev.basketBrand);
       if (prev.basketSize) setBasketSize(prev.basketSize);
       if (prev.basketDiameter) setBasketDiameter(prev.basketDiameter);
+      if (prev.portafilter) setPortafilter(prev.portafilter);
+      if (prev.showerScreen) setShowerScreen(prev.showerScreen);
       if (prev.tamperTool) setTamperTool(prev.tamperTool);
       if (prev.puckScreenTool) setPuckScreenTool(prev.puckScreenTool);
       if (prev.wdtTool) setWdtTool(prev.wdtTool);
@@ -112,6 +118,8 @@ export const RecipeModal: React.FC<Props> = ({ isOpen, onClose, recipeToEdit }) 
       setWaterTempC(93);
       setMachineModel('Lelit Bianca V3');
       setBasketBrand('MHW-3BOMBER DEX / Sniper High-Flow Basket (58.5mm)');
+      setPortafilter('MHW-3BOMBER 58mm Bottomless');
+      setShowerScreen('Pesado High-Extraction Screen');
       setTamperTool('MHW-3BOMBER Flash 30lb');
       setPuckScreenTool('0.8mm MHW-3BOMBER Titanium');
       setWdtTool('MHW-3BOMBER Cyclone WDT');
@@ -133,6 +141,8 @@ export const RecipeModal: React.FC<Props> = ({ isOpen, onClose, recipeToEdit }) 
       setTargetTotalTimeSeconds(38);
       setWaterTempC(95);
       setMachineModel('Flair 58+ Heated Chamber');
+      setPortafilter('Flair 58 Bottomless');
+      setShowerScreen('IMS E61 200 IM');
       setTamperTool('MHW-3BOMBER Flash 30lb');
       setPuckScreenTool('0.8mm MHW-3BOMBER Titanium');
       setGrindSetting('2.2');
@@ -188,6 +198,8 @@ export const RecipeModal: React.FC<Props> = ({ isOpen, onClose, recipeToEdit }) 
         setBasketSize(recipeToEdit.basketSpec.sizeGrams);
         setBasketDiameter(recipeToEdit.basketSpec.diameterMm);
       }
+      setPortafilter(recipeToEdit.portafilter || 'N/A');
+      setShowerScreen(recipeToEdit.showerScreen || 'N/A');
     } else {
       setTitle('');
       const startingCat = (userPreferences.primaryCategory as CoffeeCategory) || 'espresso';
@@ -261,8 +273,14 @@ export const RecipeModal: React.FC<Props> = ({ isOpen, onClose, recipeToEdit }) 
         : undefined,
       pourStages: category === 'filter' || category === 'immersion' ? pourStages : undefined,
       basketSpec,
+      portafilter: (category === 'espresso' || category === 'manual_lever') && portafilter !== 'N/A' ? portafilter : undefined,
+      showerScreen: (category === 'espresso' || category === 'manual_lever') && showerScreen !== 'N/A' ? showerScreen : undefined,
       isDefault,
       notes: `${notes} ${machineModel && machineModel !== 'N/A' ? `[Machine: ${machineModel}]` : ''} ${grinderModel && grinderModel !== 'N/A' ? `[Grinder: ${grinderModel}]` : ''} ${
+        portafilter && portafilter !== 'N/A' ? `[Portafilter: ${portafilter}]` : ''
+      } ${
+        showerScreen && showerScreen !== 'N/A' ? `[Shower Screen: ${showerScreen}]` : ''
+      } ${
         category === 'filter'
           ? `${dripperModel && dripperModel !== 'N/A' ? `[Dripper: ${dripperModel}]` : ''} ${filterPaperType && filterPaperType !== 'N/A' ? `[Paper: ${filterPaperType}]` : ''}`
           : ''
@@ -281,6 +299,8 @@ export const RecipeModal: React.FC<Props> = ({ isOpen, onClose, recipeToEdit }) 
       basketBrand: (category === 'espresso' || category === 'manual_lever') ? basketBrand : undefined,
       basketSize: (category === 'espresso' || category === 'manual_lever') ? basketSize : undefined,
       basketDiameter: (category === 'espresso' || category === 'manual_lever') ? basketDiameter : undefined,
+      portafilter: (category === 'espresso' || category === 'manual_lever') ? portafilter : undefined,
+      showerScreen: (category === 'espresso' || category === 'manual_lever') ? showerScreen : undefined,
       tamperTool: (category === 'espresso' || category === 'manual_lever') ? tamperTool : undefined,
       puckScreenTool: (category === 'espresso' || category === 'manual_lever') ? puckScreenTool : undefined,
       wdtTool: (category === 'espresso' || category === 'manual_lever') ? wdtTool : undefined,
@@ -532,6 +552,25 @@ export const RecipeModal: React.FC<Props> = ({ isOpen, onClose, recipeToEdit }) 
                   onChange={setPuckScreenTool}
                   options={PUCK_SCREEN_OPTIONS}
                   customVariableGroup="puck_screens"
+                />
+              </div>
+
+              {/* Portafilter & Shower Screen Selection */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                <SmartDropdownWithOthers
+                  label="Portafilter (Bottomless / Spouted):"
+                  value={portafilter}
+                  onChange={setPortafilter}
+                  options={PORTAFILTER_OPTIONS}
+                  customVariableGroup="portafilters"
+                />
+
+                <SmartDropdownWithOthers
+                  label="Shower Screen (Pesado / IKAPE / IMS):"
+                  value={showerScreen}
+                  onChange={setShowerScreen}
+                  options={SHOWER_SCREEN_OPTIONS}
+                  customVariableGroup="shower_screens"
                 />
               </div>
 

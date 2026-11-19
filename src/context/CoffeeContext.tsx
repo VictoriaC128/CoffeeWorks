@@ -124,6 +124,8 @@ const DEFAULT_PREFERENCES: UserPreferences = {
       basketBrand: 'MHW-3BOMBER DEX / Sniper High-Flow Basket (58.5mm)',
       basketSize: '20g-22g',
       basketDiameter: '58.5mm',
+      portafilter: 'MHW-3BOMBER 58mm Bottomless',
+      showerScreen: 'Pesado High-Extraction Screen',
       tamperTool: 'MHW-3BOMBER Flash Constant Pressure Tamper (30 lbs / Auto-Leveling)',
       puckScreenTool: '0.8mm MHW-3BOMBER Titanium Coated Contact Puck Screen',
       wdtTool: 'MHW-3BOMBER Cyclone Needle WDT Tool (0.25mm / 0.4mm Needles)',
@@ -148,6 +150,8 @@ const DEFAULT_PREFERENCES: UserPreferences = {
       tamperTool: 'MHW-3BOMBER Flash Constant Pressure Tamper (30 lbs / Auto-Leveling)',
       puckScreenTool: '0.8mm MHW-3BOMBER Titanium Coated Contact Puck Screen',
       basketBrand: 'Weber Workshops Unibasket',
+      portafilter: 'Flair 58 Bottomless',
+      showerScreen: 'IMS E61 200 IM',
       doseGrams: 18.0,
       yieldGrams: 45.0,
       waterTempC: 95,
@@ -414,6 +418,8 @@ export const CoffeeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       basketBrand: newRecipe.basketSpec?.brand,
       basketSize: newRecipe.basketSpec?.sizeGrams,
       basketDiameter: newRecipe.basketSpec?.diameterMm,
+      portafilter: newRecipe.portafilter,
+      showerScreen: newRecipe.showerScreen,
     });
 
     // If marked as default or first recipe in category, set as default
@@ -450,6 +456,8 @@ export const CoffeeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
           basketBrand: revision.basketSpec?.brand,
           basketSize: revision.basketSpec?.sizeGrams,
           basketDiameter: revision.basketSpec?.diameterMm,
+          portafilter: revision.portafilter,
+          showerScreen: revision.showerScreen,
         });
       }
 
@@ -471,6 +479,8 @@ export const CoffeeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
           basketBrand: updates.basketSpec?.brand,
           basketSize: updates.basketSpec?.sizeGrams,
           basketDiameter: updates.basketSpec?.diameterMm,
+          portafilter: updates.portafilter,
+          showerScreen: updates.showerScreen,
         });
       }
 
@@ -550,6 +560,8 @@ export const CoffeeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       yieldGrams: sessionData.actualYieldGrams,
       tamperTool: sessionData.toolsUsed?.tamper,
       puckScreenTool: sessionData.toolsUsed?.puckScreen,
+      portafilter: sessionData.toolsUsed?.portafilter,
+      showerScreen: sessionData.toolsUsed?.showerScreen,
       machineModel: sessionData.toolsUsed?.machine,
       grinderModel: sessionData.toolsUsed?.grinder,
       waterProfileId: sessionData.toolsUsed?.water,

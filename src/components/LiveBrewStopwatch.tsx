@@ -209,6 +209,8 @@ export const LiveBrewStopwatch: React.FC<Props> = ({ onOpenSetup }) => {
         grinder: selectedGear?.grinderModel || prevTools?.grinderModel,
         tamper: prevTools?.tamperTool,
         puckScreen: prevTools?.puckScreenTool,
+        portafilter: activeRecipe.portafilter || prevTools?.portafilter,
+        showerScreen: activeRecipe.showerScreen || prevTools?.showerScreen,
         water: selectedWater?.name || prevTools?.waterProfileId,
       },
     });
