@@ -1,12 +1,30 @@
-import React, { useState } from 'react';
-import { Plus, Droplets, Info, Trash2, Edit2, X, ShieldAlert, Sparkles } from 'lucide-react';
+import React, { useCallback, useState } from 'react';
+import { Plus, Droplets, Trash2, Pencil, ShieldAlert } from 'lucide-react';
 import { useCoffee } from '../context/CoffeeContext';
 import { WaterProfile, WaterType } from '../types/coffee';
 import { SmartDropdownWithOthers } from './SmartDropdownWithOthers';
 import { WATER_SOURCE_OPTIONS } from '../data/dropdownCatalog';
+import { useSettings, Units } from '../settings/SettingsContext';
+import * as F from '../settings/format';
+import { useLayout } from '../shell/LayoutContext';
+import { Btn, Caps, Segmented, Sheet } from '../brew/ui';
+
+const HARDNESS_OPTIONS: { value: Units['hardness']; label: string }[] = [
+  { value: 'ppm', label: 'ppm' },
+  { value: 'dh', label: '°dH' },
+  { value: 'gpg', label: 'gpg' },
+];
+
+const inputCls = 'w-full h-12 border border-ink bg-paper px-3 text-[16px]';
+const numberCls = `${inputCls} num font-bold text-[20px]`;
 
 export const WaterLab: React.FC = () => {
   const { waterProfiles, addWaterProfile, updateWaterProfile, deleteWaterProfile } = useCoffee();
+  const { settings, setUnit } = useSettings();
+  const { mode } = useLayout();
+  const u = settings.units;
+  const wide = mode !== 'simple';
+  const hard = (ppm: number) => F.text(F.hardness(ppm, u));
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [waterToEdit, setWaterToEdit] = useState<WaterProfile | null>(null);
@@ -20,6 +38,8 @@ export const WaterLab: React.FC = () => {
   const [khPpm, setKhPpm] = useState<number>(35);
   const [ph, setPh] = useState<number>(7.0);
   const [description, setDescription] = useState('');
+
+  const closeModal = useCallback(() => setIsModalOpen(false), []);
 
   const handleOpenAdd = () => {
     setWaterToEdit(null);
@@ -71,280 +91,248 @@ export const WaterLab: React.FC = () => {
     setIsModalOpen(false);
   };
 
+  const minerals: [string, string, string][] = [
+    ['Magnesium (Mg²⁺)', 'Fruit and florals', 'Smaller and more charge-dense than calcium, magnesium pulls out light aromatics, fruit acids (malic, citric) and perceived sweetness.'],
+    ['Calcium (Ca²⁺)', 'Body and crema', 'Pulls out heavier roast notes, giving espresso its syrupy mouthfeel and dense crema, but scales boilers at high levels.'],
+    ['Alkalinity (KH)', 'Acid buffer', `Bicarbonate buffers acidity. Low KH (about ${F.hardness(20, u).value}–${hard(40)}) keeps a crisp, sparkling cup; high KH (over ${hard(100)}) flattens acidity into chalkiness.`],
+  ];
+
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
-      {/* Top Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl sm:text-3xl font-black text-white flex items-center space-x-2.5">
-            <Droplets className="w-7 h-7 text-cyan-400" />
-            <span>Water Chemistry & Global Profiling Lab</span>
-          </h2>
-          <p className="text-xs sm:text-sm text-stone-400 mt-1">
-            Water makes up 98.5% of your brew. Track TDS, General Hardness (GH), and Carbonate Alkalinity buffer (KH) across international water sources.
+    <div className="max-w-7xl mx-auto">
+      {/* Header band */}
+      <header className="bg-ink text-paper px-5 sm:px-7 py-4 flex flex-wrap items-end gap-4">
+        <div className="min-w-0">
+          <h1 className="text-[28px] font-black tracking-[-0.02em] flex items-center gap-2.5">
+            <Droplets className="w-6 h-6 shrink-0" aria-hidden />
+            Water
+          </h1>
+          <p className="text-[13px] opacity-80 mt-0.5">
+            <span className="num font-bold">{waterProfiles.length}</span> profiles · water is about 98.5% of the cup
           </p>
         </div>
-
         <button
+          type="button"
           onClick={handleOpenAdd}
-          className="px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold flex items-center space-x-1.5 shadow-lg shadow-cyan-950/40"
+          className="ml-auto min-h-[48px] px-4 bg-paper text-ink border border-paper font-bold text-[14px] inline-flex items-center gap-2 active:translate-y-px"
         >
-          <Plus className="w-4 h-4" />
-          <span>Add Water Profile</span>
+          <Plus className="w-4 h-4" aria-hidden />
+          Add water profile
         </button>
+      </header>
+
+      {/* Mineral explainer */}
+      <section className="grid grid-cols-1 md:grid-cols-3 border-b border-ink">
+        {minerals.map(([k, sub, body], i) => (
+          <div key={k} className={`px-5 sm:px-7 md:px-5 py-3.5 border-b md:border-b-0 border-rule ${i < 2 ? 'md:border-r' : ''} last:border-b-0`}>
+            <div className="text-[15px] font-bold">{k}</div>
+            <Caps className="mt-0.5">{sub}</Caps>
+            <p className="text-[13.5px] text-mute leading-snug mt-1.5">{body}</p>
+          </div>
+        ))}
+      </section>
+
+      {/* Profiles */}
+      <div className="flex flex-wrap items-center gap-3 px-5 sm:px-7 pt-5 pb-2 border-b border-ink">
+        <h2 className="text-[17px] font-extrabold">Your water</h2>
+        <span className="text-[12.5px] text-mute">GH and KH shown in</span>
+        <Segmented small label="Hardness unit" value={u.hardness} options={HARDNESS_OPTIONS} onChange={(v) => setUnit('hardness', v)} className="ml-auto" />
       </div>
 
-      {/* Water Mineral Science Explainer Card */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-stone-900 border border-stone-800 rounded-2xl p-4 shadow-md">
-          <span className="text-xs font-mono font-bold text-cyan-400 flex items-center space-x-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-            <span>Magnesium (Mg²⁺) • Fruit & Florals</span>
-          </span>
-          <p className="text-xs text-stone-300 mt-2 leading-relaxed">
-            Smaller and more charge-dense than calcium, magnesium extracts light aromatic esters, fruit acids (malic, citric), and perceived sweetness.
-          </p>
-        </div>
+      {waterProfiles.length === 0 ? (
+        <p className="px-5 sm:px-7 py-8 text-[14px] text-mute border-b border-rule">No water profiles yet. Add the water you brew with to see its hardness on the prep screen.</p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+          {waterProfiles.map((water) => {
+            const isSoft = water.tdsPpm < 100;
+            const isMedium = water.tdsPpm >= 100 && water.tdsPpm <= 180;
+            const isHard = water.tdsPpm > 180;
+            const gh = F.hardness(water.ghPpm, u);
+            const kh = F.hardness(water.khPpm, u);
 
-        <div className="bg-stone-900 border border-stone-800 rounded-2xl p-4 shadow-md">
-          <span className="text-xs font-mono font-bold text-amber-400 flex items-center space-x-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-            <span>Calcium (Ca²⁺) • Body & Crema</span>
-          </span>
-          <p className="text-xs text-stone-300 mt-2 leading-relaxed">
-            Extracts heavier roasted notes, giving espresso its syrupy mouthfeel and dense crema, but can cause boiler scale at high concentrations.
-          </p>
-        </div>
-
-        <div className="bg-stone-900 border border-stone-800 rounded-2xl p-4 shadow-md">
-          <span className="text-xs font-mono font-bold text-rose-400 flex items-center space-x-1.5">
-            <Info className="w-3.5 h-3.5 text-rose-400" />
-            <span>Alkalinity (KH) • Acid Buffer</span>
-          </span>
-          <p className="text-xs text-stone-300 mt-2 leading-relaxed">
-            Bicarbonate ions buffer acidity. Low KH (~20-40 ppm) allows sparkling, crisp vibrancy; high KH (&gt;100 ppm) mutes acidity into flat chalkiness.
-          </p>
-        </div>
-      </div>
-
-      {/* Water Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {waterProfiles.map(water => {
-          const isSoft = water.tdsPpm < 100;
-          const isMedium = water.tdsPpm >= 100 && water.tdsPpm <= 180;
-          const isHard = water.tdsPpm > 180;
-
-          return (
-            <div
-              key={water.id}
-              className="bg-stone-900 border border-stone-800 rounded-2xl p-5 shadow-lg flex flex-col justify-between"
-            >
-              <div>
-                {/* Type & Actions */}
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded-md border border-cyan-500/20">
-                    {water.type.replace('_', ' ')}
-                  </span>
-                  <div className="flex items-center space-x-1">
+            return (
+              <article key={water.id} className="px-5 sm:px-7 md:px-5 py-4 border-b border-rule md:border-r min-w-0 flex flex-col">
+                <div className="flex items-start gap-3">
+                  <div className="min-w-0 flex-1">
+                    <Caps>{water.type.replace(/_/g, ' ')}</Caps>
+                    <h3 className="text-[17px] font-bold leading-tight mt-0.5 line-clamp-2">{water.name}</h3>
+                    {water.countryRegion && <p className="text-[13px] text-mute mt-0.5">{water.countryRegion}</p>}
+                  </div>
+                  <div className="flex gap-2 shrink-0 -mr-1">
                     <button
+                      type="button"
                       onClick={() => handleOpenEdit(water)}
-                      className="p-1.5 text-stone-400 hover:text-white rounded-lg hover:bg-stone-800"
+                      className="w-12 h-12 border border-rule flex items-center justify-center hover:border-ink"
+                      aria-label={`Edit ${water.name}`}
                     >
-                      <Edit2 className="w-3.5 h-3.5" />
+                      <Pencil className="w-4 h-4" />
                     </button>
                     <button
+                      type="button"
                       onClick={() => {
                         if (confirm(`Delete water profile "${water.name}"?`)) deleteWaterProfile(water.id);
                       }}
-                      className="p-1.5 text-stone-400 hover:text-rose-400 rounded-lg hover:bg-stone-800"
+                      className="w-12 h-12 border border-rule flex items-center justify-center hover:border-ink"
+                      aria-label={`Delete ${water.name}`}
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
+                      <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
 
-                {/* Name & Region */}
-                <h3 className="font-bold text-base text-white line-clamp-1">{water.name}</h3>
-                <p className="text-xs text-stone-400 mt-0.5">{water.countryRegion}</p>
+                {/* Readings */}
+                <dl className="grid grid-cols-3 border-y border-ink mt-3">
+                  {([
+                    ['TDS', String(water.tdsPpm), 'ppm'],
+                    ['GH · Ca/Mg', gh.value, gh.unit],
+                    ['KH · buffer', kh.value, kh.unit],
+                  ] as const).map(([k, v, unit], i) => (
+                    <div key={k} className={`py-2 min-w-0 ${i ? 'border-l border-rule pl-3' : 'pr-2'}`}>
+                      <dt className="label-caps !text-[10px] whitespace-nowrap">{k}</dt>
+                      <dd className="num font-bold text-[26px] leading-none mt-1 whitespace-nowrap">
+                        {v}<span className="text-[12px] font-semibold text-mute ml-0.5 tracking-normal" style={{ fontStretch: '100%' }}>{unit}</span>
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
 
-                {/* Metrics Grid */}
-                <div className="grid grid-cols-3 gap-2 my-3 p-3 bg-stone-950/70 rounded-xl border border-stone-800/80 text-center font-mono">
-                  <div>
-                    <span className="text-[10px] text-stone-500 block">TDS</span>
-                    <span className="text-sm font-bold text-cyan-400">{water.tdsPpm} ppm</span>
-                  </div>
-
-                  <div>
-                    <span className="text-[10px] text-stone-500 block">GH (Ca/Mg)</span>
-                    <span className="text-sm font-bold text-stone-200">{water.ghPpm} ppm</span>
-                  </div>
-
-                  <div>
-                    <span className="text-[10px] text-stone-500 block">KH (Buffer)</span>
-                    <span className="text-sm font-bold text-amber-400">{water.khPpm} ppm</span>
-                  </div>
-                </div>
-
-                {/* Hardness Badge */}
-                <div className="flex items-center justify-between text-xs font-mono">
-                  {isSoft && (
-                    <span className="text-[10px] bg-cyan-500/10 text-cyan-300 font-semibold px-2 py-0.5 rounded-full border border-cyan-500/30">
-                      Ultra-Soft / Soft Water
-                    </span>
-                  )}
-                  {isMedium && (
-                    <span className="text-[10px] bg-emerald-500/10 text-emerald-300 font-semibold px-2 py-0.5 rounded-full border border-emerald-500/30">
-                      SCA Target Hardness
-                    </span>
-                  )}
+                <div className="flex items-center justify-between gap-2 mt-2.5 text-[13px]">
+                  {isSoft && <span className="font-bold">Soft water</span>}
+                  {isMedium && <span className="font-bold text-ok">SCA target hardness</span>}
                   {isHard && (
-                    <span className="text-[10px] bg-rose-500/10 text-rose-300 font-semibold px-2 py-0.5 rounded-full border border-rose-500/30 flex items-center space-x-1">
-                      <ShieldAlert className="w-3 h-3 text-rose-400" />
-                      <span>Hard / Scale Risk</span>
+                    <span className="font-bold text-bad inline-flex items-center gap-1">
+                      <ShieldAlert className="w-4 h-4" aria-hidden />
+                      Hard · scale risk
                     </span>
                   )}
-
-                  {water.ph && <span className="text-stone-400">pH {water.ph}</span>}
+                  {water.ph && <span className="text-mute">pH <b className="num text-ink">{water.ph}</b></span>}
                 </div>
 
-                {/* Description */}
-                <p className="text-xs text-stone-300 mt-3 line-clamp-2 leading-relaxed">
-                  {water.description}
-                </p>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+                {water.description && (
+                  <p className="text-[13.5px] text-mute leading-snug mt-2 line-clamp-3">{water.description}</p>
+                )}
+              </article>
+            );
+          })}
+        </div>
+      )}
 
-      {/* Add / Edit Water Modal */}
+      {/* Add / edit sheet */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm overflow-y-auto">
-          <div className="bg-stone-900 border border-stone-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl my-8">
-            <div className="flex items-center justify-between pb-3 border-b border-stone-800">
-              <h3 className="text-base font-bold text-white">
-                {waterToEdit ? 'Edit Water Profile' : 'Add New Water Chemistry Profile'}
-              </h3>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="p-1 rounded-lg text-stone-400 hover:text-white hover:bg-stone-800"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
+        <Sheet
+          side={wide}
+          title={waterToEdit ? 'Edit water profile' : 'Add water profile'}
+          sub="Enter readings in ppm (mg/L as CaCO₃)"
+          onClose={closeModal}
+          footer={
+            <>
+              <Btn onClick={closeModal}>Cancel</Btn>
+              <Btn variant="primary" type="submit" form="water-profile-form" className="flex-1">
+                {waterToEdit ? 'Save changes' : 'Add water profile'}
+              </Btn>
+            </>
+          }
+        >
+          <form id="water-profile-form" onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <label className="block">
+              <Caps className="mb-1">Name</Caps>
+              <input
+                type="text"
+                required
+                placeholder="e.g. Melbourne tap water"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className={inputCls}
+              />
+            </label>
 
-            <form onSubmit={handleSubmit} className="mt-4 space-y-3.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-mono text-stone-300 mb-1">Water Profile Name:</label>
+                <Caps className="mb-1">Source</Caps>
+                <SmartDropdownWithOthers
+                  options={WATER_SOURCE_OPTIONS}
+                  value={type}
+                  onChange={(val) => setType(val)}
+                  customVariableGroup="waters"
+                  placeholder="Select or enter a water type"
+                />
+              </div>
+              <label className="block">
+                <Caps className="mb-1">Country / region</Caps>
                 <input
                   type="text"
-                  required
-                  placeholder="e.g. Melbourne Specialty Tap Water"
-                  value={name}
-                  onChange={e => setName(e.target.value)}
-                  className="w-full bg-stone-950 border border-stone-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500"
+                  placeholder="e.g. Australia (Melbourne)"
+                  value={countryRegion}
+                  onChange={(e) => setCountryRegion(e.target.value)}
+                  className={inputCls}
                 />
-              </div>
+              </label>
+            </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-mono text-stone-300 mb-1">Water Source Type:</label>
-                  <SmartDropdownWithOthers
-                    options={WATER_SOURCE_OPTIONS}
-                    value={type}
-                    onChange={val => setType(val)}
-                    customVariableGroup="waters"
-                    placeholder="Select or enter custom water type..."
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-mono text-stone-300 mb-1">Country / Region:</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Australia (Melbourne)"
-                    value={countryRegion}
-                    onChange={e => setCountryRegion(e.target.value)}
-                    className="w-full bg-stone-950 border border-stone-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-3">
-                <div>
-                  <label className="block text-xs font-mono text-stone-300 mb-1">TDS (ppm):</label>
-                  <input
-                    type="number"
-                    required
-                    value={tdsPpm}
-                    onChange={e => setTdsPpm(parseInt(e.target.value) || 0)}
-                    className="w-full bg-stone-950 border border-stone-800 rounded-xl px-3 py-2 text-xs text-cyan-400 font-mono font-bold focus:outline-none focus:border-cyan-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-mono text-stone-300 mb-1">GH (Ca/Mg):</label>
-                  <input
-                    type="number"
-                    required
-                    value={ghPpm}
-                    onChange={e => setGhPpm(parseInt(e.target.value) || 0)}
-                    className="w-full bg-stone-950 border border-stone-800 rounded-xl px-3 py-2 text-xs text-stone-200 font-mono font-bold focus:outline-none focus:border-cyan-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-mono text-stone-300 mb-1">KH (Buffer):</label>
-                  <input
-                    type="number"
-                    required
-                    value={khPpm}
-                    onChange={e => setKhPpm(parseInt(e.target.value) || 0)}
-                    className="w-full bg-stone-950 border border-stone-800 rounded-xl px-3 py-2 text-xs text-amber-400 font-mono font-bold focus:outline-none focus:border-cyan-500"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-mono text-stone-300 mb-1">pH Level:</label>
+            <div className="grid grid-cols-3 gap-3">
+              <label className="block min-w-0">
+                <Caps className="mb-1 whitespace-nowrap">TDS · ppm</Caps>
                 <input
                   type="number"
-                  step="0.1"
-                  value={ph}
-                  onChange={e => setPh(parseFloat(e.target.value) || 7.0)}
-                  className="w-full bg-stone-950 border border-stone-800 rounded-xl px-3 py-2 text-xs text-stone-200 focus:outline-none focus:border-cyan-500"
+                  inputMode="numeric"
+                  required
+                  value={tdsPpm}
+                  onChange={(e) => setTdsPpm(parseInt(e.target.value) || 0)}
+                  className={numberCls}
                 />
-              </div>
-
-              <div>
-                <label className="block text-xs font-mono text-stone-300 mb-1">Flavor Impact & Notes:</label>
-                <textarea
-                  rows={2}
-                  value={description}
-                  onChange={e => setDescription(e.target.value)}
-                  placeholder="How does this water affect body, acidity, or boiler scaling?"
-                  className="w-full bg-stone-950 border border-stone-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500"
+              </label>
+              <label className="block min-w-0">
+                <Caps className="mb-1 whitespace-nowrap">GH · ppm</Caps>
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  required
+                  value={ghPpm}
+                  onChange={(e) => setGhPpm(parseInt(e.target.value) || 0)}
+                  className={numberCls}
                 />
-              </div>
+              </label>
+              <label className="block min-w-0">
+                <Caps className="mb-1 whitespace-nowrap">KH · ppm</Caps>
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  required
+                  value={khPpm}
+                  onChange={(e) => setKhPpm(parseInt(e.target.value) || 0)}
+                  className={numberCls}
+                />
+              </label>
+            </div>
+            {u.hardness !== 'ppm' && (
+              <p className="text-[12.5px] text-mute -mt-2">
+                That is GH <b className="text-ink num">{hard(ghPpm)}</b> · KH <b className="text-ink num">{hard(khPpm)}</b>.
+              </p>
+            )}
 
-              <div className="pt-3 border-t border-stone-800 flex justify-end space-x-3">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 text-xs font-medium"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold"
-                >
-                  {waterToEdit ? 'Save Changes' : 'Add Water Profile'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+            <label className="block">
+              <Caps className="mb-1">pH</Caps>
+              <input
+                type="number"
+                inputMode="decimal"
+                step="0.1"
+                value={ph}
+                onChange={(e) => setPh(parseFloat(e.target.value) || 7.0)}
+                className={`${numberCls} max-w-[140px]`}
+              />
+            </label>
+
+            <label className="block">
+              <Caps className="mb-1">Flavour impact and notes</Caps>
+              <textarea
+                rows={3}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="How does this water change body, acidity or boiler scale?"
+                className="w-full border border-ink bg-paper p-3 text-[15px] leading-snug"
+              />
+            </label>
+          </form>
+        </Sheet>
       )}
     </div>
   );

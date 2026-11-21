@@ -1,22 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Coffee,
-  CheckCircle2,
-  Sparkles,
-  ChevronRight,
-  Scale,
-  Droplets,
-  X,
-  History,
-  Sliders,
-  ShieldCheck,
-  Settings,
-  Calendar,
-  Layers
-} from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Check, ChevronLeft, ChevronRight, History, X } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useCoffee } from '../context/CoffeeContext';
-import { CoffeeCategory, CategoryToolSelections } from '../types/coffee';
+import { CoffeeCategory, CategoryToolSelections, SetupChangeLog } from '../types/coffee';
 import { SmartDropdownWithOthers } from './SmartDropdownWithOthers';
 import {
   ESPRESSO_MACHINE_OPTIONS,
@@ -31,55 +17,71 @@ import {
   PORTAFILTER_OPTIONS,
   SHOWER_SCREEN_OPTIONS,
 } from '../data/dropdownCatalog';
+import { Btn } from '../brew/ui';
+import { MODES, MODE_ORDER } from '../brew/modes';
+import { onBack } from '../platform/native';
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const CATEGORY_CHOICES: {
-  id: CoffeeCategory;
-  name: string;
-  icon: string;
-  tagline: string;
-}[] = [
-  {
-    id: 'espresso',
+type Tab = 'discipline' | 'rig' | 'history';
+
+const CATEGORY_CHOICES: Record<CoffeeCategory, { name: string; tagline: string }> = {
+  espresso: {
     name: 'Benchtop Espresso',
-    icon: '⚡',
     tagline: 'Flow control, 30lb spring tampers, MHW-3BOMBER screens, high-extraction baskets',
   },
-  {
-    id: 'filter',
+  filter: {
     name: 'Modern Filter Coffee',
-    icon: '💧',
     tagline: 'Orea V4, UFO Dripper, Sibarist FAST, Cafec, Orea Negotiator, porous ceramic',
   },
-  {
-    id: 'manual_lever',
+  manual_lever: {
     name: 'Manual Lever & Portable',
-    icon: '🦾',
     tagline: 'Flair 58+, Cafelat Robot, Odyssey Argos, Picopresso, CO2 pneumatic machines',
   },
-  {
-    id: 'moka_stovetop',
+  moka_stovetop: {
     name: 'Stovetop & Moka Pot',
-    icon: '🔥',
     tagline: '9Barista twin boiler, Bialetti Brikka crema valve, classic Moka express',
   },
-  {
-    id: 'singaporean_kopi',
-    name: 'Singaporean Kopi 🇸🇬',
-    icon: '☕',
+  singaporean_kopi: {
+    name: 'Singaporean Kopi',
     tagline: 'Traditional flannel sock pull, wok-roasted robusta, condensed & evaporated milk ratios',
   },
-  {
-    id: 'immersion',
+  immersion: {
     name: 'Immersion & AeroPress',
-    icon: '⏳',
     tagline: 'Inverted AeroPress, Prismo / Flow control cap, French press, steep & plunge pacing',
   },
+};
+
+const STEPS: { id: Tab; step: string; label: string }[] = [
+  { id: 'discipline', step: 'Step 1 of 2', label: 'Discipline' },
+  { id: 'rig', step: 'Step 2 of 2', label: 'Rig & tools' },
 ];
+
+/** Section heading inside the scrolling body: ruled, like Settings. */
+const Section: React.FC<{ title: string; note?: string; children: React.ReactNode }> = ({ title, note, children }) => (
+  <section className="mt-6">
+    <div className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 border-b border-ink pb-1.5">
+      <h3 className="text-[17px] font-extrabold">{title}</h3>
+      {note && <span className="text-[12.5px] text-mute">{note}</span>}
+    </div>
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-4 mt-3">{children}</div>
+  </section>
+);
+
+const historyDetails = (entry: SetupChangeLog): string[] => {
+  const s = entry.selections;
+  const rows: [string, string | undefined][] = [
+    ['Rig', s.machineModel],
+    ['Tamper', s.tamperTool],
+    ['Portafilter', s.portafilter],
+    ['Shower screen', s.showerScreen],
+    ['Puck screen', s.puckScreenTool],
+  ];
+  return rows.filter(([, v]) => v && v !== 'N/A').map(([k, v]) => `${k}: ${v}`);
+};
 
 export const OnboardingModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const {
@@ -95,9 +97,7 @@ export const OnboardingModal: React.FC<Props> = ({ isOpen, onClose }) => {
   } = useCoffee();
 
   const isConfigMode = userPreferences.hasCompletedOnboarding;
-  const [activeTab, setActiveTab] = useState<'discipline' | 'rig' | 'history'>(
-    isConfigMode ? 'rig' : 'discipline'
-  );
+  const [activeTab, setActiveTab] = useState<Tab>(isConfigMode ? 'rig' : 'discipline');
 
   const [selectedPrimary, setSelectedPrimary] = useState<CoffeeCategory>(
     userPreferences.primaryCategory || 'filter'
@@ -115,6 +115,10 @@ export const OnboardingModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const [wdtChoice, setWdtChoice] = useState<string>('MHW-3BOMBER Cyclone Needle WDT Tool (0.25mm / 0.4mm Needles)');
   const [filterPaperChoice, setFilterPaperChoice] = useState<string>('Sibarist FAST Flat');
   const [dispersionChoice, setDispersionChoice] = useState<string>('Kettle Direct Pour');
+
+  const bodyRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef(onClose);
+  closeRef.current = onClose;
 
   // Load category previous selections
   const loadSelectionsForCategory = (cat: CoffeeCategory) => {
@@ -182,6 +186,22 @@ export const OnboardingModal: React.FC<Props> = ({ isOpen, onClose }) => {
     }
   }, [isOpen]);
 
+  // Android back: step back through the wizard, close from the first step.
+  useEffect(() => {
+    if (!isOpen) return;
+    return onBack(() => {
+      if (activeTab === 'history') setActiveTab('rig');
+      else if (activeTab === 'rig') setActiveTab('discipline');
+      else closeRef.current();
+      return true;
+    });
+  }, [isOpen, activeTab]);
+
+  // Each step starts at the top.
+  useEffect(() => {
+    bodyRef.current?.scrollTo({ top: 0 });
+  }, [activeTab]);
+
   if (!isOpen) return null;
 
   const handleSelectCategory = (cat: CoffeeCategory) => {
@@ -237,270 +257,245 @@ export const OnboardingModal: React.FC<Props> = ({ isOpen, onClose }) => {
     onClose();
   };
 
+  const history = userPreferences.setupHistory ?? [];
+  const isPuckPrep = selectedPrimary === 'espresso' || selectedPrimary === 'manual_lever';
+  const mode = MODES[selectedPrimary];
+  const choice = CATEGORY_CHOICES[selectedPrimary];
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md overflow-y-auto">
-      <div className="bg-stone-900 border border-stone-800 rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl my-6 relative">
-        {/* Top Header & Close button */}
-        <div className="flex items-center justify-between pb-4 border-b border-stone-800">
-          <div className="flex items-center space-x-2.5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center shadow-md shadow-amber-950/50">
-              <Settings className="w-5 h-5 text-stone-950" />
-            </div>
-            <div>
-              <h2 className="text-lg sm:text-xl font-black text-white">
-                {isConfigMode ? 'Customise Setup & Rig Settings' : 'Welcome to CoffeeWorks'}
+    // Phones (and phones held sideways) get the whole screen; tablets get a centred panel.
+    <div
+      className="fixed inset-0 z-50 flex flex-col [@media(min-width:768px)_and_(min-height:600px)]:items-center [@media(min-width:768px)_and_(min-height:600px)]:justify-center [@media(min-width:768px)_and_(min-height:600px)]:p-8"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="onboarding-title"
+    >
+      <div className="absolute inset-0 bg-scrim/40" aria-hidden />
+
+      <div className="relative flex flex-col bg-paper text-ink w-full h-[100dvh] pl-safe pr-safe [@media(min-width:768px)_and_(min-height:600px)]:h-auto [@media(min-width:768px)_and_(min-height:600px)]:max-h-[min(92dvh,920px)] [@media(min-width:768px)_and_(min-height:600px)]:max-w-[760px] [@media(min-width:768px)_and_(min-height:600px)]:border-2 [@media(min-width:768px)_and_(min-height:600px)]:border-ink [@media(min-width:768px)_and_(min-height:600px)]:pl-0 [@media(min-width:768px)_and_(min-height:600px)]:pr-0">
+        {/* Header band */}
+        <header className="bg-ink text-paper pt-safe [@media(min-width:768px)_and_(min-height:600px)]:pt-0">
+          <div className="flex items-start gap-3 px-5 py-4">
+            <div className="min-w-0">
+              <h2 id="onboarding-title" className="text-[22px] sm:text-[26px] font-black tracking-[-0.02em] leading-tight">
+                {isConfigMode ? 'Customise setup & tools' : 'Welcome to CoffeeWorks'}
               </h2>
-              <p className="text-[11px] text-stone-400">
+              <p className="text-[13px] opacity-80 mt-1 leading-snug">
                 {isConfigMode
-                  ? 'Update your default daily driver and tools at any time. Changes are saved separately & timestamped.'
-                  : 'Configure your primary brewing discipline and initial rig selections.'}
+                  ? 'Change your daily driver and tools whenever you like. Each change is saved separately with its date and time.'
+                  : 'Pick how you brew most, then the gear you use for it.'}
               </p>
             </div>
-          </div>
-
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-xl text-stone-400 hover:text-white hover:bg-stone-800 transition-colors"
-            title="Close Settings"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        {/* Tab Navigation */}
-        <div className="flex items-center space-x-1.5 border-b border-stone-800/80 pt-3 pb-2 text-xs font-mono">
-          <button
-            onClick={() => setActiveTab('discipline')}
-            className={`px-3 py-1.5 rounded-xl transition-all ${
-              activeTab === 'discipline'
-                ? 'bg-amber-600 text-white font-bold shadow-md shadow-amber-950/40'
-                : 'bg-stone-950 text-stone-400 hover:text-white border border-stone-800'
-            }`}
-          >
-            1. Coffee Discipline
-          </button>
-          <button
-            onClick={() => setActiveTab('rig')}
-            className={`px-3 py-1.5 rounded-xl transition-all ${
-              activeTab === 'rig'
-                ? 'bg-amber-600 text-white font-bold shadow-md shadow-amber-950/40'
-                : 'bg-stone-950 text-stone-400 hover:text-white border border-stone-800'
-            }`}
-          >
-            2. Rig & Tools Setup
-          </button>
-          {userPreferences.setupHistory && userPreferences.setupHistory.length > 0 && (
             <button
+              type="button"
+              onClick={onClose}
+              className="ml-auto -mr-3 -mt-1 w-12 h-12 shrink-0 flex items-center justify-center"
+              aria-label="Close"
+            >
+              <X className="w-6 h-6" />
+            </button>
+          </div>
+        </header>
+
+        {/* Steps */}
+        <nav className="flex border-b border-rule" aria-label="Setup steps">
+          {STEPS.map(s => {
+            const on = activeTab === s.id;
+            return (
+              <button
+                key={s.id}
+                type="button"
+                onClick={() => setActiveTab(s.id)}
+                aria-current={on ? 'step' : undefined}
+                className={`flex-1 min-w-0 min-h-[60px] px-5 pt-2 pb-2.5 text-left border-t-4 ${on ? 'border-ink' : 'border-rule'}`}
+              >
+                <span className="label-caps block">{s.step}</span>
+                <span className={`block text-[15px] truncate ${on ? 'font-extrabold text-ink' : 'font-semibold text-mute'}`}>{s.label}</span>
+              </button>
+            );
+          })}
+          {history.length > 0 && (
+            <button
+              type="button"
               onClick={() => setActiveTab('history')}
-              className={`px-3 py-1.5 rounded-xl transition-all flex items-center space-x-1 ${
-                activeTab === 'history'
-                  ? 'bg-amber-600 text-white font-bold shadow-md shadow-amber-950/40'
-                  : 'bg-stone-950 text-stone-400 hover:text-white border border-stone-800'
+              aria-current={activeTab === 'history' ? 'page' : undefined}
+              className={`shrink-0 min-h-[60px] px-4 flex items-center gap-2 border-l border-rule border-t-4 text-[14px] ${
+                activeTab === 'history' ? 'border-t-ink font-extrabold text-ink' : 'border-t-rule font-semibold text-mute'
               }`}
             >
-              <History className="w-3.5 h-3.5" />
-              <span>Revisions ({userPreferences.setupHistory.length})</span>
+              <History className="w-5 h-5" aria-hidden />
+              <span>
+                <span className="hidden sm:inline">Revisions </span>
+                <span className="num">{history.length}</span>
+              </span>
             </button>
           )}
-        </div>
+        </nav>
 
-        {/* TAB 1: Coffee Discipline Selection */}
-        {activeTab === 'discipline' && (
-          <div className="space-y-4 pt-4">
-            <div className="text-center space-y-1">
-              <h3 className="text-base font-bold text-white">Select Your Coffee Discipline</h3>
-              <p className="text-xs text-stone-400">
-                Choose your go-to brewing style to customize its machines and precision accessories.
+        {/* Body */}
+        <div ref={bodyRef} className="flex-1 min-h-0 overflow-y-auto px-5 py-5">
+          {activeTab === 'discipline' && (
+            <>
+              <h3 className="text-[19px] font-extrabold leading-tight">How do you brew most days?</h3>
+              <p className="text-[14px] text-mute mt-1">
+                This becomes your daily driver. You can set up the other methods later.
               </p>
-            </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-              {CATEGORY_CHOICES.map(cat => (
-                <button
-                  key={cat.id}
-                  onClick={() => handleSelectCategory(cat.id)}
-                  className={`p-3.5 rounded-2xl border text-left transition-all duration-200 flex flex-col justify-between group hover:border-amber-500/80 hover:bg-stone-800/80 ${
-                    selectedPrimary === cat.id
-                      ? 'bg-amber-600/10 border-amber-500 shadow-lg shadow-amber-950/40'
-                      : 'bg-stone-950/70 border-stone-800'
-                  }`}
-                >
-                  <div className="flex items-center space-x-2.5 mb-1.5">
-                    <span className="text-2xl">{cat.icon}</span>
-                    <span className="font-bold text-sm text-white group-hover:text-amber-400 transition-colors">
-                      {cat.name}
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-stone-400 line-clamp-2 leading-relaxed">
-                    {cat.tagline}
-                  </p>
-                </button>
-              ))}
-            </div>
-
-            <div className="flex justify-end pt-2">
-              <button
-                type="button"
-                onClick={() => setActiveTab('rig')}
-                className="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs flex items-center space-x-1.5 shadow-lg shadow-amber-950/40"
-              >
-                <span>Continue to Rig Config</span>
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* TAB 2: Rig & Precision Tools Setup */}
-        {activeTab === 'rig' && (
-          <div className="space-y-4 pt-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <span className="text-xs font-mono font-bold text-amber-400 uppercase tracking-wider block">
-                  Active Method: {selectedPrimary.replace('_', ' ').toUpperCase()}
-                </span>
-                <h3 className="text-base font-bold text-white mt-0.5">
-                  Configure Rig & Precision Accessories
-                </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-4">
+                {MODE_ORDER.map(id => {
+                  const m = MODES[id];
+                  const c = CATEGORY_CHOICES[id];
+                  const on = selectedPrimary === id;
+                  return (
+                    <button
+                      key={id}
+                      type="button"
+                      onClick={() => handleSelectCategory(id)}
+                      aria-pressed={on}
+                      className={`flex text-left min-h-[96px] ${on ? 'border-2 border-ink' : 'border border-rule m-px'}`}
+                    >
+                      <span className={`w-14 shrink-0 flex items-start justify-center pt-3.5 ${m.bg} ${m.on}`} aria-hidden>
+                        {on && <Check className="w-6 h-6" strokeWidth={3} />}
+                      </span>
+                      <span className="flex-1 min-w-0 px-3.5 py-3">
+                        <span className="block text-[16px] font-extrabold leading-tight">{c.name}</span>
+                        <span className="block text-[13px] text-mute leading-snug mt-1">{c.tagline}</span>
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
-              <button
-                type="button"
-                onClick={() => setActiveTab('discipline')}
-                className="text-xs text-stone-400 hover:text-white underline font-mono"
-              >
-                Switch Method
-              </button>
-            </div>
+            </>
+          )}
 
-            <p className="text-xs text-stone-400">
-              Select your daily setup. Click <strong className="text-amber-400 font-mono">"Edit labels"</strong> on any dropdown to add minority brands or custom tools.
-            </p>
+          {activeTab === 'rig' && (
+            <>
+              <div className={`flex items-center gap-3 pl-4 pr-2 py-2 min-h-[72px] ${mode.bg} ${mode.on}`}>
+                <div className="min-w-0 flex-1">
+                  <div className="text-[19px] font-extrabold leading-tight">{choice.name}</div>
+                  <div className="text-[12.5px] opacity-85 leading-snug mt-0.5 line-clamp-2">{choice.tagline}</div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('discipline')}
+                  className="shrink-0 min-h-[48px] px-4 border rule-on text-[14px] font-bold"
+                >
+                  Change
+                </button>
+              </div>
 
-            <div className="space-y-3.5 bg-stone-950/60 p-4 rounded-2xl border border-stone-800 max-h-[380px] overflow-y-auto pr-1">
-              {/* Machine or Dripper */}
-              <SmartDropdownWithOthers
-                label={
-                  selectedPrimary === 'filter'
-                    ? 'Primary Filter Dripper:'
-                    : 'Daily Driver Machine / Vessel:'
-                }
-                value={machineChoice}
-                onChange={setMachineChoice}
-                options={
-                  selectedPrimary === 'espresso'
-                    ? ESPRESSO_MACHINE_OPTIONS
-                    : selectedPrimary === 'filter'
-                    ? FILTER_DRIPPER_OPTIONS
-                    : [
-                        { label: 'Flair 58+ Heated Chamber Lever', value: 'Flair 58+' },
-                        { label: 'Cafelat Robot Dual Lever', value: 'Cafelat Robot' },
-                        { label: 'Odyssey Espresso Argos Hybrid', value: 'Odyssey Argos' },
-                        { label: '9Barista Twin Boiler 9-Bar Stovetop', value: '9Barista Stovetop' },
-                        { label: 'Bialetti Brikka Crema Valve', value: 'Bialetti Brikka' },
-                        { label: 'Classic Bialetti Moka Express', value: 'Bialetti Moka' },
-                        { label: 'Long-Spout Stainless Kettle + Flannel Cloth Sock', value: 'Cloth Sock Pull' },
-                        { label: 'AeroPress Clear + Flow Control Cap', value: 'AeroPress Clear' },
-                        { label: 'AeroPress Inverted World Champion', value: 'AeroPress Inverted' },
-                      ]
-                }
-                customVariableGroup="machines"
-              />
+              <p className="text-[13px] text-mute mt-3">
+                Choose your everyday gear. If a brand or tool is missing, tap Edit labels on that list to add it.
+              </p>
 
-              {/* Grinder */}
-              <SmartDropdownWithOthers
-                label="Primary Grinder & Burrs:"
-                value={grinderChoice}
-                onChange={setGrinderChoice}
-                options={GRINDER_OPTIONS}
-                customVariableGroup="grinders"
-              />
+              <Section title="Rig">
+                <SmartDropdownWithOthers
+                  label={selectedPrimary === 'filter' ? 'Primary filter dripper' : 'Daily driver machine / vessel'}
+                  value={machineChoice}
+                  onChange={setMachineChoice}
+                  options={
+                    selectedPrimary === 'espresso'
+                      ? ESPRESSO_MACHINE_OPTIONS
+                      : selectedPrimary === 'filter'
+                      ? FILTER_DRIPPER_OPTIONS
+                      : [
+                          { label: 'Flair 58+ Heated Chamber Lever', value: 'Flair 58+' },
+                          { label: 'Cafelat Robot Dual Lever', value: 'Cafelat Robot' },
+                          { label: 'Odyssey Espresso Argos Hybrid', value: 'Odyssey Argos' },
+                          { label: '9Barista Twin Boiler 9-Bar Stovetop', value: '9Barista Stovetop' },
+                          { label: 'Bialetti Brikka Crema Valve', value: 'Bialetti Brikka' },
+                          { label: 'Classic Bialetti Moka Express', value: 'Bialetti Moka' },
+                          { label: 'Long-Spout Stainless Kettle + Flannel Cloth Sock', value: 'Cloth Sock Pull' },
+                          { label: 'AeroPress Clear + Flow Control Cap', value: 'AeroPress Clear' },
+                          { label: 'AeroPress Inverted World Champion', value: 'AeroPress Inverted' },
+                        ]
+                  }
+                  customVariableGroup="machines"
+                />
 
-              {/* Water Profile */}
-              <SmartDropdownWithOthers
-                label="Default Water Chemistry:"
-                value={waterChoice}
-                onChange={setWaterChoice}
-                options={waterProfiles.map(w => ({
-                  label: `${w.name} (${w.tdsPpm} ppm)`,
-                  value: w.name,
-                  group: w.countryRegion,
-                }))}
-                customVariableGroup="waters"
-              />
+                <SmartDropdownWithOthers
+                  label="Grinder & burrs"
+                  value={grinderChoice}
+                  onChange={setGrinderChoice}
+                  options={GRINDER_OPTIONS}
+                  customVariableGroup="grinders"
+                />
 
-              {/* Espresso & Lever Specific Precision Puck Tools (Includes MHW-3BOMBER) */}
-              {(selectedPrimary === 'espresso' || selectedPrimary === 'manual_lever') && (
-                <div className="pt-2 border-t border-stone-800/80 space-y-3">
-                  <span className="text-[11px] font-mono font-bold text-amber-400 block uppercase tracking-wider flex items-center space-x-1">
-                    <ShieldCheck className="w-3.5 h-3.5" />
-                    <span>Puck Prep & Basket Suite (MHW-3BOMBER, Normcore, Pullman)</span>
-                  </span>
-
+                <div className="sm:col-span-2">
                   <SmartDropdownWithOthers
-                    label="Precision Basket Model:"
-                    value={basketChoice}
-                    onChange={setBasketChoice}
-                    options={ESPRESSO_BASKET_OPTIONS}
-                    customVariableGroup="baskets"
-                  />
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <SmartDropdownWithOthers
-                      label="Calibrated Tamper:"
-                      value={tamperChoice}
-                      onChange={setTamperChoice}
-                      options={TAMPER_OPTIONS}
-                      customVariableGroup="tampers"
-                    />
-
-                    <SmartDropdownWithOthers
-                      label="Puck Screen:"
-                      value={puckScreenChoice}
-                      onChange={setPuckScreenChoice}
-                      options={PUCK_SCREEN_OPTIONS}
-                      customVariableGroup="puck_screens"
-                    />
-                  </div>
-
-                  {/* Portafilter & Shower Screen Selection */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <SmartDropdownWithOthers
-                      label="Portafilter (Bottomless / Spouted):"
-                      value={portafilterChoice}
-                      onChange={setPortafilterChoice}
-                      options={PORTAFILTER_OPTIONS}
-                      customVariableGroup="portafilters"
-                    />
-
-                    <SmartDropdownWithOthers
-                      label="Shower Screen (Pesado / IKAPE / IMS):"
-                      value={showerScreenChoice}
-                      onChange={setShowerScreenChoice}
-                      options={SHOWER_SCREEN_OPTIONS}
-                      customVariableGroup="shower_screens"
-                    />
-                  </div>
-
-                  <SmartDropdownWithOthers
-                    label="Needle WDT Tool:"
-                    value={wdtChoice}
-                    onChange={setWdtChoice}
-                    options={WDT_OPTIONS}
-                    customVariableGroup="wdt_tools"
+                    label="Default water"
+                    value={waterChoice}
+                    onChange={setWaterChoice}
+                    options={waterProfiles.map(w => ({
+                      label: `${w.name} (${w.tdsPpm} ppm)`,
+                      value: w.name,
+                      group: w.countryRegion,
+                    }))}
+                    customVariableGroup="waters"
                   />
                 </div>
-              )}
+              </Section>
 
-              {/* Filter Specific Media Tools */}
-              {selectedPrimary === 'filter' && (
-                <div className="pt-2 border-t border-stone-800/80 space-y-3">
-                  <span className="text-[11px] font-mono font-bold text-cyan-400 block uppercase tracking-wider flex items-center space-x-1">
-                    <Droplets className="w-3.5 h-3.5" />
-                    <span>Filter Media & Dispersion Synergy</span>
-                  </span>
+              {isPuckPrep && (
+                <Section title="Puck prep & basket" note="MHW-3BOMBER, Normcore, Pullman and more">
+                  <div className="sm:col-span-2">
+                    <SmartDropdownWithOthers
+                      label="Basket"
+                      value={basketChoice}
+                      onChange={setBasketChoice}
+                      options={ESPRESSO_BASKET_OPTIONS}
+                      customVariableGroup="baskets"
+                    />
+                  </div>
 
                   <SmartDropdownWithOthers
-                    label="Filter Paper Media:"
+                    label="Tamper"
+                    value={tamperChoice}
+                    onChange={setTamperChoice}
+                    options={TAMPER_OPTIONS}
+                    customVariableGroup="tampers"
+                  />
+
+                  <SmartDropdownWithOthers
+                    label="Puck screen"
+                    value={puckScreenChoice}
+                    onChange={setPuckScreenChoice}
+                    options={PUCK_SCREEN_OPTIONS}
+                    customVariableGroup="puck_screens"
+                  />
+
+                  <SmartDropdownWithOthers
+                    label="Portafilter"
+                    value={portafilterChoice}
+                    onChange={setPortafilterChoice}
+                    options={PORTAFILTER_OPTIONS}
+                    customVariableGroup="portafilters"
+                  />
+
+                  <SmartDropdownWithOthers
+                    label="Shower screen"
+                    value={showerScreenChoice}
+                    onChange={setShowerScreenChoice}
+                    options={SHOWER_SCREEN_OPTIONS}
+                    customVariableGroup="shower_screens"
+                  />
+
+                  <div className="sm:col-span-2">
+                    <SmartDropdownWithOthers
+                      label="WDT tool"
+                      value={wdtChoice}
+                      onChange={setWdtChoice}
+                      options={WDT_OPTIONS}
+                      customVariableGroup="wdt_tools"
+                    />
+                  </div>
+                </Section>
+              )}
+
+              {selectedPrimary === 'filter' && (
+                <Section title="Filter paper & pouring">
+                  <SmartDropdownWithOthers
+                    label="Filter paper"
                     value={filterPaperChoice}
                     onChange={setFilterPaperChoice}
                     options={FILTER_PAPER_OPTIONS}
@@ -508,111 +503,79 @@ export const OnboardingModal: React.FC<Props> = ({ isOpen, onClose }) => {
                   />
 
                   <SmartDropdownWithOthers
-                    label="Dispersion & Agitation Tool:"
+                    label="Dispersion & agitation tool"
                     value={dispersionChoice}
                     onChange={setDispersionChoice}
                     options={DISPERSION_OPTIONS}
                     customVariableGroup="dispersions"
                   />
-                </div>
+                </Section>
               )}
-            </div>
+            </>
+          )}
 
-            {/* Bottom Actions */}
-            <div className="flex items-center justify-between pt-2">
-              <button
-                type="button"
-                onClick={() => setActiveTab('discipline')}
-                className="px-4 py-2 rounded-xl text-xs text-stone-400 hover:text-white"
-              >
-                ← Back
-              </button>
+          {activeTab === 'history' && (
+            <>
+              <h3 className="text-[19px] font-extrabold leading-tight">Setup revisions</h3>
+              <p className="text-[14px] text-mute mt-1">
+                Every change to your setup is kept, newest first, with its date and time.
+              </p>
 
-              <button
-                type="button"
-                onClick={handleFinish}
-                className="px-6 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs flex items-center space-x-2 shadow-lg shadow-amber-950/50 transition-all hover:scale-[1.02]"
-              >
-                <CheckCircle2 className="w-4 h-4" />
-                <span>Save Setup & Apply</span>
-              </button>
-            </div>
+              <ul className="mt-4 border-t border-ink">
+                {history.map(entry => {
+                  const m = MODES[entry.category];
+                  const details = historyDetails(entry);
+                  return (
+                    <li key={entry.id} className="border-b border-rule py-3">
+                      <div className="flex items-center gap-2.5">
+                        <i className={`block w-3.5 h-3.5 shrink-0 ${m?.bg ?? 'bg-ink'}`} aria-hidden />
+                        <span className="text-[14px] font-bold">{m?.label ?? entry.category.replace('_', ' ')}</span>
+                        <span className="ml-auto text-[12.5px] text-mute num text-right">{entry.formattedDateTime}</span>
+                      </div>
+                      <p className="text-[14px] mt-1.5 leading-snug">{entry.summary}</p>
+                      {details.length > 0 && (
+                        <p className="text-[12.5px] text-mute mt-1 leading-snug">{details.join(' · ')}</p>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            </>
+          )}
+        </div>
+
+        {/* Footer: Back and the one primary action */}
+        <footer className="border-t border-ink pb-safe [@media(min-width:768px)_and_(min-height:600px)]:pb-0">
+          <div className="flex gap-2.5 px-5 py-3">
+            {activeTab === 'discipline' && (
+              <>
+                <Btn onClick={onClose}>Close</Btn>
+                <Btn variant="primary" className="flex-1 sm:flex-none sm:ml-auto sm:min-w-[240px]" onClick={() => setActiveTab('rig')}>
+                  Continue
+                  <ChevronRight className="w-5 h-5" aria-hidden />
+                </Btn>
+              </>
+            )}
+            {activeTab === 'rig' && (
+              <>
+                <Btn onClick={() => setActiveTab('discipline')}>
+                  <ChevronLeft className="w-5 h-5 -ml-1" aria-hidden />
+                  Back
+                </Btn>
+                <Btn variant="primary" className="flex-1 sm:flex-none sm:ml-auto sm:min-w-[240px]" onClick={handleFinish}>
+                  <Check className="w-5 h-5" strokeWidth={2.5} aria-hidden />
+                  Save setup
+                </Btn>
+              </>
+            )}
+            {activeTab === 'history' && (
+              <Btn onClick={() => setActiveTab('rig')}>
+                <ChevronLeft className="w-5 h-5 -ml-1" aria-hidden />
+                Back to rig
+              </Btn>
+            )}
           </div>
-        )}
-
-        {/* TAB 3: Setup Revisions History */}
-        {activeTab === 'history' && (
-          <div className="space-y-4 pt-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-base font-bold text-white flex items-center space-x-1.5">
-                  <History className="w-4 h-4 text-amber-500" />
-                  <span>Setup Revision History</span>
-                </h3>
-                <p className="text-xs text-stone-400">
-                  All configuration updates are preserved separately with full date and time stamps.
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-2.5 max-h-[360px] overflow-y-auto pr-1">
-              {userPreferences.setupHistory?.map(entry => (
-                <div
-                  key={entry.id}
-                  className="p-3 bg-stone-950 rounded-xl border border-stone-800 text-xs font-mono space-y-1.5"
-                >
-                  <div className="flex items-center justify-between text-[11px]">
-                    <span className="text-amber-400 font-bold uppercase">
-                      {entry.category.replace('_', ' ')}
-                    </span>
-                    <span className="text-stone-400 flex items-center space-x-1">
-                      <Calendar className="w-3 h-3 text-stone-500" />
-                      <span>{entry.formattedDateTime}</span>
-                    </span>
-                  </div>
-                  <p className="text-stone-200 font-sans text-xs">{entry.summary}</p>
-                  <div className="flex flex-wrap gap-1.5 text-[10px] text-stone-400 pt-1 border-t border-stone-800/60">
-                    {entry.selections.machineModel && entry.selections.machineModel !== 'N/A' && (
-                      <span className="bg-stone-900 px-1.5 py-0.5 rounded border border-stone-800">
-                        Rig: {entry.selections.machineModel}
-                      </span>
-                    )}
-                    {entry.selections.tamperTool && entry.selections.tamperTool !== 'N/A' && (
-                      <span className="bg-stone-900 px-1.5 py-0.5 rounded border border-stone-800">
-                        Tamp: {entry.selections.tamperTool}
-                      </span>
-                    )}
-                    {entry.selections.portafilter && entry.selections.portafilter !== 'N/A' && (
-                      <span className="bg-stone-900 px-1.5 py-0.5 rounded border border-stone-800">
-                        PF: {entry.selections.portafilter}
-                      </span>
-                    )}
-                    {entry.selections.showerScreen && entry.selections.showerScreen !== 'N/A' && (
-                      <span className="bg-stone-900 px-1.5 py-0.5 rounded border border-stone-800">
-                        Screen: {entry.selections.showerScreen}
-                      </span>
-                    )}
-                    {entry.selections.puckScreenTool && entry.selections.puckScreenTool !== 'N/A' && (
-                      <span className="bg-stone-900 px-1.5 py-0.5 rounded border border-stone-800">
-                        Screen: {entry.selections.puckScreenTool}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="flex justify-end pt-2">
-              <button
-                type="button"
-                onClick={() => setActiveTab('rig')}
-                className="px-4 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-white text-xs font-medium"
-              >
-                Back to Rig Config
-              </button>
-            </div>
-          </div>
-        )}
+        </footer>
       </div>
     </div>
   );

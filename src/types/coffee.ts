@@ -107,6 +107,37 @@ export interface PourStage {
   notes?: string;
 }
 
+/** What the barista does during a step. */
+export type StepAction = 'pour' | 'pour_swirl' | 'swirl' | 'stir' | 'wait' | 'drawdown' | 'press' | 'heat' | 'dip' | 'other';
+
+/**
+ * One timed step of a brew. Recipes may carry their own `customSteps`;
+ * otherwise steps are derived from `pourStages` or the discipline's defaults.
+ */
+export interface BrewStep {
+  id: string;
+  name: string;
+  durationSeconds: number;
+  /** Pour-to / yield-to weight on the scale at the end of the step. */
+  targetWeightGrams?: number;
+  action?: StepAction;
+  /** Espresso and lever: what the machine is holding during the step. */
+  control?: 'pressure' | 'flow';
+  /** Bar for pressure, ml/s for flow. */
+  target?: number;
+  endsWhen?: 'time' | 'weight' | 'first_drops' | 'valve';
+  notes?: string;
+}
+
+/** One line of the prep checklist (puck prep, rinse, kettle...). */
+export interface PrepItem {
+  id: string;
+  name: string;
+  tool: string;
+  setting?: string;
+  use: boolean;
+}
+
 export interface KopiCustomization {
   style: 'kopi' | 'kopi_o' | 'kopi_c' | 'kopi_kosong' | 'kopi_o_kosong' | 'kopi_c_kosong' | 'other';
   strength: 'standard' | 'gao' | 'po' | 'di_lo';
@@ -152,6 +183,12 @@ export interface Recipe {
   basketSpec?: BasketSpec;
   portafilter?: string;
   showerScreen?: string;
+  /** The user's own steps and timings; replaces the preset schedule when present. */
+  customSteps?: BrewStep[];
+  /** Prep checklist shown before the first step. */
+  prepItems?: PrepItem[];
+  /** Recipe this one was copied from ("my version"). */
+  baseRecipeId?: string;
   isDefault?: boolean; // Set as default recipe for this category
   notes: string;
   tags: string[];
@@ -204,6 +241,17 @@ export interface BrewSession {
   sensory: SensoryRating;
   sensoryNotes: string;
   dialInAdvice: string[];
+
+  // Added with the Roaster's Label redesign (optional for older sessions)
+  beanId?: string;
+  grindSetting?: string;
+  waterTempC?: number;
+  /** Water used, in grams (1 ml ≈ 1 g). */
+  waterGrams?: number;
+  pourNotes?: string;
+  flavourTags?: string[];
+  stepTimes?: { name: string; plannedSeconds: number; actualSeconds: number }[];
+  prepUsed?: { name: string; tool: string; use: boolean }[];
 }
 
 export interface CategoryToolSelections {

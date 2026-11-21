@@ -1,37 +1,39 @@
 import React from 'react';
 import { CoffeeCategory } from '../types/coffee';
+import { MODES } from '../brew/modes';
 
 interface Props {
   activeCategory: CoffeeCategory | 'all';
   onSelectCategory: (cat: CoffeeCategory | 'all') => void;
 }
 
-const CATEGORIES: { id: CoffeeCategory | 'all'; label: string; icon: string; countBadge?: string }[] = [
-  { id: 'all', label: 'All Disciplines', icon: '☕' },
-  { id: 'espresso', label: 'Benchtop Espresso', icon: '⚡' },
-  { id: 'manual_lever', label: 'Manual Lever & Portable', icon: '🦾' },
-  { id: 'moka_stovetop', label: 'Stovetop & Moka Pot', icon: '🔥' },
-  { id: 'filter', label: 'Modern Filter Coffee', icon: '💧' },
-  { id: 'immersion', label: 'Immersion & AeroPress', icon: '⏳' },
-  { id: 'singaporean_kopi', label: 'Singaporean Kopi', icon: '🇸🇬' },
+const CATEGORIES: { id: CoffeeCategory | 'all'; label: string }[] = [
+  { id: 'all', label: 'All disciplines' },
+  { id: 'espresso', label: 'Benchtop Espresso' },
+  { id: 'manual_lever', label: 'Manual Lever & Portable' },
+  { id: 'moka_stovetop', label: 'Stovetop & Moka Pot' },
+  { id: 'filter', label: 'Modern Filter Coffee' },
+  { id: 'immersion', label: 'Immersion & AeroPress' },
+  { id: 'singaporean_kopi', label: 'Singaporean Kopi' },
 ];
 
+/** Horizontal, scrollable discipline filter. The selected chip fills with the mode colour. */
 export const CategoryPillSelector: React.FC<Props> = ({ activeCategory, onSelectCategory }) => {
   return (
-    <div className="flex items-center space-x-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-stone-800 scrollbar-track-transparent">
+    <div className="flex items-center gap-2 overflow-x-auto scrollbar-none py-1" role="group" aria-label="Filter by discipline">
       {CATEGORIES.map(cat => {
         const isActive = activeCategory === cat.id;
+        const mode = cat.id === 'all' ? null : MODES[cat.id];
+        const on = isActive ? (mode ? `${mode.bg} ${mode.on} border-transparent` : 'bg-ink text-paper border-ink') : 'bg-paper text-ink border-rule';
         return (
           <button
             key={cat.id}
+            type="button"
+            aria-pressed={isActive}
             onClick={() => onSelectCategory(cat.id)}
-            className={`whitespace-nowrap px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all duration-200 flex items-center space-x-2 border ${
-              isActive
-                ? 'bg-amber-600 text-white border-amber-500 shadow-lg shadow-amber-950/40 font-semibold'
-                : 'bg-stone-900/80 text-stone-300 border-stone-800 hover:border-stone-700 hover:bg-stone-800/80'
-            }`}
+            className={`shrink-0 whitespace-nowrap min-h-[44px] px-3.5 border text-[14px] font-bold flex items-center gap-2 ${on}`}
           >
-            <span className="text-sm">{cat.icon}</span>
+            {mode && <i className={`w-3.5 h-3.5 shrink-0 ${mode.bg} ${isActive ? 'border border-current' : ''}`} aria-hidden />}
             <span>{cat.label}</span>
           </button>
         );

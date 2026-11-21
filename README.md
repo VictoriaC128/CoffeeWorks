@@ -1,4 +1,4 @@
-# ☕ CoffeeWorks — Precision Coffee Recipe Vault & Dial-in Station
+# CoffeeWorks — Precision Coffee Recipe Vault & Dial-in Station
 
 An advanced, responsive coffee dial-in station and recipe vault designed to eliminate the cognitive overhead of managing countless coffee variables—from bean varietals and fermentation processes, to 2026 puck preparation tools, machine profiling, global water chemistry, and traditional sock-brewed Singaporean Kopi.
 
@@ -57,10 +57,12 @@ Tracks **TDS** ($ppm$), **General Hardness GH** ($Ca^{2+}, Mg^{2+}$), **Carbonat
 ---
 
 ## 🛠️ Technology Stack
+- **Platform**: Android app for phones and tablets (Capacitor 8). The same code can be packaged for iPhone/iPad later.
 - **Framework**: React 18, Vite, TypeScript
-- **Styling**: Tailwind CSS (dark barista mocha theme)
+- **Styling**: Tailwind CSS on the Roaster's Label design tokens (`src/index.css`): 5 colour themes, 5 bundled fonts, no network fonts
 - **Icons**: Lucide Icons
-- **Persistence**: Offline-first LocalStorage & IndexedDB with JSON Export/Import
+- **Native**: keep-awake while brewing, haptics on step change, orientation lock, edge-to-edge insets, Android back gesture
+- **Persistence**: offline-first; data lives in native storage (Capacitor Preferences) mirrored to the WebView, with copy/paste backup in Settings
 
 ---
 
@@ -70,9 +72,27 @@ Tracks **TDS** ($ppm$), **General Hardness GH** ($Ca^{2+}, Mg^{2+}$), **Carbonat
 # 1. Install dependencies
 npm install
 
-# 2. Launch development server
+# 2. Work on the UI in a browser (resize or rotate devtools to see the tilt layouts)
 npm run dev
 
-# 3. Build for production
+# 3. Build the web bundle and copy it into the Android project
 npm run build
+npx cap sync android
 ```
+
+### Build and run on Android
+
+Needs JDK 21 and the Android SDK (platform 36). Android Studio includes both.
+
+```bash
+# Open in Android Studio, then Run on a phone or emulator
+npx cap open android
+
+# Or build a debug APK from the command line
+cd android
+./gradlew assembleDebug        # → android/app/build/outputs/apk/debug/app-debug.apk
+```
+
+Point Gradle at the SDK with `android/local.properties` (not committed), for example `sdk.dir=C:/Users/<you>/Android/sdk`, and set `JAVA_HOME` to the JDK.
+
+For Google Play, build a signed release bundle (`./gradlew bundleRelease` with a signing config, or Android Studio → Build → Generate Signed App Bundle). The app id is `com.coffeeworks.app` in `capacitor.config.ts`; change it before the first upload if you want a different one.

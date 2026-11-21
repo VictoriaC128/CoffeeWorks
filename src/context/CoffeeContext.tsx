@@ -16,6 +16,7 @@ import { PRESET_GEARS } from '../data/presetGear';
 import { PRESET_WATER_PROFILES } from '../data/presetWater';
 import { DEFAULT_RECIPES } from '../data/defaultRecipes';
 import { COFFEE_DRINKS_CATALOG } from '../data/coffeeDrinksCatalog';
+import { loadKey, saveKey } from '../platform/storage';
 
 interface CoffeeContextType {
   activeCategory: CoffeeCategory | 'all';
@@ -191,44 +192,36 @@ export const CoffeeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const [activeCategory, setActiveCategory] = useState<CoffeeCategory | 'all'>('all');
 
   const [userPreferences, setUserPreferences] = useState<UserPreferences>(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.PREFERENCES);
-    return saved ? JSON.parse(saved) : DEFAULT_PREFERENCES;
+    return loadKey(STORAGE_KEYS.PREFERENCES, DEFAULT_PREFERENCES);
   });
 
   const [customVariables, setCustomVariables] = useState<Record<string, string[]>>(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.CUSTOM_VARS);
-    return saved ? JSON.parse(saved) : {};
+    return loadKey(STORAGE_KEYS.CUSTOM_VARS, {});
   });
 
   // Persistent States
   const [beans, setBeans] = useState<Bean[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.BEANS);
-    return saved ? JSON.parse(saved) : PRESET_BEANS;
+    return loadKey(STORAGE_KEYS.BEANS, PRESET_BEANS);
   });
 
   const [gearProfiles, setGearProfiles] = useState<GearProfile[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.GEAR);
-    return saved ? JSON.parse(saved) : PRESET_GEARS;
+    return loadKey(STORAGE_KEYS.GEAR, PRESET_GEARS);
   });
 
   const [waterProfiles, setWaterProfiles] = useState<WaterProfile[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.WATER);
-    return saved ? JSON.parse(saved) : PRESET_WATER_PROFILES;
+    return loadKey(STORAGE_KEYS.WATER, PRESET_WATER_PROFILES);
   });
 
   const [recipes, setRecipes] = useState<Recipe[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.RECIPES);
-    return saved ? JSON.parse(saved) : DEFAULT_RECIPES;
+    return loadKey(STORAGE_KEYS.RECIPES, DEFAULT_RECIPES);
   });
 
   const [coffeeDrinks, setCoffeeDrinks] = useState<CoffeeDrinkRecipe[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.DRINKS);
-    return saved ? JSON.parse(saved) : COFFEE_DRINKS_CATALOG;
+    return loadKey(STORAGE_KEYS.DRINKS, COFFEE_DRINKS_CATALOG);
   });
 
   const [sessions, setSessions] = useState<BrewSession[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.SESSIONS);
-    return saved ? JSON.parse(saved) : [];
+    return loadKey(STORAGE_KEYS.SESSIONS, []);
   });
 
   const [selectedRecipeForBrew, setSelectedRecipeForBrew] = useState<Recipe | null>(() => {
@@ -239,35 +232,35 @@ export const CoffeeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
   // Save to LocalStorage on updates
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.PREFERENCES, JSON.stringify(userPreferences));
+    saveKey(STORAGE_KEYS.PREFERENCES, JSON.stringify(userPreferences));
   }, [userPreferences]);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.CUSTOM_VARS, JSON.stringify(customVariables));
+    saveKey(STORAGE_KEYS.CUSTOM_VARS, JSON.stringify(customVariables));
   }, [customVariables]);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.BEANS, JSON.stringify(beans));
+    saveKey(STORAGE_KEYS.BEANS, JSON.stringify(beans));
   }, [beans]);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.GEAR, JSON.stringify(gearProfiles));
+    saveKey(STORAGE_KEYS.GEAR, JSON.stringify(gearProfiles));
   }, [gearProfiles]);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.WATER, JSON.stringify(waterProfiles));
+    saveKey(STORAGE_KEYS.WATER, JSON.stringify(waterProfiles));
   }, [waterProfiles]);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.RECIPES, JSON.stringify(recipes));
+    saveKey(STORAGE_KEYS.RECIPES, JSON.stringify(recipes));
   }, [recipes]);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.DRINKS, JSON.stringify(coffeeDrinks));
+    saveKey(STORAGE_KEYS.DRINKS, JSON.stringify(coffeeDrinks));
   }, [coffeeDrinks]);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.SESSIONS, JSON.stringify(sessions));
+    saveKey(STORAGE_KEYS.SESSIONS, JSON.stringify(sessions));
   }, [sessions]);
 
   // When active category switches, load default recipe for that category if applicable
@@ -688,7 +681,6 @@ export const CoffeeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     setRecipes(DEFAULT_RECIPES);
     setCoffeeDrinks(COFFEE_DRINKS_CATALOG);
     setSessions([]);
-    localStorage.clear();
   };
 
   return (
