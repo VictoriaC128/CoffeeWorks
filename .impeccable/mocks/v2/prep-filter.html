@@ -25,6 +25,13 @@ main{display:grid;grid-template-rows:auto auto 1fr auto;min-width:0;min-height:0
 .base{margin-left:auto;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--on);padding:5px 9px;white-space:nowrap}
 .k{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);font-weight:700}
 .dials{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid var(--ink)}
+.dials.n5 .big{font-size:50px}
+.dials.n5 .dial{padding:12px 16px 14px}
+.dial .k{display:flex;align-items:center;gap:6px}
+.uc{margin-left:auto;display:inline-flex;border:1px solid var(--ink);font-size:10.5px;letter-spacing:.02em;text-transform:none;color:var(--ink)}
+.uc span{padding:2px 6px}
+.uc span+span{border-left:1px solid var(--ink)}
+.uc span.on{background:var(--ink);color:#fff}
 .dial{padding:12px 20px 14px;border-right:1px solid var(--rule);min-width:0}
 .dial:last-child{border-right:0}
 .big{font-size:58px;font-weight:800;font-stretch:80%;letter-spacing:-.03em;line-height:.95;margin:8px 0 4px;white-space:nowrap}
@@ -90,7 +97,7 @@ button.p{background:var(--ink);color:#fff;margin-left:auto;padding:0 32px}
 <aside class="rail">
   <div class="mark">CoffeeWorks<small>Brew station</small></div>
   <nav>
-    <a class="on" href="#">Brew <span>prep</span></a><a href="#">Recipes <span>14</span></a><a href="#">Drink Lab <span>62</span></a><a href="#">Kopi <span>9</span></a><a href="#">Beans <span>5</span></a><a href="#">Gear <span>11</span></a><a href="#">Water <span>15</span></a><a href="#">History <span>48</span></a>
+    <a class="on" href="#">Brew <span>prep</span></a><a href="#">Recipes <span>14</span></a><a href="#">Drink Lab <span>62</span></a><a href="#">Kopi <span>9</span></a><a href="#">Beans <span>5</span></a><a href="#">Gear <span>11</span></a><a href="#">Water <span>15</span></a><a href="#">History <span>48</span></a><a href="settings.html">Settings <span></span></a>
   </nav>
   <div class="h">Daily drivers</div>
   <div class="drv"><i style="background:#D62828"></i><b>Espresso</b><em>CW-001</em></div><div class="drv"><i style="background:#5D6B2F"></i><b>Lever</b><em>CW-002</em></div><div class="drv"><i style="background:#E9B523"></i><b>Moka</b><em>CW-003</em></div><div class="drv on"><i style="background:#2747D6"></i><b>Filter</b><em>CW-014</em></div><div class="drv"><i style="background:#1F7A8C"></i><b>Immersion</b><em>CW-006</em></div><div class="drv"><i style="background:#1F7A55"></i><b>Kopi</b><em>CW-007</em></div>
@@ -100,11 +107,16 @@ button.p{background:var(--ink);color:#fff;margin-left:auto;padding:0 32px}
     <div><div class="lot">CW-014 · Filter · before brew 50 · step 00</div><h1 class="title">Brew prep · Orea V4 Apex</h1></div>
     <span class="base">Then 5 pours · Edit steps</span>
   </header>
-  <section class="dials"><div class="dial">
+  <section class="dials n5" style="grid-template-columns:repeat(5,1fr)"><div class="dial">
   <div class="k">Dose</div>
   <div class="big">15.0<small>g</small></div>
-  <div class="sub">Scale reads <b>15.0 g</b> · to 250 g water<br>Ratio 1:16.7</div>
+  <div class="sub">Scale reads <b>15.0 g</b><br>Ratio 1:16.7</div>
   <div class="ctl"><div class="pm"><span>−</span><span>+</span></div><em>± 0.1 g</em></div>
+</div><div class="dial">
+  <div class="k">Water<span class="uc" title="Default unit set in Settings"><span class="on">ml</span><span>g</span><span>oz</span></span></div>
+  <div class="big">250<small>ml</small></div>
+  <div class="sub">Pours rescale to match<br>Unit default from Settings</div>
+  <div class="ctl"><div class="pm"><span>−</span><span>+</span></div><em>± 5 ml</em></div>
 </div><div class="dial chg">
   <div class="k">Grind<span class="from">dial-in</span></div>
   <div class="big">#4.9<small></small><span class="was">#5.1</span></div>
@@ -117,7 +129,7 @@ button.p{background:var(--ink);color:#fff;margin-left:auto;padding:0 32px}
 <div class="rlab"><span style="left:0">85</span><span style="left:46.7%">92</span><span style="left:73.3%">96</span><span style="left:100%">100</span></div></div>
   <div class="ctl"><div class="pm"><span>−</span><span>+</span></div><em>Kettle <b style="color:#151515">91.6 °C</b> · heating</em></div>
 </div><div class="dial">
-  <div class="k">Water · hardness</div>
+  <div class="k">Hardness<span class="uc" title="Default unit set in Settings"><span class="on">ppm</span><span>°dH</span></span></div>
   <div class="big">70<small>ppm</small></div>
   <div class="sub">GH <b>45</b> · KH <b>35</b> · pH 7.2<br>Bean likes 50–80 ppm ✓</div>
   <div class="ctl"><div class="in">Singapore PUB tap</div></div>
@@ -153,7 +165,7 @@ button.p{background:var(--ink);color:#fff;margin-left:auto;padding:0 32px}
     </div>
     <aside class="why">
       <div class="adv"><b class="t">Dial-in</b>Brew 49 tasted thin. Grind moved <b>#5.1 → #4.9</b>; water stays 92 °C so you can tell which change worked.</div>
-      <div><div class="k" style="margin-bottom:5px">What each one does to the cup</div><dl class="fx"><dt>Water temp</dt><dd>Hotter: fuller, sweeter. Cooler: brighter, lighter. Shaded band: light washed 92–96 °C.</dd><dt>Hardness</dt><dd>Soft: sparkling acid, light body. Hard or KH over ~50: heavier, duller fruit.</dd><dt>Grind</dt><dd>Finer: slower drawdown, more body. Too fine: bitter, stalls.</dd><dt>Dose</dt><dd>More coffee at the same water: stronger cup.</dd></dl></div>
+      <div><div class="k" style="margin-bottom:5px">What each one does to the cup</div><dl class="fx"><dt>Water temp</dt><dd>Hotter: fuller, sweeter. Cooler: brighter, lighter. Shaded band: light washed 92–96 °C.</dd><dt>Hardness</dt><dd>Soft: sparkling acid, light body. Hard or KH over ~50: heavier, duller fruit.</dd><dt>Grind</dt><dd>Finer: slower drawdown, more body. Too fine: bitter, stalls.</dd><dt>Dose · water</dt><dd>More coffee or less water: stronger cup. Ratio updates as you change either.</dd></dl></div>
       <div><div class="k" style="margin-bottom:4px">Last brews · this bean</div>
         <table class="hist"><thead><tr><th>Brew</th><th>Temp · water</th><th>Grind</th><th>Time</th><th>Cup</th></tr></thead>
         <tbody><tr><td>49</td><td>92° · PUB 70</td><td>#5.1</td><td>2:31</td><td class="cup">Thin</td></tr><tr><td>45</td><td>94° · PUB 70</td><td>#5.1</td><td>2:36</td><td class="cup">Sweet 4/5</td></tr><tr><td>41</td><td>92° · TWW 150</td><td>#5.1</td><td>2:40</td><td class="cup">Flat, heavy</td></tr></tbody></table>

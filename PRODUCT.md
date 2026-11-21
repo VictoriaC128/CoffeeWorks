@@ -4,7 +4,7 @@
 
 ## Platform
 
-web
+android — a mobile app for phones and tablets only, never a desktop/PC app. The React web code is wrapped as a native Android app (Capacitor) and published on Google Play. The same codebase should stay iOS-capable for a later App Store release, but Android is the foundation and the first target.
 
 ## Users
 
@@ -22,15 +22,18 @@ One station that spans six disciplines — benchtop espresso, manual lever, stov
 
 ## Operating Context
 
-- Used standing at the bar: a **phone propped by the scale** (wet hands, quick taps, glanced at mid-pour) and an **iPad on the counter**, sometimes facing the barista.
-- Planning, gear setup and history review may also happen on a larger screen.
+- Used standing at the bar: a **phone propped by the scale** (wet hands, quick taps, glanced at mid-pour) and a **tablet on the counter** (Android tablet first, iPad later), sometimes facing the barista.
+- Planning, gear setup and history review also happen on the phone or tablet. There is no desktop or PC use.
+- Held upright the app shows the simple one-column layout; turned sideways it shows the full layout with the mode rail. Users can lock either.
 - Rituals: grind, puck prep, pre-infusion/bloom, pours, drawdown, tasting, logging.
 
 ## Capabilities and Constraints
 
 - Tabs today: Recipe Vault, Drink Lab, Live Brew Station, Kopi Calculator, Bean Cellar, Gear Locker, Water Lab, Dial-in History; plus onboarding / "Customise Setup & Tools".
 - Every dropdown supports custom "Others…" labels and an N/A option; per-method default recipe ("daily driver") and tool-selection persistence.
-- React 18 + Vite + TypeScript + Tailwind; Lucide icons; offline-first LocalStorage/IndexedDB with JSON export/import.
+- React 18 + Vite + TypeScript + Tailwind; Lucide icons; offline-first with JSON export/import.
+- Android-ready foundation: Capacitor Android project; data in native storage (not WebView LocalStorage, which the OS may clear); screen kept awake while brewing; haptics on step change; native orientation lock; edge-to-edge layout respecting status and navigation bars; Android back gesture handled (never silently drops a running brew).
+- Touch only: no hover-dependent UI, tap targets sized for wet hands, works across phone and tablet screen sizes and aspect ratios.
 - Undecided: whether "café mode" is a distinct UI mode or the same UI with faster recipe access.
 
 ## Brand Commitments

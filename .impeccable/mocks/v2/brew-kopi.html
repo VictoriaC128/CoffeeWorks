@@ -69,11 +69,14 @@ footer{border-top:1px solid var(--ink);display:flex;gap:12px;padding:12px 28px;a
 button{font:inherit;font-weight:700;font-size:16px;height:56px;padding:0 26px;border:1px solid var(--ink);background:#fff;color:var(--ink);border-radius:0}
 button.p{background:var(--ink);color:#fff;margin-left:auto;padding:0 34px}
 .chip{font-size:12px;color:var(--mute);margin-left:8px}
+.spec dd.cg{display:flex;align-items:center;gap:8px;min-width:0;padding:2px 0}
+.spec dd.cg .tx{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.spec .ed{font:inherit;height:17px;line-height:15px;padding:0 6px;font-size:9.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;border:1px solid currentColor;background:transparent;color:inherit;margin:0;flex:none;cursor:pointer}
 </style></head><body>
 <aside class="rail">
   <div class="mark">CoffeeWorks<small>Brew station</small></div>
   <nav>
-    <a class="on" href="#">Brew <span>running</span></a><a href="#">Recipes <span>14</span></a><a href="#">Drink Lab <span>62</span></a><a href="#">Kopi <span>9</span></a><a href="#">Beans <span>5</span></a><a href="#">Gear <span>11</span></a><a href="#">Water <span>15</span></a><a href="#">History <span>48</span></a>
+    <a class="on" href="#">Brew <span>running</span></a><a href="#">Recipes <span>14</span></a><a href="#">Drink Lab <span>62</span></a><a href="#">Kopi <span>9</span></a><a href="#">Beans <span>5</span></a><a href="#">Gear <span>11</span></a><a href="#">Water <span>15</span></a><a href="#">History <span>48</span></a><a href="settings.html">Settings <span></span></a>
   </nav>
   <div class="h">Daily drivers</div>
   <div class="drv"><i style="background:#D62828"></i><b>Espresso</b><em>CW-001</em></div><div class="drv"><i style="background:#5D6B2F"></i><b>Lever</b><em>CW-002</em></div><div class="drv"><i style="background:#E9B523"></i><b>Moka</b><em>CW-003</em></div><div class="drv"><i style="background:#2747D6"></i><b>Filter</b><em>CW-014</em></div><div class="drv"><i style="background:#1F7A8C"></i><b>Immersion</b><em>CW-006</em></div><div class="drv on"><i style="background:#1F7A55"></i><b>Kopi</b><em>CW-007</em></div>
@@ -81,7 +84,7 @@ button.p{background:var(--ink);color:#fff;margin-left:auto;padding:0 34px}
 <main>
   <header class="label">
     <div><div class="lot">CW-007 · Kopi · 25 g · 180 ml water → 140 ml essence · 100 °C</div><h1 class="title">Kopi Gao · Thick &amp; Rich</h1></div>
-    <dl class="spec"><dt>Bean</dt><dd>Wok-roast Robusta · butter &amp; sugar · 18 d</dd><dt>Gear</dt><dd>Long-spout kettle · flannel sock</dd><dt>Cup</dt><dd>Condensed 30 g · evap 15 g · sugar 0</dd><dt>Order</dt><dd>Kopi Gao · hot</dd></dl>
+    <dl class="spec"><dt>Bean</dt><dd class="cg"><span class="tx">Wok-roast Robusta · butter &amp; sugar · 18 d</span><button class="ed" aria-label="Change bean">Change</button></dd><dt>Gear</dt><dd>Long-spout kettle · flannel sock</dd><dt>Cup</dt><dd>Condensed 30 g · evap 15 g · sugar 0</dd><dt>Order</dt><dd>Kopi Gao · hot</dd></dl>
   </header>
   <section class="clock">
     <div class="step">

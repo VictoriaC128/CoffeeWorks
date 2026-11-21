@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>CoffeeWorks — Brew running (portrait: phone or iPad)</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&display=swap" rel="stylesheet">
+<style>:root{--ink:#151515;--mute:#6B6B66;--rule:#E3E2DD;--tint:#F3F2EE;--flow:#E8590C;--filter:#2747D6}
+/* 1rem = 10px on a 390x844 phone; scales up on an iPad held upright */
+html{font-size:min(calc(100vw / 39), calc(100vh / 84.4))}
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:100vw;height:100vh;overflow:hidden;background:#fff;color:var(--ink);font-family:Archivo,sans-serif;font-variant-numeric:tabular-nums;display:flex;flex-direction:column}
+.label{background:var(--filter);color:#fff;padding:1.4rem 1.6rem 1.2rem}
+.lot{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:1.1rem;letter-spacing:.12em;font-weight:700;text-transform:uppercase;opacity:.85}
+.title{font-weight:900;font-stretch:115%;font-size:2.1rem;line-height:1.05;letter-spacing:-.02em;margin-top:0.4rem}
+.k{font-size:1.1rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);font-weight:700}
+.step{padding:1.2rem 1.6rem 1rem;border-bottom:1px solid var(--ink)}
+.nm{font-size:1.8rem;font-weight:700;margin-top:0.4rem}
+.count{font-weight:800;font-stretch:76%;font-size:13.6rem;line-height:.85;letter-spacing:-.04em;margin:0.8rem 0 0.6rem}
+.count small{font-size:2.8rem;font-stretch:100%;color:var(--mute);font-weight:600;letter-spacing:0;margin-left:0.6rem}
+.target{font-size:1.6rem;font-weight:600}
+.row{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--rule)}
+.row>div{padding:1rem 1.6rem}
+.row>div:first-child{border-right:1px solid var(--rule)}
+.v{font-size:3rem;font-weight:700;font-stretch:88%;line-height:1.1}
+.v u{text-decoration:none;font-size:1.3rem;color:var(--mute);font-weight:500;font-stretch:100%;margin-left:3px}
+.flow,.flow u{color:var(--flow)}
+.list{flex:1;overflow:hidden}
+.s{display:grid;grid-template-columns:2.6rem 1fr 5.8rem 5.4rem;padding:0.6rem 1.6rem;border-bottom:1px solid var(--rule);font-size:1.4rem;align-items:baseline}
+.s .d{font-size:2rem;font-weight:800;font-stretch:85%;text-align:right}
+.s .g{text-align:right;color:var(--mute);font-size:1.3rem}
+.s.done{color:var(--mute)}
+.s.done .t{text-decoration:line-through}
+.s.now{background:var(--filter);color:#fff;font-weight:700}
+.s.now .g{color:rgba(255,255,255,.85)}
+.adv{margin:0.8rem 1.6rem;padding:0.8rem 1rem;border:1px solid var(--ink);font-size:1.3rem;line-height:1.35}
+.adv b{font-size:1rem;letter-spacing:.1em;text-transform:uppercase;background:var(--ink);color:#fff;padding:2px 0.5rem;margin-right:0.6rem}
+.act{display:grid;grid-template-columns:1fr 1.4fr;gap:0.8rem;padding:0.8rem 1.6rem}
+button{font:inherit;font-weight:700;font-size:1.6rem;height:5.6rem;border:1px solid var(--ink);background:#fff;color:var(--ink);border-radius:0}
+button.p{background:var(--ink);color:#fff}
+.tl{padding:1rem 1.6rem 0.8rem;border-bottom:1px solid var(--rule)}
+.tl .names,.tl .bar{display:flex}
+.tl .names span{font-size:1.1rem;font-weight:700;color:var(--mute);padding:0 0 3px 0.4rem}
+.tl .names span.on{color:var(--filter)}
+.tl .bar{position:relative;height:3rem;border:1px solid var(--ink)}
+.tl .seg{position:relative;border-right:2px solid var(--ink);background:repeating-linear-gradient(90deg,transparent 0 calc(100% / var(--n) - 1px),var(--rule) calc(100% / var(--n) - 1px) calc(100% / var(--n)))}
+.tl .seg:last-child{border-right:0}
+.tl .seg.done{background:var(--ink);border-right-color:#fff}
+.tl .seg.now i{position:absolute;left:0;top:0;bottom:0;width:25%;background:var(--filter)}
+.tl .head{position:absolute;left:69.3%;top:-0.6rem;bottom:-0.6rem;width:3px;background:var(--flow)}
+.tl .times{position:relative;height:1.4rem;margin-top:0.4rem;font-size:1.05rem;color:var(--mute)}
+.tl .times span{position:absolute;transform:translateX(-50%)}
+.tl .times span:first-child{transform:none}
+.tl .times span:last-child{transform:translateX(-100%)}
+.tabs{display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--ink);height:6.2rem;padding-bottom:0.8rem}
+.tabs a{display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:600;color:var(--mute);text-decoration:none}
+.tabs a.on{color:var(--ink);box-shadow:inset 0 3px 0 var(--ink)}
+
+.label{display:flex;align-items:flex-start;gap:1rem}
+.label .tx{flex:1;min-width:0}
+.lb{display:flex;gap:.6rem;flex:none;margin-top:.1rem}
+.lb button{height:2.8rem;padding:0 .9rem;font-size:1.1rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;background:transparent;color:#fff;border:1px solid #fff}
+.lb button.lock{display:flex;align-items:center;gap:.4rem}
+.row .wide,.wide-s,.wide-b{display:none}
+.lb em{font-style:normal}
+@media (max-width:500px){.lb em{display:none}}
+@media (min-width:700px){.row{grid-template-columns:1fr 1fr 1fr}.row .wide{display:block;border-left:1px solid var(--rule)}.wide-s{display:grid}.wide-b{display:block}.act{grid-template-columns:1fr 1fr 1.2fr 1.6fr}}
+</style></head><body>
+<header class="label"><div class="tx"><div class="lot">CW-014 · Filter · 15 → 250 g · 92 °C</div><div class="title">Orea V4 Apex · Negotiated 5&#8209;Pour</div></div><div class="lb"><button class="lock" aria-label="Layout follows tilt. Tap to lock">⟳<em> Auto</em></button><button aria-label="Change bean or grind">Change</button></div></header>
+<section class="step">
+  <div class="k">Step 4 of 5 · time left</div>
+  <div class="nm">Spiral pour, slow edge</div>
+  <div class="count">0:15<small>/ 0:20</small></div>
+  <div class="target">Pour to 200 g · on scale 186 g</div>
+</section>
+<div class="row">
+  <div><div class="k">Total</div><div class="v">1:44<u>/ 2:30</u></div></div>
+  <div><div class="k flow">Flow</div><div class="v flow">4.2<u>g/s · aim 3.8</u></div></div>
+  <div class="wide"><div class="k">Next</div><div class="v">Pour 5<u>→ 250 g</u></div></div>
+</div>
+<section class="tl" aria-label="Brew timeline">
+  <div class="names"><span style="width:30%">Bloom</span><span style="width:20%">2</span><span style="width:16.7%">3</span><span class="on" style="width:13.3%">4 now</span><span style="width:20%">5</span></div>
+  <div class="bar">
+    <div class="seg done" style="width:30%"></div>
+    <div class="seg done" style="width:20%"></div>
+    <div class="seg done" style="width:16.7%"></div>
+    <div class="seg now" style="width:13.3%;--n:4"><i></i></div>
+    <div class="seg" style="width:20%;--n:6"></div>
+    <div class="head"></div>
+  </div>
+  <div class="times"><span style="left:0">0:00</span><span style="left:30%">0:45</span><span style="left:50%">1:15</span><span style="left:66.7%">1:40</span><span style="left:80%">2:00</span><span style="left:100%">2:30</span></div>
+</section>
+<div class="list">
+  <div class="s done wide-s"><span>00</span><span class="t" style="text-decoration:underline">Brew prep →</span><span class="d">15.0 g</span><span class="g">#5.1</span></div>
+  <div class="s done"><span>01</span><span class="t">Bloom</span><span class="d">0:47</span><span class="g">50 g</span></div>
+  <div class="s done"><span>02</span><span class="t">Centre pour</span><span class="d">0:30</span><span class="g">100 g</span></div>
+  <div class="s done"><span>03</span><span class="t">Negotiate</span><span class="d">0:22</span><span class="g">150 g</span></div>
+  <div class="s now"><span>04</span><span class="t">Spiral</span><span class="d">0:20</span><span class="g">200 g</span></div>
+  <div class="s"><span>05</span><span class="t">Final + draw</span><span class="d">0:30</span><span class="g">250 g</span></div>
+</div>
+<div class="adv"><b>Dial-in</b>Flow 0.4 g/s fast. If thin, try Ode #4.9 next.</div>
+<div class="act"><button class="wide-b">Pause</button><button class="wide-b">+5 s</button><button>Next step</button><button class="p">Finish &amp; taste</button></div>
+<nav class="tabs"><a class="on" href="#">Brew</a><a href="#">Recipes</a><a href="#">Kopi</a><a href="#">Beans</a><a href="#">More</a></nav>
+</body></html>

@@ -25,6 +25,13 @@ main{display:grid;grid-template-rows:auto auto 1fr auto;min-width:0;min-height:0
 .base{margin-left:auto;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--on);padding:5px 9px;white-space:nowrap}
 .k{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);font-weight:700}
 .dials{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid var(--ink)}
+.dials.n5 .big{font-size:50px}
+.dials.n5 .dial{padding:12px 16px 14px}
+.dial .k{display:flex;align-items:center;gap:6px}
+.uc{margin-left:auto;display:inline-flex;border:1px solid var(--ink);font-size:10.5px;letter-spacing:.02em;text-transform:none;color:var(--ink)}
+.uc span{padding:2px 6px}
+.uc span+span{border-left:1px solid var(--ink)}
+.uc span.on{background:var(--ink);color:#fff}
 .dial{padding:12px 20px 14px;border-right:1px solid var(--rule);min-width:0}
 .dial:last-child{border-right:0}
 .big{font-size:58px;font-weight:800;font-stretch:80%;letter-spacing:-.03em;line-height:.95;margin:8px 0 4px;white-space:nowrap}
@@ -90,7 +97,7 @@ button.p{background:var(--ink);color:#fff;margin-left:auto;padding:0 32px}
 <aside class="rail">
   <div class="mark">CoffeeWorks<small>Brew station</small></div>
   <nav>
-    <a class="on" href="#">Brew <span>prep</span></a><a href="#">Recipes <span>14</span></a><a href="#">Drink Lab <span>62</span></a><a href="#">Kopi <span>9</span></a><a href="#">Beans <span>5</span></a><a href="#">Gear <span>11</span></a><a href="#">Water <span>15</span></a><a href="#">History <span>48</span></a>
+    <a class="on" href="#">Brew <span>prep</span></a><a href="#">Recipes <span>14</span></a><a href="#">Drink Lab <span>62</span></a><a href="#">Kopi <span>9</span></a><a href="#">Beans <span>5</span></a><a href="#">Gear <span>11</span></a><a href="#">Water <span>15</span></a><a href="#">History <span>48</span></a><a href="settings.html">Settings <span></span></a>
   </nav>
   <div class="h">Daily drivers</div>
   <div class="drv on"><i style="background:#D62828"></i><b>Espresso</b><em>CW-001</em></div><div class="drv"><i style="background:#5D6B2F"></i><b>Lever</b><em>CW-002</em></div><div class="drv"><i style="background:#E9B523"></i><b>Moka</b><em>CW-003</em></div><div class="drv"><i style="background:#2747D6"></i><b>Filter</b><em>CW-014</em></div><div class="drv"><i style="background:#1F7A8C"></i><b>Immersion</b><em>CW-006</em></div><div class="drv"><i style="background:#1F7A55"></i><b>Kopi</b><em>CW-007</em></div>
@@ -100,7 +107,7 @@ button.p{background:var(--ink);color:#fff;margin-left:auto;padding:0 32px}
     <div><div class="lot">CW-001 · Espresso · before shot 50 · step 00</div><h1 class="title">Beans prep · Slayer 1:2.2</h1></div>
     <span class="base">Then 4 extraction steps · Edit steps</span>
   </header>
-  <section class="dials"><div class="dial">
+  <section class="dials" style="grid-template-columns:repeat(4,1fr)"><div class="dial">
   <div class="k">Dose in</div>
   <div class="big">18.0<small>g</small></div>
   <div class="sub">Scale reads <b>18.1 g</b> · basket WAFO 20 g</div>
@@ -116,9 +123,9 @@ button.p{background:var(--ink);color:#fff;margin-left:auto;padding:0 32px}
   <div class="sub">Bianca group at <b>92.8 °C</b> · ready</div>
   <div class="ctl"><div class="pm"><span>−</span><span>+</span></div><em>± 0.5 °C</em></div>
 </div><div class="dial">
-  <div class="k">Yield out</div>
+  <div class="k">Yield out<span class="uc" title="Default unit set in Settings"><span class="on">g</span><span>ml</span></span></div>
   <div class="big">40<small>g</small></div>
-  <div class="sub">Ratio <b>1:2.2</b> · stop by weight<br>Bean 22 d off roast</div>
+  <div class="sub">Ratio <b>1:2.2</b> · stop by weight<br>Unit default from Settings</div>
   <div class="ctl"><div class="pm"><span>−</span><span>+</span></div><em>± 1 g</em></div>
 </div></section>
   <section class="work">

@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>CoffeeWorks — Brew running (phone landscape)</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#151515;--mute:#6B6B66;--rule:#E3E2DD;--tint:#F3F2EE;--flow:#E8590C;--c:#2747D6}
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:844px;height:390px;overflow:hidden;background:#fff;color:var(--ink);font-family:Archivo,sans-serif;font-variant-numeric:tabular-nums;display:grid;grid-template-columns:64px 1fr}
+.rail{border-right:1px solid var(--rule);display:flex;flex-direction:column;align-items:stretch}
+.rail .mk{height:40px;display:flex;align-items:center;justify-content:center;font-weight:900;font-stretch:112%;font-size:13px;border-bottom:1px solid var(--rule)}
+.rail a{height:46px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:9.5px;font-weight:700;color:var(--ink);text-decoration:none;letter-spacing:.02em}
+.rail a i{width:16px;height:16px;display:block}
+.rail a.on{background:var(--tint);box-shadow:inset 3px 0 0 var(--ink)}
+.rail .menu{margin-top:auto;border-top:1px solid var(--rule);font-size:18px;height:48px}
+main{display:grid;grid-template-rows:40px 1fr auto auto auto;min-width:0}
+.label{background:var(--c);color:#fff;display:flex;align-items:center;gap:12px;padding:0 12px 0 18px}
+.lot{font-size:10.5px;letter-spacing:.12em;font-weight:700;text-transform:uppercase;opacity:.85;white-space:nowrap}
+.title{font-weight:900;font-stretch:106%;font-size:16px;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}
+.lb{display:flex;gap:6px}
+.lb button{font:inherit;height:26px;padding:0 9px;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;background:transparent;color:#fff;border:1px solid #fff}
+.k{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);font-weight:700}
+.clock{display:grid;grid-template-columns:1fr 236px;border-bottom:1px solid var(--ink);min-height:0}
+.step{padding:8px 18px 8px;min-width:0}
+.step .k b{color:var(--ink);font-size:13px;letter-spacing:0;text-transform:none;margin-left:6px}
+.count{font-weight:800;font-stretch:78%;font-size:112px;line-height:.86;letter-spacing:-.04em;margin:6px 0 4px}
+.count small{font-size:24px;font-stretch:100%;font-weight:600;color:var(--mute);letter-spacing:0;margin-left:6px}
+.target{font-size:14px;font-weight:600}
+.side{border-left:1px solid var(--rule);display:grid;grid-template-rows:repeat(3,1fr)}
+.side div{padding:5px 14px;border-bottom:1px solid var(--rule);display:flex;flex-direction:column;justify-content:center}
+.side div:last-child{border-bottom:0}
+.v{font-size:24px;font-weight:700;font-stretch:88%;line-height:1.05}
+.v u{text-decoration:none;font-size:11.5px;color:var(--mute);font-weight:500;margin-left:3px;font-stretch:100%}
+.flow,.flow u{color:var(--flow)}
+.steps{display:grid;grid-template-columns:92px repeat(5,1fr);border-bottom:1px solid var(--rule)}
+.s{padding:5px 10px 6px;border-right:1px solid var(--rule);min-width:0}
+.s:last-child{border-right:0}
+.s .n{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.s .d{font-size:20px;font-weight:800;font-stretch:85%;line-height:1.05;margin-top:1px}
+.s.done .d{color:var(--mute)}
+.s.now{background:var(--c);color:#fff}
+.s.now .n{color:#fff;opacity:.85}
+.s.prep{background:var(--tint);box-shadow:inset 0 -3px 0 var(--c)}
+.s.prep .d{font-size:15px;text-decoration:underline;margin-top:4px}
+.tl{padding:5px 18px 3px}
+.bar{position:relative;display:flex;height:14px;border:1px solid var(--ink)}
+.seg{border-right:2px solid var(--ink)}
+.seg:last-child{border-right:0}
+.seg.done{background:var(--ink);border-right-color:#fff}
+.seg.now{position:relative}
+.seg.now i{position:absolute;left:0;top:0;bottom:0;width:25%;background:var(--c)}
+.head{position:absolute;left:69.3%;top:-4px;bottom:-4px;width:3px;background:var(--flow)}
+.times{position:relative;height:12px;margin-top:2px;font-size:9.5px;color:var(--mute)}
+.times span{position:absolute;transform:translateX(-50%)}
+.times span:first-child{transform:none}.times span:last-child{transform:translateX(-100%)}
+footer{border-top:1px solid var(--ink);display:flex;gap:8px;padding:6px 12px 6px 18px;align-items:center}
+footer button{font:inherit;font-weight:700;font-size:14px;height:42px;padding:0 16px;border:1px solid var(--ink);background:#fff;color:var(--ink)}
+footer button.p{background:var(--ink);color:#fff;margin-left:auto;padding:0 22px}
+.adv{font-size:12px;color:var(--ink);line-height:1.3;min-width:0}
+.adv b{font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;background:var(--ink);color:#fff;padding:2px 5px;margin-right:5px}
+</style></head><body>
+<nav class="rail" aria-label="Modes">
+  <div class="mk">CW</div>
+  <a href="#"><i style="background:#D62828"></i>Esp</a>
+  <a href="#"><i style="background:#5D6B2F"></i>Lever</a>
+  <a href="#"><i style="background:#E9B523"></i>Moka</a>
+  <a class="on" href="#"><i style="background:#2747D6"></i>Filter</a>
+  <a href="#"><i style="background:#1F7A8C"></i>Imm</a>
+  <a href="#"><i style="background:#1F7A55"></i>Kopi</a>
+  <a class="menu" href="#" aria-label="All sections">☰</a>
+</nav>
+<main>
+  <header class="label"><span class="lot">CW-014 · 15 → 250 g · 92 °C</span><span class="title">Orea V4 Apex · Negotiated 5&#8209;Pour</span><span class="lb"><button aria-label="Layout follows tilt. Tap to lock">⟳ Auto</button><button>Change</button></span></header>
+  <section class="clock">
+    <div class="step">
+      <div class="k">Step 4 of 5 · time left<b>Spiral pour, slow edge</b></div>
+      <div class="count">0:15<small>/ 0:20</small></div>
+      <div class="target">Pour to <b>200 g</b> · on scale 186 g</div>
+    </div>
+    <div class="side">
+      <div><span class="k">Total</span><span class="v">1:44<u>/ 2:30</u></span></div>
+      <div><span class="k flow">Flow</span><span class="v flow">4.2<u>g/s · aim 3.8</u></span></div>
+      <div><span class="k">Next</span><span class="v" style="font-size:19px">Pour 5<u>0:30 → 250 g</u></span></div>
+    </div>
+  </section>
+  <section class="steps">
+    <a class="s prep" href="prep-filter.html" style="color:var(--ink);text-decoration:none"><div class="n">00 ✓ prep</div><div class="d">Prep →</div></a>
+    <div class="s done"><div class="n">01 ✓ Bloom</div><div class="d">0:47</div></div>
+    <div class="s done"><div class="n">02 ✓ Centre</div><div class="d">0:30</div></div>
+    <div class="s done"><div class="n">03 ✓ Negotiate</div><div class="d">0:22</div></div>
+    <div class="s now"><div class="n">04 · Spiral</div><div class="d">0:20</div></div>
+    <div class="s"><div class="n">05 Final</div><div class="d">0:30</div></div>
+  </section>
+  <section class="tl" aria-label="Brew timeline">
+    <div class="bar"><div class="seg done" style="width:30%"></div><div class="seg done" style="width:20%"></div><div class="seg done" style="width:16.7%"></div><div class="seg now" style="width:13.3%"><i></i></div><div class="seg" style="width:20%"></div><div class="head"></div></div>
+    <div class="times"><span style="left:0">0:00</span><span style="left:30%">0:45</span><span style="left:50%">1:15</span><span style="left:66.7%">1:40</span><span style="left:80%">2:00</span><span style="left:100%">2:30</span></div>
+  </section>
+  <footer>
+    <button>Pause</button><button>+5 s</button><button>Next step</button>
+    <span class="adv"><b>Dial-in</b>0.4 g/s fast. If thin, Ode #4.9 next.</span>
+    <button class="p">Finish &amp; taste</button>
+  </footer>
+</main>
+</body></html>
