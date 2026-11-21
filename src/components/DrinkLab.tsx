@@ -19,6 +19,7 @@ import { useCoffee } from '../context/CoffeeContext';
 import { CoffeeDrinkRecipe, DrinkFamily, CoffeeCategory } from '../types/coffee';
 import { SmartDropdownWithOthers, DropdownOption } from './SmartDropdownWithOthers';
 import { Btn, Caps, Segmented, Sheet } from '../brew/ui';
+import { InfoTip } from '../brew/InfoTip';
 import { MODES } from '../brew/modes';
 import { useSettings } from '../settings/SettingsContext';
 import { useLayout } from '../shell/LayoutContext';
@@ -363,8 +364,12 @@ export const DrinkLab: React.FC<Props> = ({ onLaunchBrew }) => {
       <header className="bg-ink text-paper px-5 sm:px-7 py-4 flex flex-wrap items-end gap-4">
         <div className="min-w-0 flex-1">
           <h1 className="text-[28px] font-black tracking-[-0.02em] leading-tight">Coffee drinks</h1>
-          <p className="text-[13.5px] opacity-80 mt-1 max-w-2xl leading-snug">
-            Exact coffee, water, milk and ice for every drink. Pick a cup size and the amounts recalculate.
+          <p className="text-[13.5px] opacity-80 mt-1 max-w-2xl leading-snug flex items-center gap-2">
+            Exact amounts for every drink.
+            <InfoTip title="How drink recipes work" className="!text-paper hover:!text-paper">
+              Each drink lists the exact coffee, water, milk and ice that go into the cup. Pick a cup size and every
+              amount recalculates, and the cup build-up bar shows how much of the drink each part makes up.
+            </InfoTip>
           </p>
         </div>
         <button
@@ -566,7 +571,12 @@ export const DrinkLab: React.FC<Props> = ({ onLaunchBrew }) => {
                 <span>{mode.label} base</span>
               </div>
 
-              <p className="mt-2 text-[14.5px] leading-snug">{drink.description}</p>
+              {drink.description && (
+                <div className="mt-2 flex items-center gap-2 min-w-0">
+                  <p className="min-w-0 flex-1 truncate text-[14.5px] leading-snug">{drink.description}</p>
+                  <InfoTip title={drink.name}>{drink.description}</InfoTip>
+                </div>
+              )}
 
               {/* Cup size scaler */}
               <div className="mt-4">
@@ -648,23 +658,24 @@ export const DrinkLab: React.FC<Props> = ({ onLaunchBrew }) => {
                 </div>
               )}
 
+              {/* Barista tip */}
+              {drink.baristaTips && (
+                <div className="mt-2">
+                  <InfoTip title="Barista tip" label="Barista tip" className="text-[14px] font-bold">
+                    {drink.baristaTips}
+                  </InfoTip>
+                </div>
+              )}
+
               {/* Barista steps */}
               {isExpanded && (
-                <div className="mt-4 border-t border-rule pt-3 space-y-3">
-                  <div>
-                    <h4 className="text-[15px] font-extrabold mb-1.5">Assembly</h4>
-                    <ol className="space-y-1.5 pl-5 list-decimal text-[14.5px] leading-snug">
-                      {drink.assemblySteps.map((step, idx) => (
-                        <li key={idx}>{step}</li>
-                      ))}
-                    </ol>
-                  </div>
-                  {drink.baristaTips && (
-                    <div className="border-l-2 border-ink pl-3">
-                      <Caps className="mb-0.5">Barista note</Caps>
-                      <p className="text-[14.5px] leading-snug">{drink.baristaTips}</p>
-                    </div>
-                  )}
+                <div className="mt-4 border-t border-rule pt-3">
+                  <h4 className="text-[15px] font-extrabold mb-1.5">Assembly</h4>
+                  <ol className="space-y-1.5 pl-5 list-decimal text-[14.5px] leading-snug">
+                    {drink.assemblySteps.map((step, idx) => (
+                      <li key={idx}>{step}</li>
+                    ))}
+                  </ol>
                 </div>
               )}
 

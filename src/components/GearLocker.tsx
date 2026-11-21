@@ -1,10 +1,10 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Check, Pencil, Plus, Trash2 } from 'lucide-react';
 import { useCoffee } from '../context/CoffeeContext';
 import { GearProfile, CoffeeCategory } from '../types/coffee';
 import { SmartDropdownWithOthers } from './SmartDropdownWithOthers';
 import { Btn, Caps, Sheet } from '../brew/ui';
-import { MODES, MODE_ORDER } from '../brew/modes';
+import { MODES, ALL_MODES } from '../brew/modes';
 import { useLayout } from '../shell/LayoutContext';
 import {
   ESPRESSO_MACHINE_OPTIONS,
@@ -51,7 +51,8 @@ const FormSection: React.FC<{ title: string; children: React.ReactNode }> = ({ t
   </section>
 );
 
-export const GearLocker: React.FC = () => {
+/** `focusCategory` scrolls to that method's tools (from prep or Brew methods). */
+export const GearLocker: React.FC<{ focusCategory?: CoffeeCategory }> = ({ focusCategory }) => {
   const { gearProfiles, addGear, updateGear, deleteGear } = useCoffee();
   const { mode } = useLayout();
 
@@ -86,10 +87,10 @@ export const GearLocker: React.FC = () => {
 
   const closeModal = useCallback(() => setIsModalOpen(false), []);
 
-  const handleOpenAdd = () => {
+  const handleOpenAdd = (cat: CoffeeCategory = 'espresso') => {
     setGearToEdit(null);
     setName('');
-    setCategory('espresso');
+    setCategory(cat);
     setMachineModel('Lelit Bianca V3');
     setGrinderModel('Option-O Lagom P64');
     setHasFlowControl(true);
@@ -182,14 +183,19 @@ export const GearLocker: React.FC = () => {
   };
 
   // Group rigs by discipline, in mode order; anything unrecognised goes last.
-  const groups: { key: string; label: string; swatch: string; list: GearProfile[] }[] = MODE_ORDER.map(c => ({
+  const groups: { key: CoffeeCategory; label: string; swatch: string; list: GearProfile[] }[] = ALL_MODES.map(c => ({
     key: c,
     label: MODES[c].label,
     swatch: MODES[c].bg,
-    list: gearProfiles.filter(g => g.category === c),
+    list: gearProfiles.filter(g => (c === 'other' ? !ALL_MODES.includes(g.category) || g.category === 'other' : g.category === c)),
   }));
-  const other = gearProfiles.filter(g => !MODE_ORDER.includes(g.category));
-  if (other.length) groups.push({ key: 'other', label: 'Other', swatch: 'border-[1.5px] border-ink', list: other });
+
+  // Arriving from a brew method's "Edit tools": bring its group into view
+  useEffect(() => {
+    if (!focusCategory) return;
+    const el = document.getElementById(`gear-${focusCategory}`);
+    el?.scrollIntoView({ block: 'start' });
+  }, [focusCategory]);
 
   const renderRig = (gear: GearProfile) => {
     const pressure = isPressure(gear.category);
@@ -343,7 +349,7 @@ export const GearLocker: React.FC = () => {
             {gearProfiles.length} {gearProfiles.length === 1 ? 'rig' : 'rigs'} · machines, grinders, drippers and puck prep tools
           </p>
         </div>
-        <Btn size="md" className="ml-auto !min-h-[48px] !border-paper" onClick={handleOpenAdd}>
+        <Btn size="md" className="ml-auto !min-h-[48px] !border-paper" onClick={() => handleOpenAdd()}>
           <Plus className="w-5 h-5" strokeWidth={2.5} />
           Add rig
         </Btn>
@@ -356,13 +362,19 @@ export const GearLocker: React.FC = () => {
         </div>
       )}
 
-      {groups.filter(g => g.list.length > 0).map(g => (
-        <section key={g.key} className="mt-5">
+      {groups.filter(g => g.list.length > 0 || g.key === focusCategory).map(g => (
+        <section key={g.key} id={`gear-${g.key}`} className={`mt-5 scroll-mt-4 ${g.key === focusCategory ? 'bg-tint -mx-4 sm:-mx-6 px-4 sm:px-6 pb-3' : ''}`}>
           <div className="flex items-center gap-2.5 border-b border-ink pb-1.5">
             <i aria-hidden className={`w-4 h-4 shrink-0 ${g.swatch}`} />
             <h2 className="text-[17px] font-extrabold">{g.label}</h2>
             <span className="num font-bold text-[15px] text-mute">{g.list.length}</span>
           </div>
+          {g.list.length === 0 && (
+            <div className="py-4 flex flex-wrap items-center gap-3">
+              <p className="text-[14px] text-mute flex-1 min-w-[200px]">No rig for {g.label} yet. Add the machine, grinder and tools you use for it.</p>
+              <Btn size="md" onClick={() => handleOpenAdd(g.key)}><Plus className="w-4 h-4" aria-hidden />Add rig for {g.label}</Btn>
+            </div>
+          )}
           <div className="grid grid-cols-1 lg:grid-cols-2 lg:gap-x-10">
             {g.list.map(renderRig)}
           </div>
@@ -402,7 +414,7 @@ export const GearLocker: React.FC = () => {
               <div>
                 <Caps className="mb-1">Discipline</Caps>
                 <div role="radiogroup" aria-label="Discipline" className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                  {MODE_ORDER.map(c => {
+                  {ALL_MODES.map(c => {
                     const on = category === c;
                     return (
                       <button

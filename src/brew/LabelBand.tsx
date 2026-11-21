@@ -19,7 +19,7 @@ export const LockChip: React.FC<{ className?: string; compact?: boolean }> = ({ 
       className={`inline-flex items-center gap-1.5 border border-current font-extrabold uppercase tracking-[0.06em] ${compact ? 'h-8 px-2 text-[10px]' : 'min-h-[40px] px-3 text-[11px]'} ${className}`}
     >
       {locked ? <Lock className="w-3.5 h-3.5" /> : <RotateCw className="w-3.5 h-3.5" />}
-      <span className={compact ? '' : ''}>{locked ? 'Locked' : 'Auto'}</span>
+      <span className={compact ? '' : 'hidden min-[500px]:inline'}>{locked ? 'Locked' : 'Auto'}</span>
     </button>
   );
 };
@@ -36,7 +36,7 @@ export const LabelBand: React.FC<{ m: BrewModel; variant: 'full' | 'simple' | 'c
   const Title = (
     <button type="button" onClick={() => m.open('picker')} className="text-left min-w-0 group" aria-label={`Recipe: ${recipe.title}. Tap to switch recipe`}>
       <span className="flex items-start gap-1.5">
-        <span className={`font-black tracking-[-0.025em] leading-[1.04] ${variant === 'full' ? 'text-[28px] line-clamp-2' : variant === 'compact' ? 'text-[16px] truncate' : 'text-[19px] line-clamp-2'}`} style={{ fontStretch: '106%' }}>
+        <span className={`font-black tracking-[-0.025em] leading-[1.04] ${variant === 'full' ? 'text-[28px] line-clamp-2' : variant === 'compact' ? 'text-[16px] truncate' : 'text-[19px] line-clamp-1'}`} style={{ fontStretch: '106%' }}>
           {recipe.title}
         </span>
         <ChevronDown className={`shrink-0 opacity-80 ${variant === 'full' ? 'w-6 h-6 mt-1' : 'w-4 h-4 mt-0.5'}`} />

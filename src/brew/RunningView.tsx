@@ -8,6 +8,7 @@ import { useSettings } from '../settings/SettingsContext';
 import * as F from '../settings/format';
 import { grindShort } from './steps';
 import { LayoutMode } from '../shell/LayoutContext';
+import { InfoTip } from './InfoTip';
 
 /* ---------- shared derived values ---------- */
 function useView(m: BrewModel) {
@@ -94,23 +95,23 @@ const Controls: React.FC<{ m: BrewModel; layout: LayoutMode }> = ({ m, layout })
   if (!t.started) {
     return (
       <>
-        <Btn onClick={() => m.open('prep')} size={layout === 'compact' ? 'md' : 'lg'}>{m.setup.prepDone.length ? 'Prep ✓' : 'Prep'}</Btn>
-        <Btn onClick={() => m.open('steps')} size={layout === 'compact' ? 'md' : 'lg'}>Edit steps</Btn>
+        <Btn onClick={() => m.open('prep')} size={layout === 'full' ? 'lg' : 'md'}>{m.setup.prepDone.length ? 'Prep ✓' : 'Prep'}</Btn>
+        <Btn onClick={() => m.open('steps')} size={layout === 'full' ? 'lg' : 'md'} className={layout === 'simple' ? 'col-span-2' : ''}>Edit steps</Btn>
         <Btn variant="primary" onClick={t.start} size={layout === 'compact' ? 'md' : 'lg'} className={layout === 'simple' ? 'col-span-full' : 'ml-auto px-9'}>
           <Play className="w-5 h-5 fill-current" /> Start brew
         </Btn>
       </>
     );
   }
-  const sz = layout === 'compact' ? 'md' : 'lg';
+  const sz = layout === 'full' ? 'lg' : 'md';
   return (
     <>
       <Btn onClick={t.toggle} size={sz} aria-label={t.running ? 'Pause' : 'Resume'}>
         {t.running ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}{t.running ? 'Pause' : 'Resume'}
       </Btn>
       <Btn onClick={() => t.addTime(5)} size={sz} aria-label="Add 5 seconds to this step"><Plus className="w-4 h-4" />5 s</Btn>
-      <Btn onClick={t.next} size={sz} disabled={last}><SkipForward className="w-4 h-4" />Next step</Btn>
-      <Btn variant="primary" onClick={m.finish} size={sz} className={layout === 'simple' ? 'col-span-full' : 'ml-auto px-8'}>
+      <Btn onClick={t.next} size={sz} disabled={last} aria-label="Next step"><SkipForward className="w-4 h-4" />{layout === 'simple' ? 'Next' : 'Next step'}</Btn>
+      <Btn variant="primary" onClick={m.finish} size={layout === 'compact' ? 'md' : 'lg'} className={layout === 'simple' ? 'col-span-full' : 'ml-auto px-8'}>
         <Check className="w-5 h-5" />{finishLabel(m.recipe.category)}
       </Btn>
     </>
@@ -210,62 +211,95 @@ export const RunningView: React.FC<{ m: BrewModel; layout: LayoutMode }> = ({ m,
     );
   }
 
-  // simple (upright phone or tablet)
+  // simple (upright phone or tablet): one page. Header, step, totals and the
+  // controls stay put; only the step list scrolls when a recipe has many steps.
   const wide = typeof window !== 'undefined' && window.innerWidth >= 700;
   return (
-    <div className="min-h-full flex flex-col">
+    <div className="h-full flex flex-col">
       <LabelBand m={m} variant="simple" />
-      <section className="px-4 pt-3 pb-2.5 border-b border-ink">
-        <StepCaption m={m} started={t.started} idx={t.stepIndex} />
-        <div className="text-[18px] font-bold mt-1">{step?.name}</div>
-        <div className="num font-extrabold leading-[0.85] mt-2 mb-1.5 whitespace-nowrap text-[clamp(72px,min(17vh,33vw),200px)]">
-          {count}<span className="text-[28px] font-semibold text-mute tracking-normal ml-2" style={{ fontStretch: '100%' }}>/ {F.clock(t.plannedSec, u)}</span>
+      <section className="px-4 pt-2.5 pb-2 border-b border-ink shrink-0">
+        <div className="flex items-start gap-3">
+          <div className="min-w-0 flex-1">
+            <StepCaption m={m} started={t.started} idx={t.stepIndex} />
+            <div className="text-[17px] font-bold mt-0.5 truncate">{step?.name}</div>
+          </div>
+          <DialInTip m={m} />
         </div>
-        <div className="text-[16px] font-semibold">{target}</div>
+        <div className="flex items-end gap-3 mt-1">
+          <div className="num font-extrabold leading-[0.84] whitespace-nowrap text-[clamp(64px,min(12vh,26vw),150px)]">{count}</div>
+          <div className="min-w-0 pb-1">
+            <div className="text-[18px] font-semibold text-mute num">/ {F.clock(t.plannedSec, u)}</div>
+            <div className="text-[15px] font-semibold leading-snug line-clamp-2">{target}</div>
+          </div>
+        </div>
       </section>
-      <div className={`grid ${wide ? 'grid-cols-3' : 'grid-cols-2'} border-b border-rule`}>
-        <div className="px-4 py-2.5 border-r border-rule">
-          <div className="label-caps">Total</div>
-          <div className="text-[30px] font-bold num leading-tight">{F.clock(t.elapsedSec, u)}<span className="text-[13px] text-mute font-medium ml-1 tracking-normal" style={{ fontStretch: '100%' }}>/ {F.clock(t.totalPlanned, u)}</span></div>
+      <div className={`grid ${wide ? 'grid-cols-3' : 'grid-cols-2'} border-b border-rule shrink-0`}>
+        <div className="px-4 py-1.5 border-r border-rule">
+          <div className="label-caps !text-[10.5px]">Total</div>
+          <div className="text-[24px] font-bold num leading-tight">{F.clock(t.elapsedSec, u)}<span className="text-[13px] text-mute font-medium ml-1 tracking-normal" style={{ fontStretch: '100%' }}>/ {F.clock(t.totalPlanned, u)}</span></div>
         </div>
         <FlowCell m={m} />
         {wide && (
-          <div className="px-4 py-2.5 border-l border-rule min-w-0">
-            <div className="label-caps">Next</div>
-            <div className="text-[26px] font-bold leading-tight truncate">{m.steps[t.stepIndex + 1]?.name ?? 'Finish'}</div>
+          <div className="px-4 py-1.5 border-l border-rule min-w-0">
+            <div className="label-caps !text-[10.5px]">Next</div>
+            <div className="text-[22px] font-bold leading-tight truncate">{m.steps[t.stepIndex + 1]?.name ?? 'Finish'}</div>
           </div>
         )}
       </div>
-      <div className="px-4 pt-2.5 pb-2 border-b border-rule">{timeline(30, true)}</div>
-      <ol className="flex-1">
-        <li>
-          <button type="button" onClick={() => m.open('prep')} className="w-full grid grid-cols-[28px_1fr_auto_64px] items-baseline px-4 py-2 border-b border-rule text-[14px] text-left">
-            <span className="text-mute">00</span>
-            <span className="underline underline-offset-2 font-semibold">{m.recipe.category === 'espresso' || m.recipe.category === 'manual_lever' ? 'Beans prep' : 'Brew prep'}{m.setup.prepDone.length ? ' ✓' : ''}</span>
-            <span className="num text-[20px] font-extrabold">{F.text(F.coffee(m.setup.dose, u))}</span>
-            <span className="text-right text-mute text-[13px]">{grindShort(m.setup.grind)}</span>
-          </button>
-        </li>
-        {m.steps.map((s, i) => {
-          const done = t.started && i < t.stepIndex;
-          const now = t.started && i === t.stepIndex;
-          return (
-            <li key={s.id} className={`grid grid-cols-[28px_1fr_auto_64px] items-baseline px-4 py-2 border-b border-rule text-[14px] ${now ? `${m.mode.bg} ${m.mode.on} font-bold` : done ? 'text-mute' : ''}`}>
-              <span>{String(i + 1).padStart(2, '0')}</span>
-              <span className={done ? 'line-through' : ''}>{s.name}</span>
-              <span className="num text-[20px] font-extrabold">{F.clock(done && t.actual[i] !== undefined ? t.actual[i] : s.durationSeconds + (t.ext[i] || 0), u)}</span>
-              <span className={`text-right text-[13px] ${now ? 'opacity-85' : 'text-mute'}`}>{s.targetWeightGrams ? w(s.targetWeightGrams) : ''}</span>
-            </li>
-          );
-        })}
-      </ol>
-      <Advice m={m} small className="mx-4 my-2.5" />
-      <div className={`grid gap-2 px-4 pb-3 ${t.started ? 'grid-cols-3' : 'grid-cols-2'}`}>
+      <div className="px-4 pt-1.5 pb-1 border-b border-rule shrink-0">{timeline(24, true)}</div>
+      <StepList m={m} />
+      <div className="shrink-0 border-t border-ink px-4 pt-2 pb-2.5 grid gap-2 grid-cols-3">
         <Controls m={m} layout="simple" />
       </div>
     </div>
   );
 };
+
+/** Compact, self-scrolling step list for the one-page phone layout. Keeps the current step in view. */
+const StepList: React.FC<{ m: BrewModel }> = ({ m }) => {
+  const { t, u, w } = useView(m);
+  const listRef = React.useRef<HTMLOListElement>(null);
+  React.useEffect(() => {
+    const el = listRef.current?.querySelector<HTMLElement>('[data-now="true"]');
+    el?.scrollIntoView({ block: 'nearest' });
+  }, [t.stepIndex]);
+  const row = 'grid grid-cols-[26px_1fr_auto_60px] items-baseline gap-x-1 px-4 py-1.5 border-b border-rule text-[14px]';
+  return (
+    <ol ref={listRef} className="flex-1 min-h-0 overflow-y-auto overscroll-contain" aria-label="Steps">
+      <li>
+        <button type="button" onClick={() => m.open('prep')} className={`w-full text-left ${row}`}>
+          <span className="text-mute">00</span>
+          <span className="underline underline-offset-2 font-semibold truncate">{m.mode.pressure ? 'Beans prep' : 'Brew prep'}{m.setup.prepDone.length ? ' ✓' : ''}</span>
+          <span className="num text-[18px] font-extrabold">{F.text(F.coffee(m.setup.dose, u))}</span>
+          <span className="text-right text-mute text-[13px] truncate">{grindShort(m.setup.grind)}</span>
+        </button>
+      </li>
+      {m.steps.map((s, i) => {
+        const done = t.started && i < t.stepIndex;
+        const now = t.started && i === t.stepIndex;
+        return (
+          <li key={s.id} data-now={now} className={`${row} ${now ? `${m.mode.bg} ${m.mode.on} font-bold` : done ? 'text-mute' : ''}`}>
+            <span>{String(i + 1).padStart(2, '0')}</span>
+            <span className={`truncate ${done ? 'line-through' : ''}`}>{s.name}</span>
+            <span className="num text-[18px] font-extrabold">{F.clock(done && t.actual[i] !== undefined ? t.actual[i] : s.durationSeconds + (t.ext[i] || 0), u)}</span>
+            <span className={`text-right text-[13px] truncate ${now ? 'opacity-85' : 'text-mute'}`}>{s.targetWeightGrams ? w(s.targetWeightGrams) : ''}</span>
+          </li>
+        );
+      })}
+    </ol>
+  );
+};
+
+/** The dial-in suggestion as a tap-to-read pop-up (phone layout). */
+const DialInTip: React.FC<{ m: BrewModel }> = ({ m }) => (
+  <InfoTip
+    title="Dial-in"
+    label={<span className="text-[11px] font-extrabold uppercase tracking-[0.08em]">Dial-in</span>}
+    className="no-underline border border-ink px-2.5 min-h-[40px] shrink-0"
+  >
+    {runningAdvice(m.history, grindShort(m.setup.grind))}
+  </InfoTip>
+);
 
 const FlowCell: React.FC<{ m: BrewModel }> = ({ m }) => {
   const { u, aimFlow } = useView(m);

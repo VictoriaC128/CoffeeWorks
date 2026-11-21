@@ -19,11 +19,13 @@ import { onBack } from './platform/native';
 const MainContent: React.FC = () => {
   const [tab, setTab] = useState<Tab>('brew');
   const [brewState, setBrewState] = useState<BrewState>('ready');
+  const [gearFocus, setGearFocus] = useState<CoffeeCategory | undefined>(undefined);
   const { setSelectedRecipeForBrew, userPreferences, recipes } = useCoffee();
   const [isOnboardingOpen, setIsOnboardingOpen] = useState<boolean>(!userPreferences.hasCompletedOnboarding);
 
   const go = useCallback((t: Tab) => {
     setTab(t);
+    setGearFocus(undefined);
     document.querySelector('main')?.scrollTo({ top: 0 });
   }, []);
 
@@ -57,16 +59,22 @@ const MainContent: React.FC = () => {
 
   const onState = useCallback((s: BrewState) => setBrewState(s), []);
 
+  /** Open Gear scrolled to one method's tools. */
+  const openGear = useCallback((c: CoffeeCategory) => {
+    go('gear');
+    setGearFocus(c);
+  }, [go]);
+
   return (
     <AppShell tab={tab} onTab={go} onDriver={handleDriver} brewState={brewState}>
-      <BrewStation visible={tab === 'brew'} onState={onState} onGoTo={go} />
+      <BrewStation visible={tab === 'brew'} onState={onState} onGoTo={go} onOpenGear={openGear} />
       {tab !== 'brew' && (
         <div className="pb-safe">
-          {tab === 'recipes' && <RecipeVault onLaunchBrew={handleLaunchBrew} onOpenSetup={() => setIsOnboardingOpen(true)} />}
+          {tab === 'recipes' && <RecipeVault onLaunchBrew={handleLaunchBrew} onOpenSetup={() => setIsOnboardingOpen(true)} onOpenGear={openGear} />}
           {tab === 'drinks' && <DrinkLab onLaunchBrew={handleLaunchBrewFromDrink} />}
           {tab === 'kopi' && <KopiCalculator />}
           {tab === 'beans' && <BeanCellar />}
-          {tab === 'gear' && <GearLocker />}
+          {tab === 'gear' && <GearLocker key={gearFocus ?? 'all'} focusCategory={gearFocus} />}
           {tab === 'water' && <WaterLab />}
           {tab === 'history' && <DialInHistory />}
           {tab === 'settings' && <SettingsPage onOpenSetup={() => setIsOnboardingOpen(true)} />}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowLeft, Check } from 'lucide-react';
+import { ArrowLeft, Check, Wrench } from 'lucide-react';
 import { BrewModel } from './model';
 import { Btn, Caps, Segmented, Stepper } from './ui';
 import { useSettings } from '../settings/SettingsContext';
@@ -7,6 +7,7 @@ import * as F from '../settings/format';
 import { useCoffee } from '../context/CoffeeContext';
 import { shiftGrind, grindShort } from './steps';
 import { LayoutMode } from '../shell/LayoutContext';
+import { InfoTip } from './InfoTip';
 
 const EFFECTS_PRESSURE: [string, string][] = [
   ['Dose', 'More coffee: stronger, heavier, slower shot.'],
@@ -22,7 +23,7 @@ const EFFECTS_WATER: [string, string][] = [
 ];
 
 /** Step 00: dose, water, grind, temperature, water profile and the prep checklist. */
-export const PrepView: React.FC<{ m: BrewModel; layout: LayoutMode; onDone: () => void; onBack: () => void }> = ({ m, layout, onDone, onBack }) => {
+export const PrepView: React.FC<{ m: BrewModel; layout: LayoutMode; onDone: () => void; onBack: () => void; onOpenGear: () => void }> = ({ m, layout, onDone, onBack, onOpenGear }) => {
   const { settings, setUnit } = useSettings();
   const { waterProfiles, updateRecipe } = useCoffee();
   const u = settings.units;
@@ -135,25 +136,33 @@ export const PrepView: React.FC<{ m: BrewModel; layout: LayoutMode; onDone: () =
               })}
             </tbody>
           </table>
-          <p className="mx-5 sm:mx-7 my-2.5 text-[12.5px] text-mute">Tools come from your Gear. Skip leaves one out of this brew only; tap Done as you go.</p>
+          <div className="mx-5 sm:mx-7 my-3 flex flex-wrap items-center gap-3">
+            <Btn size="md" onClick={onOpenGear}><Wrench className="w-4 h-4" aria-hidden />Edit tools in Gear</Btn>
+            <span className="text-[12.5px] text-mute">Skip leaves a tool out of this brew only.</span>
+          </div>
         </div>
 
         <aside className={`${wide ? 'border-l border-rule' : 'border-t border-rule'} px-5 py-3.5 flex flex-col gap-3`}>
-          <div className="border border-ink px-3 py-2.5 text-[13.5px] leading-snug">
-            <b className="bg-ink text-paper text-[10.5px] tracking-[0.1em] uppercase px-1.5 py-0.5 mr-1.5">Dial-in</b>
-            {history[0] ? <>Last brew: {history[0].dialInAdvice?.[0] ?? 'no advice logged'} </> : 'No brews of this recipe yet.'}
-            {grindChanged && <> Grind moved <b>{grindShort(recipe.grindSetting)} → {grindShort(setup.grind)}</b>. Change one thing per brew so you can tell what worked.</>}
+          <div className="border border-ink px-3 py-2 text-[13.5px] leading-snug flex flex-wrap items-center gap-x-2 gap-y-1">
+            <b className="bg-ink text-paper text-[10.5px] tracking-[0.1em] uppercase px-1.5 py-0.5">Dial-in</b>
+            {grindChanged
+              ? <span>Grind <b>{grindShort(recipe.grindSetting)} → {grindShort(setup.grind)}</b></span>
+              : <span>{history[0] ? 'From your last brew' : 'No brews of this recipe yet'}</span>}
+            {(history[0] || grindChanged) && (
+              <InfoTip title="Dial-in" label={<span className="text-[13px] font-semibold">Read</span>} className="ml-auto">
+                {history[0] && <p>Last brew: {history[0].dialInAdvice?.[0] ?? 'no advice logged'}</p>}
+                {grindChanged && <p className="mt-1.5">Change one thing per brew so you can tell what worked.</p>}
+              </InfoTip>
+            )}
           </div>
           <div>
-            <Caps className="mb-1.5">What each one does to the cup</Caps>
-            <dl className="grid grid-cols-[92px_1fr] text-[12.5px] leading-snug border-t border-ink">
+            <Caps className="mb-1">What each one does to the cup</Caps>
+            <p className="text-[12.5px] text-mute mb-1">Tap one to read.</p>
+            <div className="flex flex-wrap gap-x-4 border-t border-ink pt-1">
               {(isEsp ? EFFECTS_PRESSURE : EFFECTS_WATER).map(([a, b]) => (
-                <React.Fragment key={a}>
-                  <dt className="font-bold py-1.5 border-b border-rule">{a}</dt>
-                  <dd className="py-1.5 border-b border-rule">{b}</dd>
-                </React.Fragment>
+                <InfoTip key={a} title={a} label={<span className="text-[14px] font-bold">{a}</span>}>{b}</InfoTip>
               ))}
-            </dl>
+            </div>
           </div>
           {history.length > 0 && (
             <div>

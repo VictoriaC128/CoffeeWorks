@@ -4,6 +4,7 @@ import { useCoffee } from '../context/CoffeeContext';
 import { useLayout } from '../shell/LayoutContext';
 import { Btn, Caps, Segmented } from '../brew/ui';
 import * as F from '../settings/format';
+import { InfoTip } from '../brew/InfoTip';
 
 const UNIT_ROWS: { key: keyof Units; label: string; options: { value: string; label: string }[] }[] = [
   { key: 'coffee', label: 'Coffee · dose & yield', options: [{ value: 'g', label: 'g' }, { value: 'oz', label: 'oz' }] },
@@ -169,12 +170,12 @@ export const SettingsPage: React.FC<{ onOpenSetup: () => void }> = ({ onOpenSetu
         <aside className={`${wide ? 'border-l' : 'border-t'} border-rule px-5 py-4 flex flex-col gap-3`}>
           <Caps>Live preview · mid-brew</Caps>
           {preview}
-          <p className="text-[12.5px] text-mute leading-relaxed">Saved as soon as you tap. Recipes keep their real values; only how they’re shown changes, so switching units never rounds your recipes.</p>
+          <div><InfoTip title="Units and your recipes" label={<span className="text-[13px] font-semibold">Saved as soon as you tap</span>}>Recipes keep their real values; only how they’re shown changes, so switching units never rounds your recipes.</InfoTip></div>
           <div className="border-t border-ink pt-3 mt-1">
             <Caps className="mb-2">Screen layout</Caps>
             <Segmented label="Screen layout" value={settings.layout} onChange={setLayout} className="w-full"
               options={[{ value: 'auto', label: 'Follow tilt' }, { value: 'simple', label: 'Keep simple' }, { value: 'full', label: 'Keep full' }]} />
-            <p className="text-[12.5px] text-mute leading-relaxed mt-2">{LAYOUT_NOTE[settings.layout]}</p>
+            <div className="mt-1.5"><InfoTip title={settings.layout === 'auto' ? 'Follow tilt' : settings.layout === 'simple' ? 'Keep simple' : 'Keep full'} label={<span className="text-[13px] font-semibold">What this does</span>}>{LAYOUT_NOTE[settings.layout]}</InfoTip></div>
           </div>
         </aside>
       </div>

@@ -5,6 +5,7 @@ import { useSettings } from '../settings/SettingsContext';
 import * as F from '../settings/format';
 import { MODES } from '../brew/modes';
 import { Btn, Caps, Stepper } from '../brew/ui';
+import { InfoTip } from '../brew/InfoTip';
 
 interface PresetOption {
   title: string;
@@ -100,6 +101,16 @@ const KOPI_PRESETS: PresetOption[] = [
     coffeeGrams: 26,
     isIced: true,
   },
+];
+
+const DIALECT: [string, string][] = [
+  ['O', 'No milk (black)'],
+  ['C', 'Evaporated milk'],
+  ['Kosong', 'No sugar'],
+  ['Gao', 'Thick, extra strong'],
+  ['Po', 'Thin, lighter'],
+  ['Di-lo', 'Undiluted, no added water'],
+  ['Peng', 'Iced'],
 ];
 
 const KOPI = MODES.singaporean_kopi;
@@ -203,9 +214,23 @@ export const KopiCalculator: React.FC = () => {
         </dl>
       </header>
 
-      <p className="px-5 sm:px-7 py-3 text-[14px] leading-relaxed text-mute border-b border-rule">
-        Traditional Singapore kopi is highland Robusta wok-roasted with butter or margarine and sugar, brewed through a long flannel sock strainer into a heavy, syrupy concentrate. You order it in dialect: O for no milk, C for evaporated milk, Kosong for no sugar, Gao for thick, Po for thin, Di-lo for undiluted, Peng for iced.
-      </p>
+      <div className="px-5 sm:px-7 py-2.5 text-[14px] leading-snug border-b border-rule">
+        <p className="text-mute">Wok-roasted Robusta, pulled through a cloth sock and ordered in dialect.</p>
+        <InfoTip title="Ordering kopi" label="What do O, C, Kosong, Gao, Po, Di-lo, Peng mean?" className="text-[14px] font-semibold">
+          <p>
+            Traditional Singapore kopi is highland Robusta wok-roasted with butter or margarine and sugar, brewed through
+            a long flannel sock strainer into a heavy, syrupy concentrate. You order it in dialect:
+          </p>
+          <dl className="mt-2 grid grid-cols-[64px_1fr] gap-x-3 gap-y-1">
+            {DIALECT.map(([term, meaning]) => (
+              <React.Fragment key={term}>
+                <dt className="font-bold">{term}</dt>
+                <dd>{meaning}</dd>
+              </React.Fragment>
+            ))}
+          </dl>
+        </InfoTip>
+      </div>
 
       {/* Dialect order picker */}
       <section className="pt-4">
@@ -235,8 +260,13 @@ export const KopiCalculator: React.FC = () => {
         <section className="min-w-0">
           <div className="px-5 sm:px-7 pt-4 pb-3 flex flex-wrap items-start justify-between gap-3 border-b border-ink">
             <div className="min-w-0">
-              <h2 className="text-[20px] font-extrabold">{selectedPreset.title} formulation</h2>
-              <p className="text-[13.5px] text-mute mt-0.5 leading-snug">{selectedPreset.description}</p>
+              <div className="flex items-center gap-2">
+                <h2 className="text-[20px] font-extrabold">{selectedPreset.title} formulation</h2>
+                <InfoTip title={selectedPreset.title}>
+                  <p className="font-semibold">{selectedPreset.transliteration}</p>
+                  <p className="mt-1">{selectedPreset.description}</p>
+                </InfoTip>
+              </div>
             </div>
             {isIced && (
               <span className="inline-flex items-center gap-1.5 border border-ink px-2.5 py-1 text-[12px] font-bold uppercase tracking-[0.08em]">

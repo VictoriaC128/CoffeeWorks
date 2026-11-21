@@ -9,6 +9,8 @@ import { useSettings } from '../settings/SettingsContext';
 import * as F from '../settings/format';
 import { shiftGrind, grindShort } from './steps';
 import { LayoutMode } from '../shell/LayoutContext';
+import { InfoTip } from './InfoTip';
+import { BASE_NOTES, aboutNote, suggestFlavours } from './flavours';
 
 const VERDICTS: { id: SensoryRating['verdict']; label: string; full: string }[] = [
   { id: 'under_extracted', label: 'Under', full: 'Under-extracted: sour, thin' },
@@ -24,11 +26,11 @@ const SCALES: { key: keyof Omit<SensoryRating, 'verdict'>; label: string }[] = [
   { key: 'body', label: 'Body' },
   { key: 'overall', label: 'Overall' },
 ];
-const COMMON_TAGS = ['Chocolate', 'Caramel', 'Nutty', 'Citrus', 'Berry', 'Floral', 'Honey', 'Stone fruit'];
 
 /** After the brew: numbers shrink to a strip, taste and notes take over. */
 export const TasteView: React.FC<{ m: BrewModel; layout: LayoutMode; stepTimes: StepTime[]; totalSec: number; onDone: () => void }> = ({ m, layout, stepTimes, totalSec, onDone }) => {
-  const { logBrewSession, getDialInAdvice, calculateExtractionYield, updateRecipe } = useCoffee();
+  const { logBrewSession, getDialInAdvice, calculateExtractionYield, updateRecipe, sessions } = useCoffee();
+  const [showBase, setShowBase] = useState(false);
   const { settings } = useSettings();
   const u = settings.units;
   const { recipe, setup, mode, bean } = m;
@@ -49,7 +51,16 @@ export const TasteView: React.FC<{ m: BrewModel; layout: LayoutMode; stepTimes: 
   const advice = getDialInAdvice(recipe.category, Math.round(totalSec), recipe.targetTotalTimeSeconds, avgFlow, targetFlow, ey, sensory.verdict);
   const grindDelta = sensory.verdict === 'under_extracted' ? -2 : sensory.verdict === 'over_extracted' || sensory.verdict === 'stalled' ? 2 : 0;
   const nextGrind = grindDelta ? shiftGrind(setup.grind, grindDelta) : null;
-  const allTags = useMemo(() => Array.from(new Set([...(bean?.tastingNotes || []), ...COMMON_TAGS, ...extraTags])), [bean, extraTags]);
+  const suggestion = useMemo(() => suggestFlavours(bean, sessions), [bean, sessions]);
+  const allTags = useMemo(
+    () => Array.from(new Set([...suggestion.notes, ...(showBase ? BASE_NOTES.map((n) => n.name) : []), ...extraTags])),
+    [suggestion, showBase, extraTags],
+  );
+  const sourceLine = suggestion.source === 'recorded'
+    ? `From your notes for ${bean?.name ?? 'this bean'}`
+    : suggestion.source === 'profile'
+      ? `Top 5 for this bean: ${[bean?.origin, bean?.processMethod?.replace(/_/g, ' '), bean?.roastLevel?.replace(/_/g, '-')].filter(Boolean).join(' · ')}`
+      : 'Top 10 espresso notes';
 
   const save = (useNext: boolean) => {
     logBrewSession({
@@ -153,13 +164,25 @@ export const TasteView: React.FC<{ m: BrewModel; layout: LayoutMode; stepTimes: 
               </div>
             ))}
           </div>
-          <Caps className="mt-5 mb-1.5">Flavour notes</Caps>
+          <div className="flex flex-wrap items-baseline gap-x-3 mt-5 mb-1.5">
+            <Caps>Flavour notes</Caps>
+            <span className="text-[12.5px] text-mute">{sourceLine}</span>
+            {suggestion.source !== 'base' && (
+              <button type="button" onClick={() => setShowBase((x) => !x)} aria-expanded={showBase} className="ml-auto min-h-[36px] text-[12.5px] font-bold underline underline-offset-4">
+                {showBase ? 'Hide common notes' : '+ Common notes'}
+              </button>
+            )}
+          </div>
           <div className="flex flex-wrap gap-2">
             {allTags.map((t) => {
               const on = tags.includes(t);
+              const about = aboutNote(t);
               return (
-                <button key={t} type="button" aria-pressed={on} onClick={() => setTags((x) => (on ? x.filter((y) => y !== t) : [...x, t]))}
-                  className={`min-h-[44px] px-3.5 text-[14px] font-semibold border ${on ? 'bg-ink text-paper border-ink' : 'border-rule hover:border-ink'}`}>{t}</button>
+                <span key={t} className={`inline-flex items-center border ${on ? 'bg-ink text-paper border-ink' : 'border-rule'}`}>
+                  <button type="button" aria-pressed={on} onClick={() => setTags((x) => (on ? x.filter((y) => y !== t) : [...x, t]))}
+                    className={`min-h-[44px] text-[14px] font-semibold ${about ? 'pl-3.5 pr-1' : 'px-3.5'}`}>{t}</button>
+                  {about && <span className={`pr-2 ${on ? '[&_button]:text-paper' : ''}`}><InfoTip title={t}>{about}</InfoTip></span>}
+                </span>
               );
             })}
             <form className="flex" onSubmit={(e) => { e.preventDefault(); const t = newTag.trim(); if (t) { setExtraTags((x) => [...x, t]); setTags((x) => [...x, t]); setNewTag(''); } }}>
@@ -180,7 +203,11 @@ export const TasteView: React.FC<{ m: BrewModel; layout: LayoutMode; stepTimes: 
           </label>
           <div className="border border-ink px-4 py-3">
             <b className="bg-ink text-paper text-[10.5px] tracking-[0.1em] uppercase px-1.5 py-1">Dial-in · next brew</b>
-            <p className="text-[14.5px] leading-snug mt-2.5">{advice[0]}</p>
+            <div className="mt-2">
+              <InfoTip title="Why this suggestion" label={<span className="text-[13.5px] font-semibold">Why this suggestion</span>}>
+                <ul className="list-disc pl-4 flex flex-col gap-1.5">{advice.map((a, i) => <li key={i}>{a}</li>)}</ul>
+              </InfoTip>
+            </div>
             <dl className="mt-2 text-[13.5px]">
               <div className="flex justify-between py-1.5 border-t border-rule"><dt>Grind</dt><dd className="font-bold">{nextGrind ? <><s className="font-normal text-mute">{grindShort(setup.grind)}</s> → {grindShort(nextGrind)}</> : `${grindShort(setup.grind)}, no change`}</dd></div>
               <div className="flex justify-between py-1.5 border-t border-rule"><dt>Temp</dt><dd>{F.text(F.temp(setup.tempC, u))}, no change</dd></div>

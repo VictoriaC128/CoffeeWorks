@@ -18,6 +18,7 @@ import {
   SHOWER_SCREEN_OPTIONS,
 } from '../data/dropdownCatalog';
 import { Btn } from '../brew/ui';
+import { InfoTip } from '../brew/InfoTip';
 import { MODES, MODE_ORDER } from '../brew/modes';
 import { onBack } from '../platform/native';
 
@@ -284,11 +285,16 @@ export const OnboardingModal: React.FC<Props> = ({ isOpen, onClose }) => {
               <h2 id="onboarding-title" className="text-[22px] sm:text-[26px] font-black tracking-[-0.02em] leading-tight">
                 {isConfigMode ? 'Customise setup & tools' : 'Welcome to CoffeeWorks'}
               </h2>
-              <p className="text-[13px] opacity-80 mt-1 leading-snug">
-                {isConfigMode
-                  ? 'Change your daily driver and tools whenever you like. Each change is saved separately with its date and time.'
-                  : 'Pick how you brew most, then the gear you use for it.'}
-              </p>
+              {isConfigMode ? (
+                <p className="text-[13px] opacity-80 mt-1 leading-snug flex items-center gap-2">
+                  Change your daily driver and tools any time.
+                  <InfoTip title="How changes are saved" className="!text-paper hover:!text-paper">
+                    Each change is saved separately with its date and time, so earlier setups stay in Revisions.
+                  </InfoTip>
+                </p>
+              ) : (
+                <p className="text-[13px] opacity-80 mt-1 leading-snug">Pick how you brew most, then the gear you use for it.</p>
+              )}
             </div>
             <button
               type="button"
@@ -351,21 +357,28 @@ export const OnboardingModal: React.FC<Props> = ({ isOpen, onClose }) => {
                   const c = CATEGORY_CHOICES[id];
                   const on = selectedPrimary === id;
                   return (
-                    <button
+                    // The tile button and its ⓘ sit side by side so no button is nested in another.
+                    <div
                       key={id}
-                      type="button"
-                      onClick={() => handleSelectCategory(id)}
-                      aria-pressed={on}
-                      className={`flex text-left min-h-[96px] ${on ? 'border-2 border-ink' : 'border border-rule m-px'}`}
+                      className={`flex min-h-[72px] ${on ? 'border-2 border-ink' : 'border border-rule m-px'}`}
                     >
-                      <span className={`w-14 shrink-0 flex items-start justify-center pt-3.5 ${m.bg} ${m.on}`} aria-hidden>
-                        {on && <Check className="w-6 h-6" strokeWidth={3} />}
+                      <button
+                        type="button"
+                        onClick={() => handleSelectCategory(id)}
+                        aria-pressed={on}
+                        className="flex flex-1 min-w-0 text-left"
+                      >
+                        <span className={`w-14 shrink-0 flex items-start justify-center pt-3.5 ${m.bg} ${m.on}`} aria-hidden>
+                          {on && <Check className="w-6 h-6" strokeWidth={3} />}
+                        </span>
+                        <span className="flex-1 min-w-0 px-3.5 py-3 self-center">
+                          <span className="block text-[16px] font-extrabold leading-tight">{c.name}</span>
+                        </span>
+                      </button>
+                      <span className="shrink-0 flex items-center pr-3">
+                        <InfoTip title={c.name}>{c.tagline}</InfoTip>
                       </span>
-                      <span className="flex-1 min-w-0 px-3.5 py-3">
-                        <span className="block text-[16px] font-extrabold leading-tight">{c.name}</span>
-                        <span className="block text-[13px] text-mute leading-snug mt-1">{c.tagline}</span>
-                      </span>
-                    </button>
+                    </div>
                   );
                 })}
               </div>
@@ -375,9 +388,9 @@ export const OnboardingModal: React.FC<Props> = ({ isOpen, onClose }) => {
           {activeTab === 'rig' && (
             <>
               <div className={`flex items-center gap-3 pl-4 pr-2 py-2 min-h-[72px] ${mode.bg} ${mode.on}`}>
-                <div className="min-w-0 flex-1">
-                  <div className="text-[19px] font-extrabold leading-tight">{choice.name}</div>
-                  <div className="text-[12.5px] opacity-85 leading-snug mt-0.5 line-clamp-2">{choice.tagline}</div>
+                <div className="min-w-0 flex-1 flex items-center gap-2">
+                  <div className="min-w-0 text-[19px] font-extrabold leading-tight">{choice.name}</div>
+                  <InfoTip title={choice.name} className="!text-current hover:!text-current">{choice.tagline}</InfoTip>
                 </div>
                 <button
                   type="button"
@@ -388,9 +401,13 @@ export const OnboardingModal: React.FC<Props> = ({ isOpen, onClose }) => {
                 </button>
               </div>
 
-              <p className="text-[13px] text-mute mt-3">
-                Choose your everyday gear. If a brand or tool is missing, tap Edit labels on that list to add it.
-              </p>
+              <div className="mt-3 flex flex-wrap items-center gap-x-3 text-[13px]">
+                <p className="text-mute">Choose your everyday gear.</p>
+                <InfoTip title="Missing a brand or tool?" label="Missing a brand?" className="text-[13px] font-semibold">
+                  If a brand or tool is missing from a list, tap Edit labels on that list to add it. It is then saved for
+                  next time.
+                </InfoTip>
+              </div>
 
               <Section title="Rig">
                 <SmartDropdownWithOthers

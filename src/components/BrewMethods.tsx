@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { ChevronRight, Plus } from 'lucide-react';
+import { ChevronRight, Plus, Wrench } from 'lucide-react';
 import { useCoffee } from '../context/CoffeeContext';
 import { CoffeeCategory, CustomMethod } from '../types/coffee';
 import { ALL_MODES, MODES, lotFor } from '../brew/modes';
@@ -159,7 +159,7 @@ export const MethodEditor: React.FC<{
 };
 
 /** Overview of the six main methods with the user's own methods under each, plus Others. */
-export const BrewMethodsSheet: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+export const BrewMethodsSheet: React.FC<{ onClose: () => void; onOpenGear?: (c: CoffeeCategory) => void }> = ({ onClose, onOpenGear }) => {
   const { recipes, customMethods } = useCoffee();
   const { mode: layout } = useLayout();
   const [editing, setEditing] = useState<CustomMethod | 'new' | null>(null);
@@ -194,8 +194,14 @@ export const BrewMethodsSheet: React.FC<{ onClose: () => void }> = ({ onClose })
               <i className={`w-3.5 h-3.5 ${m.bg}`} aria-hidden />
               <b className="text-[15px]">{m.label}</b>
               <span className="text-[12px] text-mute">{count} recipe{count === 1 ? '' : 's'}</span>
+              {onOpenGear && (
+                <button type="button" onClick={() => onOpenGear(c)}
+                  className="ml-auto min-h-[44px] px-2 text-[12.5px] font-bold underline underline-offset-4 flex items-center gap-1" aria-label={`Edit ${m.label} tools in Gear`}>
+                  <Wrench className="w-3.5 h-3.5" aria-hidden />Tools
+                </button>
+              )}
               <button type="button" onClick={() => { setNewParent(c); setEditing('new'); }}
-                className="ml-auto min-h-[40px] px-2 text-[12.5px] font-bold underline underline-offset-4" aria-label={`Add a method under ${m.label}`}>
+                className={`${onOpenGear ? '' : 'ml-auto '}min-h-[44px] px-2 text-[12.5px] font-bold underline underline-offset-4`} aria-label={`Add a method under ${m.label}`}>
                 + Add here
               </button>
             </div>

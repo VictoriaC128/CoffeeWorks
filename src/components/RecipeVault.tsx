@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Layers, Plus, Search, Settings, X } from 'lucide-react';
 import { useCoffee } from '../context/CoffeeContext';
-import { Recipe } from '../types/coffee';
+import { CoffeeCategory, Recipe } from '../types/coffee';
 import { CategoryPillSelector } from './CategoryPillSelector';
 import { RecipeCard } from './RecipeCard';
 import { RecipeModal } from './RecipeModal';
@@ -11,9 +11,10 @@ import { Btn } from '../brew/ui';
 interface Props {
   onLaunchBrew: (recipe: Recipe) => void;
   onOpenSetup?: () => void;
+  onOpenGear?: (c: CoffeeCategory) => void;
 }
 
-export const RecipeVault: React.FC<Props> = ({ onLaunchBrew, onOpenSetup }) => {
+export const RecipeVault: React.FC<Props> = ({ onLaunchBrew, onOpenSetup, onOpenGear }) => {
   const { recipes, activeCategory, setActiveCategory } = useCoffee();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -132,7 +133,7 @@ export const RecipeVault: React.FC<Props> = ({ onLaunchBrew, onOpenSetup }) => {
 
       {/* Recipe Create/Edit Modal */}
       <RecipeModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} recipeToEdit={recipeToEdit} />
-      {methodsOpen && <BrewMethodsSheet onClose={() => setMethodsOpen(false)} />}
+      {methodsOpen && <BrewMethodsSheet onClose={() => setMethodsOpen(false)} onOpenGear={onOpenGear ? (c) => { setMethodsOpen(false); onOpenGear(c); } : undefined} />}
     </div>
   );
 };

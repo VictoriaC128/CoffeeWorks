@@ -11,7 +11,7 @@ import { PrepView } from './PrepView';
 import { StepEditor, SaveTarget } from './StepEditor';
 import { TasteView } from './TasteView';
 import { ChangeSheet, RecipePicker } from './Sheets';
-import { BrewStep, Recipe } from '../types/coffee';
+import { BrewStep, CoffeeCategory, Recipe } from '../types/coffee';
 import { Btn } from './ui';
 
 type Phase = 'brew' | 'prep' | 'steps' | 'taste';
@@ -21,7 +21,7 @@ export type BrewState = 'ready' | 'running' | 'tasting';
  * The Live Brew Station. Stays mounted while other tabs are open so a running
  * brew keeps its time; `visible` only hides it.
  */
-export const BrewStation: React.FC<{ visible: boolean; onState: (s: BrewState) => void; onGoTo: (tab: 'recipes') => void }> = ({ visible, onState, onGoTo }) => {
+export const BrewStation: React.FC<{ visible: boolean; onState: (s: BrewState) => void; onGoTo: (tab: 'recipes') => void; onOpenGear: (c: CoffeeCategory) => void }> = ({ visible, onState, onGoTo, onOpenGear }) => {
   const { recipes, selectedRecipeForBrew, setSelectedRecipeForBrew, beans, gearProfiles, waterProfiles, sessions, addRecipe, updateRecipe, customMethods } = useCoffee();
   const { mode: layout } = useLayout();
 
@@ -116,7 +116,7 @@ export const BrewStation: React.FC<{ visible: boolean; onState: (s: BrewState) =
   return (
     <div className={visible ? 'h-full' : 'hidden'}>
       {phase === 'brew' && <RunningView m={m} layout={layout} />}
-      {phase === 'prep' && <PrepView m={m} layout={layout} onBack={() => setPhase('brew')} onDone={() => { setPhase('brew'); if (!timer.started) timer.start(); }} />}
+      {phase === 'prep' && <PrepView m={m} layout={layout} onOpenGear={() => onOpenGear(m.method?.parent ?? recipe.category)} onBack={() => setPhase('brew')} onDone={() => { setPhase('brew'); if (!timer.started) timer.start(); }} />}
       {phase === 'steps' && <StepEditor m={m} layout={layout} onCancel={() => setPhase('brew')} onSave={saveSteps} />}
       {phase === 'taste' && finished && (
         <TasteView m={m} layout={layout} stepTimes={finished.stepTimes} totalSec={finished.totalSec}

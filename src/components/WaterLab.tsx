@@ -8,6 +8,7 @@ import { useSettings, Units } from '../settings/SettingsContext';
 import * as F from '../settings/format';
 import { useLayout } from '../shell/LayoutContext';
 import { Btn, Caps, Segmented, Sheet } from '../brew/ui';
+import { InfoTip } from '../brew/InfoTip';
 
 const HARDNESS_OPTIONS: { value: Units['hardness']; label: string }[] = [
   { value: 'ppm', label: 'ppm' },
@@ -123,10 +124,12 @@ export const WaterLab: React.FC = () => {
       {/* Mineral explainer */}
       <section className="grid grid-cols-1 md:grid-cols-3 border-b border-ink">
         {minerals.map(([k, sub, body], i) => (
-          <div key={k} className={`px-5 sm:px-7 md:px-5 py-3.5 border-b md:border-b-0 border-rule ${i < 2 ? 'md:border-r' : ''} last:border-b-0`}>
-            <div className="text-[15px] font-bold">{k}</div>
-            <Caps className="mt-0.5">{sub}</Caps>
-            <p className="text-[13.5px] text-mute leading-snug mt-1.5">{body}</p>
+          <div key={k} className={`px-5 sm:px-7 md:px-5 py-2.5 border-b md:border-b-0 border-rule ${i < 2 ? 'md:border-r' : ''} last:border-b-0 flex items-center gap-3`}>
+            <div className="min-w-0 flex-1">
+              <div className="text-[15px] font-bold">{k}</div>
+              <Caps className="mt-0.5">{sub}</Caps>
+            </div>
+            <InfoTip title={k}>{body}</InfoTip>
           </div>
         ))}
       </section>
@@ -154,7 +157,12 @@ export const WaterLab: React.FC = () => {
                 <div className="flex items-start gap-3">
                   <div className="min-w-0 flex-1">
                     <Caps>{water.type.replace(/_/g, ' ')}</Caps>
-                    <h3 className="text-[17px] font-bold leading-tight mt-0.5 line-clamp-2">{water.name}</h3>
+                    <div className="flex items-start gap-2 mt-0.5">
+                      <h3 className="min-w-0 text-[17px] font-bold leading-tight line-clamp-2">{water.name}</h3>
+                      {water.description && (
+                        <InfoTip title={water.name}>{water.description}</InfoTip>
+                      )}
+                    </div>
                     {water.countryRegion && <p className="text-[13px] text-mute mt-0.5">{water.countryRegion}</p>}
                   </div>
                   <div className="flex gap-2 shrink-0 -mr-1">
@@ -207,9 +215,6 @@ export const WaterLab: React.FC = () => {
                   {water.ph && <span className="text-mute">pH <b className="num text-ink">{water.ph}</b></span>}
                 </div>
 
-                {water.description && (
-                  <p className="text-[13.5px] text-mute leading-snug mt-2 line-clamp-3">{water.description}</p>
-                )}
               </article>
             );
           })}

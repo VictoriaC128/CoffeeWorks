@@ -7,6 +7,7 @@ import { shiftGrind, grindShort } from './steps';
 import { MODES, ALL_MODES, lotFor } from './modes';
 import { Recipe } from '../types/coffee';
 import * as F from '../settings/format';
+import { InfoTip } from './InfoTip';
 import { useSettings } from '../settings/SettingsContext';
 
 /** Change bean or grind mid-brew. The timer keeps running. */
@@ -62,7 +63,10 @@ export const ChangeSheet: React.FC<{ m: BrewModel; side: boolean; onClose: () =>
       ) : (
         <input value={grind} onChange={(e) => setGrind(e.target.value)} className="w-full h-12 border border-ink px-3 text-[16px] font-semibold" aria-label="Grind setting" />
       )}
-      <p className="text-[12.5px] text-mute mt-1.5 leading-snug">{grind}. Ground at a different setting than planned? Fix it here so History and dial-in use what you really ground.</p>
+      <div className="mt-1 flex items-center gap-2 text-[12.5px] text-mute">
+        <span className="truncate">{grind}</span>
+        <InfoTip title="Why change the grind here">Ground at a different setting than planned? Fix it here so History and dial-in use what you really ground.</InfoTip>
+      </div>
 
       <div className="mt-4 flex flex-col gap-1">
         <div className="grid grid-cols-[24px_1fr] gap-2.5 py-1.5 text-[13.5px]">
@@ -84,13 +88,20 @@ export const RecipePicker: React.FC<{ m: BrewModel; side: boolean; onPick: (r: R
   const { settings } = useSettings();
   const running = m.timer.started;
   return (
-    <Sheet side={side} title="Switch recipe" sub={running ? 'Finish or reset the running brew to switch.' : `${recipes.length} recipes`} onClose={onClose}>
+    <Sheet side={side} title="Switch brewing method" sub={running ? 'Finish or reset the running brew to switch.' : 'Tap a method for its daily driver, or pick a recipe under it.'} onClose={onClose}>
       {ALL_MODES.map((c) => {
         const list = recipes.filter((r) => r.category === c);
         if (!list.length) return null;
         return (
           <section key={c} className="mb-4">
-            <div className="flex items-center gap-2 mb-1"><i className={`w-3.5 h-3.5 ${MODES[c].bg}`} /><Caps>{MODES[c].label}</Caps></div>
+            <button type="button" disabled={running}
+              onClick={() => { const d = recipes.find((r) => r.id === userPreferences.defaultRecipePerCategory[c]) || list[0]; onPick(d); onClose(); }}
+              className={`w-full min-h-[48px] px-3 flex items-center gap-2.5 text-left disabled:opacity-40 ${m.recipe.category === c ? `${MODES[c].bg} ${MODES[c].on}` : 'bg-tint'}`}
+              aria-label={`Switch to ${MODES[c].label}`}>
+              <i className={`w-3.5 h-3.5 shrink-0 ${MODES[c].bg} border border-current`} aria-hidden />
+              <b className="text-[15px]">{MODES[c].label}</b>
+              <span className="ml-auto text-[12px] opacity-80">{list.length} recipe{list.length === 1 ? '' : 's'}</span>
+            </button>
             {list.map((r) => {
               const on = r.id === m.recipe.id;
               const isDefault = userPreferences.defaultRecipePerCategory[c] === r.id;
