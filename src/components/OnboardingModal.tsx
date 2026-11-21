@@ -29,6 +29,10 @@ interface Props {
 type Tab = 'discipline' | 'rig' | 'history';
 
 const CATEGORY_CHOICES: Record<CoffeeCategory, { name: string; tagline: string }> = {
+  other: {
+    name: 'Your own methods',
+    tagline: 'Siphon, cold brew, Turkish and anything else you set up in Recipes → Brew methods',
+  },
   espresso: {
     name: 'Benchtop Espresso',
     tagline: 'Flow control, 30lb spring tampers, MHW-3BOMBER screens, high-extraction baskets',

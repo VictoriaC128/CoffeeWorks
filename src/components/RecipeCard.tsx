@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Play, Copy, Pencil, Trash2, Star, Check } from 'lucide-react';
 import { Recipe } from '../types/coffee';
 import { useCoffee } from '../context/CoffeeContext';
-import { MODES, lotFor } from '../brew/modes';
+import { MODES, lotFor, methodLabel } from '../brew/modes';
 import { useSettings } from '../settings/SettingsContext';
 import * as F from '../settings/format';
 import { Btn } from '../brew/ui';
@@ -26,6 +26,7 @@ export const RecipeCard: React.FC<Props> = ({ recipe, onEdit, onLaunchBrew }) =>
     duplicateRecipe,
     userPreferences,
     setDefaultRecipeForCategory,
+    customMethods,
   } = useCoffee();
   const { settings } = useSettings();
   const u = settings.units;
@@ -34,6 +35,7 @@ export const RecipeCard: React.FC<Props> = ({ recipe, onEdit, onLaunchBrew }) =>
 
   const mode = MODES[recipe.category];
   const lot = lotFor(recipe, recipes);
+  const method = customMethods.find(m => m.id === recipe.methodId);
   const bean = beans.find(b => b.id === recipe.beanId);
   const gear = gearProfiles.find(g => g.id === recipe.gearId);
   const water = waterProfiles.find(w => w.id === recipe.waterProfileId);
@@ -105,7 +107,7 @@ export const RecipeCard: React.FC<Props> = ({ recipe, onEdit, onLaunchBrew }) =>
     <article className="relative border border-ink bg-paper flex flex-col" aria-label={recipe.title}>
       {/* Label band in the discipline colour */}
       <header className={`${mode.bg} ${mode.on} px-4 py-2 min-h-[40px] flex items-center gap-2`}>
-        <span className="text-[11px] font-bold uppercase tracking-[0.12em] truncate">{lot} · {mode.label}</span>
+        <span className="text-[11px] font-bold uppercase tracking-[0.12em] truncate">{lot} · {methodLabel(recipe.category, method)}</span>
         {isDefault && (
           <span className="ml-auto shrink-0 border border-current px-1.5 py-0.5 text-[11px] font-bold uppercase tracking-[0.08em] flex items-center gap-1">
             <Star className="w-3 h-3 fill-current" aria-hidden />

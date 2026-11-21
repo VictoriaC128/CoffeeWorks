@@ -131,19 +131,19 @@ const SidePanels: React.FC<{ m: BrewModel; compact?: boolean }> = ({ m, compact 
     <div className="border-l border-rule grid grid-rows-3 min-h-0">
       <div className={`${compact ? 'px-3.5 py-1' : 'px-5 py-3'} border-b border-rule flex flex-col justify-center`}>
         <span className="label-caps">Total time</span>
-        <span className={`${v} font-bold num leading-tight`}>{F.clock(t.elapsedSec, u)}<span className="text-[14px] text-mute font-medium ml-1">/ {F.clock(t.totalPlanned, u)}</span></span>
+        <span className={`${v} font-bold num leading-tight`}>{F.clock(t.elapsedSec, u)}<span className="text-[14px] text-mute font-medium ml-1 tracking-normal" style={{ fontStretch: '100%' }}>/ {F.clock(t.totalPlanned, u)}</span></span>
       </div>
       <div className={`${compact ? 'px-3.5 py-1' : 'px-5 py-3'} border-b border-rule flex flex-col justify-center text-flow`}>
         <span className="label-caps !text-flow">Flow · aim</span>
         <span className={`${v} font-bold num leading-tight`}>
           {aimFlow !== undefined ? F.flow(aimFlow, u).value : '—'}
-          <span className="text-[14px] font-medium ml-1">{aimFlow !== undefined ? F.flow(aimFlow, u).unit : 'no pour this step'}</span>
+          <span className="text-[14px] font-medium ml-1 tracking-normal" style={{ fontStretch: '100%' }}>{aimFlow !== undefined ? F.flow(aimFlow, u).unit : 'no pour this step'}</span>
         </span>
       </div>
       <div className={`${compact ? 'px-3.5 py-1' : 'px-5 py-3'} flex flex-col justify-center min-w-0`}>
         <span className="label-caps">{third.k}</span>
         <span className={`${'small' in third && third.small ? (compact ? 'text-[18px]' : 'text-[26px]') : v} font-bold leading-tight truncate`}>
-          {third.v}<span className="text-[13px] text-mute font-medium ml-1.5">{third.u}</span>
+          {third.v}<span className="text-[13px] text-mute font-medium ml-1.5 tracking-normal" style={{ fontStretch: '100%' }}>{third.u}</span>
         </span>
       </div>
     </div>
@@ -226,7 +226,7 @@ export const RunningView: React.FC<{ m: BrewModel; layout: LayoutMode }> = ({ m,
       <div className={`grid ${wide ? 'grid-cols-3' : 'grid-cols-2'} border-b border-rule`}>
         <div className="px-4 py-2.5 border-r border-rule">
           <div className="label-caps">Total</div>
-          <div className="text-[30px] font-bold num leading-tight">{F.clock(t.elapsedSec, u)}<span className="text-[13px] text-mute font-medium ml-1">/ {F.clock(t.totalPlanned, u)}</span></div>
+          <div className="text-[30px] font-bold num leading-tight">{F.clock(t.elapsedSec, u)}<span className="text-[13px] text-mute font-medium ml-1 tracking-normal" style={{ fontStretch: '100%' }}>/ {F.clock(t.totalPlanned, u)}</span></div>
         </div>
         <FlowCell m={m} />
         {wide && (
@@ -274,7 +274,7 @@ const FlowCell: React.FC<{ m: BrewModel }> = ({ m }) => {
       <div className="label-caps !text-flow">Flow · aim</div>
       <div className="text-[30px] font-bold num leading-tight">
         {aimFlow !== undefined ? F.flow(aimFlow, u).value : '—'}
-        <span className="text-[13px] font-medium ml-1">{aimFlow !== undefined ? F.flow(aimFlow, u).unit : 'no pour'}</span>
+        <span className="text-[13px] font-medium ml-1 tracking-normal" style={{ fontStretch: '100%' }}>{aimFlow !== undefined ? F.flow(aimFlow, u).unit : 'no pour'}</span>
       </div>
     </div>
   );

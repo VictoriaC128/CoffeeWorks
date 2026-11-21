@@ -5,6 +5,7 @@ import { Recipe, CoffeeCategory, PourStage, BasketSpec } from '../types/coffee';
 import { SmartDropdownWithOthers } from './SmartDropdownWithOthers';
 import { Btn, Sheet } from '../brew/ui';
 import { MODES } from '../brew/modes';
+import { MethodEditor } from './BrewMethods';
 import {
   ESPRESSO_MACHINE_OPTIONS,
   ESPRESSO_BASKET_OPTIONS,
@@ -37,10 +38,13 @@ export const RecipeModal: React.FC<Props> = ({ isOpen, onClose, recipeToEdit }) 
     setDefaultRecipeForCategory,
     getLastUsedTools,
     updateLastUsedTools,
+    customMethods,
   } = useCoffee();
 
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState<CoffeeCategory>('espresso');
+  const [methodId, setMethodId] = useState<string | undefined>(undefined);
+  const [newMethodOpen, setNewMethodOpen] = useState(false);
   const [beanId, setBeanId] = useState<string>('');
   const [waterProfileId, setWaterProfileId] = useState<string>('');
   const [saveAsNewRevision, setSaveAsNewRevision] = useState<boolean>(true);
@@ -180,6 +184,7 @@ export const RecipeModal: React.FC<Props> = ({ isOpen, onClose, recipeToEdit }) 
     if (recipeToEdit) {
       setTitle(recipeToEdit.title);
       setCategory(recipeToEdit.category);
+      setMethodId(recipeToEdit.methodId);
       setBeanId(recipeToEdit.beanId || '');
       setWaterProfileId(recipeToEdit.waterProfileId || '');
       setDoseGrams(recipeToEdit.doseGrams);
@@ -206,6 +211,7 @@ export const RecipeModal: React.FC<Props> = ({ isOpen, onClose, recipeToEdit }) 
       setTitle('');
       const startingCat = (userPreferences.primaryCategory as CoffeeCategory) || 'espresso';
       setCategory(startingCat);
+      setMethodId(undefined);
       setBeanId(beans[0]?.id || '');
       setWaterProfileId(waterProfiles[0]?.id || '');
       setPreInfusionSeconds(5);
@@ -223,6 +229,7 @@ export const RecipeModal: React.FC<Props> = ({ isOpen, onClose, recipeToEdit }) 
 
   const handleCategorySwitch = (newCat: CoffeeCategory) => {
     setCategory(newCat);
+    setMethodId(undefined);
     applyPreviousSelectionsForCategory(newCat);
   };
 
@@ -258,6 +265,7 @@ export const RecipeModal: React.FC<Props> = ({ isOpen, onClose, recipeToEdit }) 
     const recipeData = {
       title,
       category,
+      methodId,
       beanId: beanId || undefined,
       waterProfileId: (waterProfileId && waterProfileId !== 'N/A') ? waterProfileId : undefined,
       doseGrams,
@@ -378,9 +386,10 @@ export const RecipeModal: React.FC<Props> = ({ isOpen, onClose, recipeToEdit }) 
               { id: 'moka_stovetop', label: 'Stovetop & Moka' },
               { id: 'singaporean_kopi', label: 'Singaporean Kopi' },
               { id: 'immersion', label: 'Immersion' },
+              { id: 'other', label: 'Others' },
             ].map(item => {
               const m = MODES[item.id as CoffeeCategory];
-              const on = category === item.id;
+              const on = category === item.id && !methodId;
               return (
                 <button
                   type="button"
@@ -397,6 +406,30 @@ export const RecipeModal: React.FC<Props> = ({ isOpen, onClose, recipeToEdit }) 
                 </button>
               );
             })}
+          </div>
+          <div className="label-caps mt-4 mb-2" id="recipe-own-method-label">Your methods</div>
+          <div className="flex flex-wrap gap-2" role="radiogroup" aria-labelledby="recipe-own-method-label">
+            {customMethods.map(cm => {
+              const pm = MODES[cm.parent];
+              const on = methodId === cm.id;
+              return (
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={on}
+                  key={cm.id}
+                  onClick={() => { setCategory(cm.parent); setMethodId(cm.id); applyPreviousSelectionsForCategory(cm.parent); }}
+                  className={`min-h-[44px] px-3 border text-[14px] font-bold flex items-center gap-2 ${on ? `${pm.bg} ${pm.on} border-transparent` : 'bg-paper text-ink border-rule'}`}
+                >
+                  <i className={`w-3.5 h-3.5 shrink-0 ${pm.bg} ${on ? 'border border-current' : ''}`} aria-hidden />
+                  {cm.name}
+                  <span className={`text-[11px] font-semibold ${on ? 'opacity-80' : 'text-mute'}`}>{cm.parent === 'other' ? 'Others' : pm.label}</span>
+                </button>
+              );
+            })}
+            <button type="button" onClick={() => setNewMethodOpen(true)} className="min-h-[44px] px-3 border border-ink text-[14px] font-bold flex items-center gap-1.5">
+              <Plus className="w-4 h-4" aria-hidden /> New method
+            </button>
           </div>
         </div>
 
@@ -804,6 +837,13 @@ export const RecipeModal: React.FC<Props> = ({ isOpen, onClose, recipeToEdit }) 
           </label>
         )}
       </form>
+      {newMethodOpen && (
+        <MethodEditor
+          defaultParent={category}
+          onSaved={(m) => { setNewMethodOpen(false); setCategory(m.parent); setMethodId(m.id); }}
+          onClose={() => setNewMethodOpen(false)}
+        />
+      )}
     </Sheet>
   );
 };

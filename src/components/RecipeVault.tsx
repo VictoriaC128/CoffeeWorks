@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Plus, Search, Settings, X } from 'lucide-react';
+import { Layers, Plus, Search, Settings, X } from 'lucide-react';
 import { useCoffee } from '../context/CoffeeContext';
 import { Recipe } from '../types/coffee';
 import { CategoryPillSelector } from './CategoryPillSelector';
 import { RecipeCard } from './RecipeCard';
 import { RecipeModal } from './RecipeModal';
+import { BrewMethodsSheet } from './BrewMethods';
 import { Btn } from '../brew/ui';
 
 interface Props {
@@ -18,6 +19,7 @@ export const RecipeVault: React.FC<Props> = ({ onLaunchBrew, onOpenSetup }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [recipeToEdit, setRecipeToEdit] = useState<Recipe | null>(null);
+  const [methodsOpen, setMethodsOpen] = useState(false);
 
   // Filter recipes by Category and Search Query
   const filteredRecipes = recipes.filter(r => {
@@ -49,6 +51,14 @@ export const RecipeVault: React.FC<Props> = ({ onLaunchBrew, onOpenSetup }) => {
             Saved recipes for each discipline, with the beans, tools and water they were dialled in on.
           </p>
         </div>
+        <button
+          type="button"
+          onClick={() => setMethodsOpen(true)}
+          className="min-h-[44px] px-3 border border-paper text-[13px] font-bold flex items-center gap-2 whitespace-nowrap"
+        >
+          <Layers className="w-4 h-4" aria-hidden />
+          Brew methods
+        </button>
         {onOpenSetup && (
           <button
             type="button"
@@ -122,6 +132,7 @@ export const RecipeVault: React.FC<Props> = ({ onLaunchBrew, onOpenSetup }) => {
 
       {/* Recipe Create/Edit Modal */}
       <RecipeModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} recipeToEdit={recipeToEdit} />
+      {methodsOpen && <BrewMethodsSheet onClose={() => setMethodsOpen(false)} />}
     </div>
   );
 };

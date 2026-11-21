@@ -5,7 +5,7 @@ import { useSettings } from '../settings/SettingsContext';
 import * as F from '../settings/format';
 import { useLayout } from '../shell/LayoutContext';
 
-const catLabel = (m: BrewModel) => m.mode.label;
+const catLabel = (m: BrewModel) => m.methodName;
 
 /** Rotation lock chip: "Auto" follows tilt, tap to keep the current layout. */
 export const LockChip: React.FC<{ className?: string; compact?: boolean }> = ({ className = '', compact }) => {

@@ -4,7 +4,7 @@ import { BrewModel, beanAgeDays } from './model';
 import { Btn, Caps, Sheet } from './ui';
 import { useCoffee } from '../context/CoffeeContext';
 import { shiftGrind, grindShort } from './steps';
-import { MODES, MODE_ORDER, lotFor } from './modes';
+import { MODES, ALL_MODES, lotFor } from './modes';
 import { Recipe } from '../types/coffee';
 import * as F from '../settings/format';
 import { useSettings } from '../settings/SettingsContext';
@@ -80,12 +80,12 @@ export const ChangeSheet: React.FC<{ m: BrewModel; side: boolean; onClose: () =>
 
 /** Fast recipe switching from the label band (café mode: one tap per recipe). */
 export const RecipePicker: React.FC<{ m: BrewModel; side: boolean; onPick: (r: Recipe) => void; onClose: () => void }> = ({ m, side, onPick, onClose }) => {
-  const { recipes, userPreferences } = useCoffee();
+  const { recipes, userPreferences, customMethods } = useCoffee();
   const { settings } = useSettings();
   const running = m.timer.started;
   return (
     <Sheet side={side} title="Switch recipe" sub={running ? 'Finish or reset the running brew to switch.' : `${recipes.length} recipes`} onClose={onClose}>
-      {MODE_ORDER.map((c) => {
+      {ALL_MODES.map((c) => {
         const list = recipes.filter((r) => r.category === c);
         if (!list.length) return null;
         return (
@@ -99,7 +99,7 @@ export const RecipePicker: React.FC<{ m: BrewModel; side: boolean; onPick: (r: R
                   className={`w-full text-left py-2.5 border-b border-rule grid grid-cols-[1fr_auto] gap-3 items-baseline min-h-[52px] disabled:opacity-40 ${on ? 'font-bold' : ''}`}>
                   <span className="min-w-0">
                     <span className="block text-[14.5px] truncate">{r.title}</span>
-                    <span className="text-[12px] text-mute">{lotFor(r, recipes)}{isDefault ? ' · daily driver' : ''} · {F.text(F.coffee(r.doseGrams, settings.units))} → {F.text(F.scale(r.yieldGrams, settings.units, MODES[c].scaleIsWater))}</span>
+                    <span className="text-[12px] text-mute">{lotFor(r, recipes)}{r.methodId ? ` · ${customMethods.find((x) => x.id === r.methodId)?.name ?? ''}` : ''}{isDefault ? ' · daily driver' : ''} · {F.text(F.coffee(r.doseGrams, settings.units))} → {F.text(F.scale(r.yieldGrams, settings.units, MODES[c].scaleIsWater))}</span>
                   </span>
                   {on && <Check className="w-4 h-4" />}
                 </button>

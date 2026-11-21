@@ -20,7 +20,7 @@ export const StepEditor: React.FC<{
   const { settings } = useSettings();
   const u = settings.units;
   const { recipe, mode } = m;
-  const preset = useMemo(() => presetSteps(recipe), [recipe]);
+  const preset = useMemo(() => presetSteps(recipe, m.method), [recipe, m.method]);
   const [steps, setSteps] = useState<BrewStep[]>(() => m.steps.map((s) => ({ ...s })));
   const [target, setTarget] = useState<SaveTarget>(recipe.baseRecipeId ? 'update' : 'mine');
   const [library, setLibrary] = useState(false);
@@ -167,7 +167,7 @@ export const StepEditor: React.FC<{
       <header className={`${mode.bg} ${mode.on} px-5 sm:px-7 py-3.5 flex items-end gap-4`}>
         <button type="button" onClick={onCancel} className="w-11 h-11 -ml-2 flex items-center justify-center shrink-0" aria-label="Back"><ArrowLeft className="w-5 h-5" /></button>
         <div className="min-w-0 flex-1">
-          <div className="text-[12px] font-bold uppercase tracking-[0.12em] opacity-85">{m.lot} · {mode.label} · edit steps</div>
+          <div className="text-[12px] font-bold uppercase tracking-[0.12em] opacity-85">{m.lot} · {m.methodName} · edit steps</div>
           <h1 className="font-black text-[22px] sm:text-[26px] leading-tight tracking-[-0.02em] truncate" style={{ fontStretch: '106%' }}>{recipe.title}</h1>
         </div>
         {wide && <span className="text-[12px] font-bold tracking-[0.08em] uppercase border border-current px-2.5 py-1.5 whitespace-nowrap">Preset {F.clock(presetTotal)} · {changes} change{changes === 1 ? '' : 's'}</span>}

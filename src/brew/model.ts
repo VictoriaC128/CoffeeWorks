@@ -1,4 +1,4 @@
-import { Bean, BrewSession, BrewStep, GearProfile, PrepItem, Recipe, WaterProfile } from '../types/coffee';
+import { Bean, BrewSession, BrewStep, CustomMethod, GearProfile, PrepItem, Recipe, WaterProfile } from '../types/coffee';
 import { ModeMeta } from './modes';
 import { BrewTimer } from './useBrewTimer';
 import { defaultPrep } from './steps';
@@ -35,6 +35,10 @@ export interface BrewModel {
   recipe: Recipe;
   lot: string;
   mode: ModeMeta;
+  /** The user's own method for this recipe, if any */
+  method?: CustomMethod;
+  /** "Filter · Hario Switch", "Siphon" or the main method label */
+  methodName: string;
   steps: BrewStep[];
   setup: BrewSetup;
   setSetup: (fn: (s: BrewSetup) => BrewSetup) => void;

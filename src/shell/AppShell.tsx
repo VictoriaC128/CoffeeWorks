@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { BookOpen, Bean, Coffee, Menu, Timer, X } from 'lucide-react';
 import { useCoffee } from '../context/CoffeeContext';
 import { CoffeeCategory } from '../types/coffee';
-import { MODES, MODE_ORDER, lotFor } from '../brew/modes';
+import { MODES, ALL_MODES, lotFor } from '../brew/modes';
 import { useLayout } from './LayoutContext';
 import { onBack } from '../platform/native';
 
@@ -42,6 +42,13 @@ function useCounts() {
   } as Partial<Record<Tab, number>>;
 }
 
+/** The six main methods, plus Others once the user has a recipe there. */
+function useDrivers(): CoffeeCategory[] {
+  const { recipes } = useCoffee();
+  const hasOthers = recipes.some((r) => r.category === 'other');
+  return ALL_MODES.filter((c) => c !== 'other' || hasOthers);
+}
+
 function useActiveDriver(): CoffeeCategory | undefined {
   const { selectedRecipeForBrew } = useCoffee();
   return selectedRecipeForBrew?.category;
@@ -51,6 +58,7 @@ function useActiveDriver(): CoffeeCategory | undefined {
 const Rail: React.FC<Props> = ({ tab, onTab, onDriver, brewState }) => {
   const counts = useCounts();
   const active = useActiveDriver();
+  const drivers = useDrivers();
   const { defaultRecipeLabel } = useDriverLabels();
   return (
     <aside className="w-[212px] shrink-0 border-r border-rule flex flex-col pt-safe pl-safe h-full overflow-y-auto scrollbar-none">
@@ -76,7 +84,7 @@ const Rail: React.FC<Props> = ({ tab, onTab, onDriver, brewState }) => {
         })}
       </nav>
       <div className="label-caps px-5 pt-4 pb-2 !text-[10.5px]">Daily drivers</div>
-      {MODE_ORDER.map((c) => (
+      {drivers.map((c) => (
         <button
           key={c}
           onClick={() => onDriver(c)}
@@ -105,10 +113,11 @@ function useDriverLabels() {
 /* Compact layout: phone held sideways. Mode squares stay one tap away. */
 const SlimRail: React.FC<Props & { onMenu: () => void }> = ({ onDriver, onMenu, tab }) => {
   const active = useActiveDriver();
+  const drivers = useDrivers();
   return (
     <nav className="w-16 shrink-0 border-r border-rule flex flex-col pl-safe h-full" aria-label="Brewing modes">
       <div className="h-11 flex items-center justify-center font-black text-[13px] border-b border-rule" style={{ fontStretch: '112%' }}>CW</div>
-      {MODE_ORDER.map((c) => (
+      {drivers.map((c) => (
         <button
           key={c}
           onClick={() => onDriver(c)}
@@ -159,6 +168,7 @@ const BottomTabs: React.FC<{ tab: Tab; onTab: (t: Tab) => void; onMore: () => vo
 /* Sheet listing every section plus the daily drivers */
 const MenuSheet: React.FC<Props & { onClose: () => void }> = ({ tab, onTab, onDriver, onClose }) => {
   const counts = useCounts();
+  const drivers = useDrivers();
   useEffect(() => onBack(() => { onClose(); return true; }), [onClose]);
   return (
     <div className="fixed inset-0 z-40 flex flex-col justify-end" role="dialog" aria-modal="true" aria-label="All sections">
@@ -182,7 +192,7 @@ const MenuSheet: React.FC<Props & { onClose: () => void }> = ({ tab, onTab, onDr
         </div>
         <div className="label-caps px-5 pt-4 pb-2">Daily drivers</div>
         <div className="grid grid-cols-3 sm:grid-cols-6 border-t border-rule">
-          {MODE_ORDER.map((c) => (
+          {drivers.map((c) => (
             <button key={c} onClick={() => { onDriver(c); onClose(); }} className="min-h-[56px] flex flex-col items-center justify-center gap-1.5 text-[12px] font-bold border-b border-r border-rule">
               <i className={`block w-4 h-4 ${MODES[c].bg}`} aria-hidden />
               {MODES[c].label}

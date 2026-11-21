@@ -1,4 +1,4 @@
-import { BrewStep, CoffeeCategory, PrepItem, Recipe, StepAction, GearProfile } from '../types/coffee';
+import { BrewStep, CoffeeCategory, CustomMethod, PrepItem, Recipe, StepAction, GearProfile } from '../types/coffee';
 
 let seq = 0;
 export const newStepId = () => `step-${Date.now().toString(36)}-${(seq++).toString(36)}`;
@@ -11,8 +11,8 @@ function cleanName(name: string) {
   return name.replace(/^stage\s*\d+\s*[:.-]\s*/i, '').trim();
 }
 
-/** The preset schedule for a recipe, ignoring any custom steps. */
-export function presetSteps(recipe: Recipe): BrewStep[] {
+/** The preset schedule for a recipe, ignoring any custom steps. A custom method's starting steps come before the discipline defaults. */
+export function presetSteps(recipe: Recipe, method?: CustomMethod): BrewStep[] {
   const total = Math.max(1, recipe.targetTotalTimeSeconds || 60);
   const stages = recipe.pourStages || [];
   if (stages.length) {
@@ -31,6 +31,7 @@ export function presetSteps(recipe: Recipe): BrewStep[] {
       };
     });
   }
+  if (method?.steps?.length) return method.steps.map((s) => ({ ...s }));
   return defaultSteps(recipe.category, recipe, total);
 }
 
@@ -76,6 +77,12 @@ function defaultSteps(cat: CoffeeCategory, r: Recipe, total: number): BrewStep[]
         mk('Fill & steep', Math.max(20, total - 60), { targetWeightGrams: y, action: 'pour' }),
         mk('Press', 30, { action: 'press' }),
       ];
+    case 'other':
+      return [
+        mk('Prepare', 30, { action: 'other' }),
+        mk('Brew', Math.max(20, total - 60), { targetWeightGrams: y, action: 'pour' }),
+        mk('Finish', 30, { action: 'other' }),
+      ];
     case 'singaporean_kopi':
       return [
         mk('Bloom in sock', 30, { targetWeightGrams: Math.round(y * 0.3), action: 'pour' }),
@@ -97,8 +104,8 @@ function defaultSteps(cat: CoffeeCategory, r: Recipe, total: number): BrewStep[]
 }
 
 /** Steps the brew will run: the user's own if they made them, else the preset. */
-export function stepsFor(recipe: Recipe): BrewStep[] {
-  return recipe.customSteps && recipe.customSteps.length ? recipe.customSteps : presetSteps(recipe);
+export function stepsFor(recipe: Recipe, method?: CustomMethod): BrewStep[] {
+  return recipe.customSteps && recipe.customSteps.length ? recipe.customSteps : presetSteps(recipe, method);
 }
 
 export const totalOf = (steps: BrewStep[]) => steps.reduce((a, s) => a + s.durationSeconds, 0);
@@ -170,6 +177,12 @@ export function defaultPrep(recipe: Recipe, gear?: GearProfile): PrepItem[] {
         item('Basket', 'Moka basket', 'Level, no tamp'),
         item('Assemble', gear?.machineModel || 'Moka pot', 'Hand-tight'),
         item('Flame', 'Hob', 'Medium'),
+      ];
+    case 'other':
+      return [
+        item('Brewer', gear?.machineModel || 'Brewer', 'Ready, rinsed'),
+        item('Grind', gear?.grinderModel?.split('(')[0].trim() || 'Grinder', recipe.grindSetting),
+        item('Tare + timer', 'Scale', 'Zero with coffee in'),
       ];
     case 'singaporean_kopi':
       return [

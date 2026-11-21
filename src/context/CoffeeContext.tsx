@@ -10,6 +10,7 @@ import {
   CoffeeDrinkRecipe,
   CategoryToolSelections,
   SetupChangeLog,
+  CustomMethod,
 } from '../types/coffee';
 import { PRESET_BEANS } from '../data/presetBeans';
 import { PRESET_GEARS } from '../data/presetGear';
@@ -35,6 +36,12 @@ interface CoffeeContextType {
   recipes: Recipe[];
   coffeeDrinks: CoffeeDrinkRecipe[];
   sessions: BrewSession[];
+
+  // The user's own brew methods (under a main method, or in Others)
+  customMethods: CustomMethod[];
+  addCustomMethod: (m: Omit<CustomMethod, 'id' | 'createdAt'>) => CustomMethod;
+  updateCustomMethod: (id: string, updates: Partial<CustomMethod>) => void;
+  deleteCustomMethod: (id: string) => void;
 
   // Selected Recipe for brewing
   selectedRecipeForBrew: Recipe | null;
@@ -104,6 +111,7 @@ const STORAGE_KEYS = {
   SESSIONS: 'coffeeworks_sessions_v2',
   PREFERENCES: 'coffeeworks_preferences_v2',
   CUSTOM_VARS: 'coffeeworks_custom_vars_v2',
+  METHODS: 'coffeeworks_methods_v1',
 };
 
 const DEFAULT_PREFERENCES: UserPreferences = {
@@ -224,6 +232,8 @@ export const CoffeeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     return loadKey(STORAGE_KEYS.SESSIONS, []);
   });
 
+  const [customMethods, setCustomMethods] = useState<CustomMethod[]>(() => loadKey(STORAGE_KEYS.METHODS, [] as CustomMethod[]));
+
   const [selectedRecipeForBrew, setSelectedRecipeForBrew] = useState<Recipe | null>(() => {
     const prefCat = userPreferences.primaryCategory || 'filter';
     const defId = userPreferences.defaultRecipePerCategory[prefCat];
@@ -262,6 +272,31 @@ export const CoffeeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   useEffect(() => {
     saveKey(STORAGE_KEYS.SESSIONS, JSON.stringify(sessions));
   }, [sessions]);
+
+  useEffect(() => {
+    saveKey(STORAGE_KEYS.METHODS, JSON.stringify(customMethods));
+  }, [customMethods]);
+
+  const addCustomMethod = (data: Omit<CustomMethod, 'id' | 'createdAt'>) => {
+    const m: CustomMethod = { ...data, id: `method-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, createdAt: new Date().toISOString() };
+    setCustomMethods(prev => [...prev, m]);
+    return m;
+  };
+
+  const updateCustomMethod = (id: string, updates: Partial<CustomMethod>) => {
+    const current = customMethods.find(m => m.id === id);
+    setCustomMethods(prev => prev.map(m => (m.id === id ? { ...m, ...updates } : m)));
+    // Recipes follow their method when it moves to another group
+    if (current && updates.parent && updates.parent !== current.parent) {
+      setRecipes(prev => prev.map(r => (r.methodId === id ? { ...r, category: updates.parent! } : r)));
+    }
+  };
+
+  /** Removes the method; its recipes stay in the method's group without the custom name. */
+  const deleteCustomMethod = (id: string) => {
+    setCustomMethods(prev => prev.filter(m => m.id !== id));
+    setRecipes(prev => prev.map(r => (r.methodId === id ? { ...r, methodId: undefined } : r)));
+  };
 
   // When active category switches, load default recipe for that category if applicable
   const handleSetActiveCategory = (cat: CoffeeCategory | 'all') => {
@@ -650,6 +685,7 @@ export const CoffeeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       recipes,
       coffeeDrinks,
       sessions,
+      customMethods,
     };
     return JSON.stringify(data, null, 2);
   };
@@ -665,6 +701,7 @@ export const CoffeeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       if (data.recipes) setRecipes(data.recipes);
       if (data.coffeeDrinks) setCoffeeDrinks(data.coffeeDrinks);
       if (data.sessions) setSessions(data.sessions);
+      if (data.customMethods) setCustomMethods(data.customMethods);
       return true;
     } catch (e) {
       console.error('Failed to import JSON data:', e);
@@ -681,6 +718,7 @@ export const CoffeeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     setRecipes(DEFAULT_RECIPES);
     setCoffeeDrinks(COFFEE_DRINKS_CATALOG);
     setSessions([]);
+    setCustomMethods([]);
   };
 
   return (
@@ -699,6 +737,10 @@ export const CoffeeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         recipes,
         coffeeDrinks,
         sessions,
+        customMethods,
+        addCustomMethod,
+        updateCustomMethod,
+        deleteCustomMethod,
         selectedRecipeForBrew,
         setSelectedRecipeForBrew,
         addCoffeeDrink,

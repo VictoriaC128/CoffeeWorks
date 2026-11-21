@@ -1,4 +1,4 @@
-import { CoffeeCategory, Recipe } from '../types/coffee';
+import { CoffeeCategory, CustomMethod, Recipe } from '../types/coffee';
 import { DEFAULT_RECIPES } from '../data/defaultRecipes';
 
 export interface ModeMeta {
@@ -25,9 +25,29 @@ export const MODES: Record<CoffeeCategory, ModeMeta> = {
   filter: { id: 'filter', label: 'Filter', short: 'Filter', cssVar: '--m-filter', bg: 'bg-mode-filter', text: 'text-mode-filter', on: 'text-[#fff]', scaleIsWater: true, pressure: false },
   immersion: { id: 'immersion', label: 'Immersion', short: 'Imm', cssVar: '--m-immersion', bg: 'bg-mode-immersion', text: 'text-mode-immersion', on: 'text-[#fff]', scaleIsWater: true, pressure: false },
   singaporean_kopi: { id: 'singaporean_kopi', label: 'Kopi', short: 'Kopi', cssVar: '--m-kopi', bg: 'bg-mode-kopi', text: 'text-mode-kopi', on: 'text-[#fff]', scaleIsWater: true, pressure: false },
+  other: { id: 'other', label: 'Others', short: 'Other', cssVar: '--m-other', bg: 'bg-mode-other', text: 'text-mode-other', on: 'text-[#fff]', scaleIsWater: true, pressure: false },
 };
 
 export const MODE_ORDER: CoffeeCategory[] = ['espresso', 'manual_lever', 'moka_stovetop', 'filter', 'immersion', 'singaporean_kopi'];
+/** The six main methods plus the user's Others group, in display order. */
+export const ALL_MODES: CoffeeCategory[] = [...MODE_ORDER, 'other'];
+
+/**
+ * Mode for a recipe, taking its custom method into account: a method under a
+ * main method shares that colour and behaviour; an Others method sets its own
+ * scale reading and pressure profile.
+ */
+export function modeFor(category: CoffeeCategory, method?: CustomMethod): ModeMeta {
+  const base = MODES[category] ?? MODES.other;
+  if (!method || method.parent !== 'other') return base;
+  return { ...base, scaleIsWater: method.measures !== 'cup', pressure: !!method.pressure };
+}
+
+/** "Filter · Hario Switch" for a sub-method, "Siphon" for an Others method, else the main label. */
+export function methodLabel(category: CoffeeCategory, method?: CustomMethod): string {
+  if (!method) return MODES[category]?.label ?? 'Others';
+  return method.parent === 'other' ? method.name : `${MODES[method.parent].label} · ${method.name}`;
+}
 
 /** Lot code printed on the label band: presets keep their catalogue number, user recipes start at 100. */
 export function lotFor(recipe: Recipe, all: Recipe[]): string {

@@ -188,7 +188,7 @@ export const GearLocker: React.FC = () => {
     swatch: MODES[c].bg,
     list: gearProfiles.filter(g => g.category === c),
   }));
-  const other = gearProfiles.filter(g => !MODES[g.category]);
+  const other = gearProfiles.filter(g => !MODE_ORDER.includes(g.category));
   if (other.length) groups.push({ key: 'other', label: 'Other', swatch: 'border-[1.5px] border-ink', list: other });
 
   const renderRig = (gear: GearProfile) => {

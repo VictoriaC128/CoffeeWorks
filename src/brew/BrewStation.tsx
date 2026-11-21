@@ -3,7 +3,7 @@ import { useCoffee } from '../context/CoffeeContext';
 import { useLayout } from '../shell/LayoutContext';
 import { onBack } from '../platform/native';
 import { BrewModel, BrewSetup, scaleSteps, setupFrom } from './model';
-import { MODES, lotFor } from './modes';
+import { lotFor, methodLabel, modeFor } from './modes';
 import { stepsFor } from './steps';
 import { useBrewTimer, StepTime } from './useBrewTimer';
 import { RunningView } from './RunningView';
@@ -22,7 +22,7 @@ export type BrewState = 'ready' | 'running' | 'tasting';
  * brew keeps its time; `visible` only hides it.
  */
 export const BrewStation: React.FC<{ visible: boolean; onState: (s: BrewState) => void; onGoTo: (tab: 'recipes') => void }> = ({ visible, onState, onGoTo }) => {
-  const { recipes, selectedRecipeForBrew, setSelectedRecipeForBrew, beans, gearProfiles, waterProfiles, sessions, addRecipe, updateRecipe } = useCoffee();
+  const { recipes, selectedRecipeForBrew, setSelectedRecipeForBrew, beans, gearProfiles, waterProfiles, sessions, addRecipe, updateRecipe, customMethods } = useCoffee();
   const { mode: layout } = useLayout();
 
   // Prefer the live copy from the vault (picks up edits); keep ad-hoc variants (Drink Lab) as given.
@@ -34,6 +34,7 @@ export const BrewStation: React.FC<{ visible: boolean; onState: (s: BrewState) =
   }, [recipes, selectedRecipeForBrew]);
 
   const gear = gearProfiles.find((g) => g.id === recipe?.gearId);
+  const method = customMethods.find((x) => x.id === recipe?.methodId);
   const [setup, setSetupState] = useState<BrewSetup | null>(() => (recipe ? setupFrom(recipe, gear) : null));
   const [resetToken, setResetToken] = useState(0);
   useEffect(() => { if (recipe) setSetupState(setupFrom(recipe, gearProfiles.find((g) => g.id === recipe.gearId))); }, [recipe?.id, resetToken]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -43,7 +44,7 @@ export const BrewStation: React.FC<{ visible: boolean; onState: (s: BrewState) =
   const [overlay, setOverlay] = useState<null | 'change' | 'picker'>(null);
   const [finished, setFinished] = useState<{ stepTimes: StepTime[]; totalSec: number } | null>(null);
 
-  const baseSteps: BrewStep[] = recipe ? setup?.stepsOverride ?? stepsFor(recipe) : [];
+  const baseSteps: BrewStep[] = recipe ? setup?.stepsOverride ?? stepsFor(recipe, method) : [];
   const steps = recipe && setup ? scaleSteps(baseSteps, setup.water / (recipe.yieldGrams || setup.water || 1)) : baseSteps;
   const timer = useBrewTimer(steps);
 
@@ -73,11 +74,13 @@ export const BrewStation: React.FC<{ visible: boolean; onState: (s: BrewState) =
     );
   }
 
-  const mode = MODES[recipe.category];
+  const mode = modeFor(recipe.category, method);
   const m: BrewModel = {
     recipe,
     lot: lotFor(recipe, recipes),
     mode,
+    method,
+    methodName: methodLabel(recipe.category, method),
     steps,
     setup,
     setSetup,

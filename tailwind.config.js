@@ -27,6 +27,7 @@ export default {
           filter: v('m-filter'),
           immersion: v('m-immersion'),
           kopi: v('m-kopi'),
+          other: v('m-other'),
         },
       },
       fontFamily: {

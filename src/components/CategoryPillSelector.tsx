@@ -1,6 +1,7 @@
 import React from 'react';
 import { CoffeeCategory } from '../types/coffee';
 import { MODES } from '../brew/modes';
+import { useCoffee } from '../context/CoffeeContext';
 
 interface Props {
   activeCategory: CoffeeCategory | 'all';
@@ -15,13 +16,17 @@ const CATEGORIES: { id: CoffeeCategory | 'all'; label: string }[] = [
   { id: 'filter', label: 'Modern Filter Coffee' },
   { id: 'immersion', label: 'Immersion & AeroPress' },
   { id: 'singaporean_kopi', label: 'Singaporean Kopi' },
+  { id: 'other', label: 'Others' },
 ];
 
 /** Horizontal, scrollable discipline filter. The selected chip fills with the mode colour. */
 export const CategoryPillSelector: React.FC<Props> = ({ activeCategory, onSelectCategory }) => {
+  const { recipes, customMethods } = useCoffee();
+  // Others only appears once the user has something in it
+  const hasOthers = recipes.some(r => r.category === 'other') || customMethods.some(m => m.parent === 'other');
   return (
     <div className="flex items-center gap-2 overflow-x-auto scrollbar-none py-1" role="group" aria-label="Filter by discipline">
-      {CATEGORIES.map(cat => {
+      {CATEGORIES.filter(cat => cat.id !== 'other' || hasOthers || activeCategory === 'other').map(cat => {
         const isActive = activeCategory === cat.id;
         const mode = cat.id === 'all' ? null : MODES[cat.id];
         const on = isActive ? (mode ? `${mode.bg} ${mode.on} border-transparent` : 'bg-ink text-paper border-ink') : 'bg-paper text-ink border-rule';

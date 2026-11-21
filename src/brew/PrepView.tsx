@@ -91,7 +91,7 @@ export const PrepView: React.FC<{ m: BrewModel; layout: LayoutMode; onDone: () =
       <header className={`${mode.bg} ${mode.on} px-5 sm:px-7 py-3.5 flex items-end gap-4`}>
         <button type="button" onClick={onBack} className="w-11 h-11 -ml-2 flex items-center justify-center shrink-0" aria-label="Back to brew"><ArrowLeft className="w-5 h-5" /></button>
         <div className="min-w-0">
-          <div className="text-[12px] font-bold uppercase tracking-[0.12em] opacity-85 truncate">{m.lot} · {mode.label} · before brew {m.brewNumber} · step 00</div>
+          <div className="text-[12px] font-bold uppercase tracking-[0.12em] opacity-85 truncate">{m.lot} · {m.methodName} · before brew {m.brewNumber} · step 00</div>
           <h1 className="font-black text-[24px] sm:text-[26px] leading-tight tracking-[-0.02em] truncate" style={{ fontStretch: '106%' }}>{isEsp ? 'Beans prep' : 'Brew prep'} · {recipe.title}</h1>
         </div>
       </header>
