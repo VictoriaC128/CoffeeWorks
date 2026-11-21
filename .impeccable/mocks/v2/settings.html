@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>CoffeeWorks — Settings (iPad)</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Atkinson+Hyperlegible:wght@400;700&family=Lexend:wght@400;600;700&family=Space+Grotesk:wght@400;600;700&family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+<style>:root{--paper:#FFFFFF;--ink:#151515;--mute:#6B6B66;--rule:#E3E2DD;--tint:#F3F2EE;--flow:#E8590C;--font:'Archivo',sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:1194px;height:834px;overflow:hidden;background:var(--paper);color:var(--ink);font-family:var(--font);font-variant-numeric:tabular-nums;display:grid;grid-template-columns:212px 1fr;transition:background .2s,color .2s}
+.rail{border-right:1px solid var(--rule);padding:22px 0;display:flex;flex-direction:column}
+.mark{padding:0 20px 20px;font-weight:900;font-stretch:112%;font-size:20px;letter-spacing:-.02em;border-bottom:1px solid var(--rule)}
+.mark small{display:block;font-weight:500;font-stretch:100%;font-size:11px;letter-spacing:.08em;color:var(--mute);margin-top:4px;text-transform:uppercase}
+nav{padding:12px 0;border-bottom:1px solid var(--rule)}
+nav a{display:flex;justify-content:space-between;padding:10px 20px;font-size:15px;font-weight:500;color:var(--ink);text-decoration:none}
+nav a span{font-size:11px;color:var(--mute)}
+nav a.on{background:var(--ink);color:#fff;font-weight:700}
+nav a.on span{color:#bbb}
+.h{padding:16px 20px 8px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);font-weight:600}
+.drv{display:grid;grid-template-columns:14px 1fr auto;gap:10px;align-items:center;padding:8px 20px;font-size:13px}
+.drv i{width:14px;height:14px;display:block}
+.drv b{font-weight:600}.drv em{font-style:normal;font-size:11px;color:var(--mute)}
+.drv.on{background:var(--tint)}
+nav a{color:var(--ink)}
+nav a.on{background:var(--ink);color:var(--paper)}
+nav a.on span{color:var(--paper);opacity:.7}
+main{display:grid;grid-template-rows:auto 1fr;min-width:0;min-height:0}
+.label{background:var(--ink);color:var(--paper);padding:14px 28px;display:flex;align-items:flex-end;gap:20px}
+.lot{font-size:12px;letter-spacing:.12em;font-weight:700;text-transform:uppercase;opacity:.8}
+.title{font-weight:900;font-size:28px;line-height:1.05;letter-spacing:-.02em;margin-top:6px}
+.base{margin-left:auto;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--paper);padding:6px 10px}
+.k{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);font-weight:700}
+.cols{display:grid;grid-template-columns:1fr 372px;min-height:0}
+.left{padding:2px 28px 14px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.sec{display:flex;align-items:baseline;gap:12px;border-bottom:1px solid var(--ink);padding:12px 0 6px}
+.sec h2{font-size:17px;font-weight:800}
+.sec span{font-size:12.5px;color:var(--mute)}
+.u{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--rule);height:41px}
+.ul{font-size:14.5px;font-weight:600}
+.seg{display:flex;border:1px solid var(--ink)}
+.seg button{font:inherit;font-size:13.5px;font-weight:700;height:30px;padding:0 12px;border:0;background:transparent;color:var(--ink);min-width:60px;cursor:pointer}
+.seg button+button{border-left:1px solid var(--ink)}
+.seg button.on{background:var(--ink);color:var(--paper)}
+.cards{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:10px}
+.card{border:1px solid var(--rule);background:var(--paper);color:var(--ink);padding:10px;text-align:left;display:flex;flex-direction:column;gap:2px;cursor:pointer;font-size:14px}
+.card.on{border:2px solid var(--ink);padding:9px}
+#fonts .aa{font-size:34px;font-weight:700;line-height:1;margin-bottom:6px}
+.card b{font-size:13.5px}
+.card small{font-size:11.5px;color:var(--mute)}
+#themes .card{font-family:var(--font)}
+.sw{display:block;height:46px;border:1px solid;position:relative;margin-bottom:6px}
+.sw i{position:absolute;left:7px;top:7px;width:44px;height:7px}
+.sw em{position:absolute;left:7px;bottom:7px;right:7px;height:8px;background:linear-gradient(90deg,#D62828 0 16%,#5D6B2F 16% 33%,#E9B523 33% 50%,#2747D6 50% 66%,#1F7A8C 66% 83%,#1F7A55 83%)}
+.prev{border-left:1px solid var(--rule);padding:16px 22px;display:flex;flex-direction:column;gap:10px}
+.pv{border:1px solid var(--ink)}
+.pband{background:#2747D6;color:#fff;padding:10px 14px}
+.pband span{display:block;font-size:11px;letter-spacing:.12em;font-weight:700;text-transform:uppercase;opacity:.85}
+.pband b{display:block;font-size:20px;font-weight:800;margin-top:3px}
+.pstep{padding:12px 14px;border-bottom:1px solid var(--ink)}
+.pc{font-size:112px;font-weight:800;font-stretch:78%;line-height:.86;letter-spacing:-.04em;margin:10px 0 8px}
+.pt{font-size:16px;font-weight:600}
+.pgrid{display:grid;grid-template-columns:1fr 1fr}
+.pgrid div{padding:9px 14px;border-bottom:1px solid var(--rule);display:flex;flex-direction:column;gap:2px}
+.pgrid div:nth-child(odd){border-right:1px solid var(--rule)}
+.pgrid div:nth-last-child(-n+2){border-bottom:0}
+.pgrid b{font-size:22px;font-weight:700;font-stretch:90%}
+.pn{font-size:12.5px;color:var(--mute);line-height:1.45}
+.lay{border-top:1px solid var(--ink);padding-top:12px;margin-top:6px;display:flex;flex-direction:column;gap:8px}
+.lay .u{height:auto;border:0}
+.lay .seg{width:100%}
+.lay .seg button{flex:1;min-width:0;padding:0 6px}
+</style></head><body>
+<aside class="rail">
+  <div class="mark">CoffeeWorks<small>Brew station</small></div>
+  <nav>
+    <a href="#">Brew <span>ready</span></a><a href="#">Recipes <span>14</span></a><a href="#">Drink Lab <span>62</span></a><a href="#">Kopi <span>9</span></a><a href="#">Beans <span>5</span></a><a href="#">Gear <span>11</span></a><a href="#">Water <span>15</span></a><a href="#">History <span>48</span></a><a class="on" href="settings.html">Settings <span></span></a>
+  </nav>
+  <div class="h">Daily drivers</div>
+  <div class="drv"><i style="background:#D62828"></i><b>Espresso</b><em>CW-001</em></div><div class="drv"><i style="background:#5D6B2F"></i><b>Lever</b><em>CW-002</em></div><div class="drv"><i style="background:#E9B523"></i><b>Moka</b><em>CW-003</em></div><div class="drv"><i style="background:#2747D6"></i><b>Filter</b><em>CW-014</em></div><div class="drv"><i style="background:#1F7A8C"></i><b>Immersion</b><em>CW-006</em></div><div class="drv"><i style="background:#1F7A55"></i><b>Kopi</b><em>CW-007</em></div>
+</aside>
+<main>
+  <header class="label">
+    <div><div class="lot">Settings · this device</div><h1 class="title">Settings</h1></div>
+    <span class="base">Reset to defaults</span>
+  </header>
+  <div class="cols">
+    <div class="left">
+      <section>
+        <div class="sec"><h2>Units</h2><span>Every screen uses these by default. You can still flip one on a single dial.</span></div>
+        <div class="u" data-key="coffee"><span class="ul">Coffee · dose &amp; yield</span><div class="seg"><button class="on" data-v="g">g</button><button data-v="oz">oz</button></div></div>
+        <div class="u" data-key="water"><span class="ul">Water amount</span><div class="seg"><button class="on" data-v="ml">ml</button><button data-v="g">g</button><button data-v="oz">fl oz</button></div></div>
+        <div class="u" data-key="temp"><span class="ul">Temperature</span><div class="seg"><button class="on" data-v="c">°C</button><button data-v="f">°F</button></div></div>
+        <div class="u" data-key="hard"><span class="ul">Water hardness</span><div class="seg"><button class="on" data-v="ppm">ppm</button><button data-v="dh">°dH</button><button data-v="gpg">gpg</button></div></div>
+        <div class="u" data-key="flow"><span class="ul">Flow rate</span><div class="seg"><button class="on" data-v="gs">g/s</button><button data-v="mls">ml/s</button></div></div>
+        <div class="u" data-key="grind"><span class="ul">Grind shown as</span><div class="seg"><button class="on" data-v="dial">Grinder dial</button><button data-v="um">Microns</button></div></div>
+        <div class="u" data-key="time"><span class="ul">Timer</span><div class="seg"><button class="on" data-v="ms">1:44</button><button data-v="s">104 s</button></div></div>
+      </section>
+      <section>
+        <div class="sec"><h2>Font</h2><span>From plain and easy to read, to playful.</span></div>
+        <div class="cards" id="fonts">
+          <button class="card on" data-font="'Archivo',sans-serif" style="font-family:'Archivo',sans-serif"><span class="aa" style="font-stretch:82%">0:15</span><b>Archivo</b><small>Modern · default</small></button>
+          <button class="card" data-font="'Atkinson Hyperlegible',sans-serif" style="font-family:'Atkinson Hyperlegible',sans-serif"><span class="aa">0:15</span><b>Atkinson</b><small>Easiest to read</small></button>
+          <button class="card" data-font="'Lexend',sans-serif" style="font-family:'Lexend',sans-serif"><span class="aa">0:15</span><b>Lexend</b><small>Friendly, open</small></button>
+          <button class="card" data-font="'Space Grotesk',sans-serif" style="font-family:'Space Grotesk',sans-serif"><span class="aa">0:15</span><b>Space Grotesk</b><small>Quirky</small></button>
+          <button class="card" data-font="'Fredoka',sans-serif" style="font-family:'Fredoka',sans-serif"><span class="aa">0:15</span><b>Fredoka</b><small>Rounded, playful</small></button>
+        </div>
+      </section>
+      <section>
+        <div class="sec"><h2>Colour theme</h2><span>Mode colours stay put. Flow stays orange, shaded to read on each.</span></div>
+        <div class="cards" id="themes">
+          <button class="card on" data-theme="paper"><span class="sw" style="background:#FFFFFF;color:#151515;border-color:#E3E2DD"><i style="background:#151515"></i><em></em></span><b>Paper</b><small>White · default</small></button>
+          <button class="card" data-theme="oat"><span class="sw" style="background:#F0E4CC;color:#2A2119;border-color:#DCCAA6"><i style="background:#2A2119"></i><em></em></span><b>Oat</b><small>Rich cream</small></button>
+          <button class="card" data-theme="olive"><span class="sw" style="background:#D5D7B5;color:#262A17;border-color:#BEC19B"><i style="background:#262A17"></i><em></em></span><b>Olive</b><small>Soft, calm green</small></button>
+          <button class="card" data-theme="roast"><span class="sw" style="background:#2B1C12;color:#F6EFE6;border-color:#46321F"><i style="background:#F6EFE6"></i><em></em></span><b>Roast</b><small>Deep espresso brown</small></button>
+          <button class="card" data-theme="night"><span class="sw" style="background:#000;color:#fff;border-color:#333"><i style="background:#fff"></i><em></em></span><b>Night</b><small>Black, high contrast</small></button>
+        </div>
+      </section>
+    </div>
+    <aside class="prev" aria-label="Live preview">
+      <div class="k">Live preview · mid-brew</div>
+      <div class="pv">
+        <div class="pband"><span>CW-014 · Filter</span><b>Orea V4 Apex</b></div>
+        <div class="pstep">
+          <div class="k">Step 4 of 5 · time left</div>
+          <div class="pc" data-f="step">0:15</div>
+          <div class="pt">Pour to <b data-f="pour">200 ml</b></div>
+        </div>
+        <div class="pgrid">
+          <div><span class="k">Total</span><b data-f="total">1:44</b></div>
+          <div><span class="k" style="color:var(--flow)">Flow</span><b style="color:var(--flow)" data-f="flow">4.2 g/s</b></div>
+          <div><span class="k">Dose</span><b data-f="dose">15.0 g</b></div>
+          <div><span class="k">Water temp</span><b data-f="temp">92 °C</b></div>
+          <div><span class="k">Grind</span><b data-f="grind">Ode #5.1</b></div>
+          <div><span class="k">Hardness</span><b data-f="hard">GH 45 ppm</b></div>
+        </div>
+      </div>
+      <p class="pn">Saved on this device as soon as you tap. Recipes keep their real values; only how they are shown changes, so switching units never rounds your recipes.</p>
+      <div class="lay">
+        <div class="k">Screen layout</div>
+        <div class="u lay-u" data-key="layout"><div class="seg"><button class="on" data-v="auto">Follow tilt</button><button data-v="simple">Keep simple</button><button data-v="full">Keep full</button></div></div>
+        <p class="pn" id="laynote">Upright shows the simple one-column layout. Turn the phone or iPad sideways for the full layout with the mode rail. It switches back whenever you turn it again.</p>
+      </div>
+    </aside>
+  </div>
+</main>
+<script>
+const T={paper:['#FFFFFF','#151515','#6B6B66','#E3E2DD','#F3F2EE','#E8590C'],oat:['#F0E4CC','#2A2119','#6E604C','#DCCAA6','#E7D7B8','#C4480A'],olive:['#D5D7B5','#262A17','#5A5D40','#BEC19B','#C9CCA7','#B23E0A'],roast:['#2B1C12','#F6EFE6','#C4B29D','#46321F','#37251A','#FFA066'],night:['#000000','#FFFFFF','#A6A6A6','#333333','#151515','#FF7A2E']};
+const st={layout:'auto',coffee:'g',water:'ml',temp:'c',hard:'ppm',flow:'gs',grind:'dial',time:'ms'};
+const F={
+  step:()=>st.time==='s'?'15 s':'0:15', total:()=>st.time==='s'?'104 s':'1:44',
+  pour:()=>({ml:'200 ml',g:'200 g',oz:'6.8 fl oz'})[st.water],
+  flow:()=>st.flow==='gs'?'4.2 g/s':'4.2 ml/s',
+  dose:()=>st.coffee==='g'?'15.0 g':'0.53 oz',
+  temp:()=>st.temp==='c'?'92 °C':'198 °F',
+  grind:()=>st.grind==='dial'?'Ode #5.1':'≈ 800 µm',
+  hard:()=>({ppm:'GH 45 ppm',dh:'GH 2.5 °dH',gpg:'GH 2.6 gpg'})[st.hard]};
+const LN={auto:'Upright shows the simple one-column layout. Turn the phone or iPad sideways for the full layout with the mode rail. It switches back whenever you turn it again.',simple:'Always the simple one-column layout, whichever way the device is held. Good for a phone propped by the scale.',full:'Always the full layout with the mode rail. Hold the device sideways to read it, even when the screen is upright.'};
+const draw=()=>{document.querySelectorAll('[data-f]').forEach(e=>e.textContent=F[e.dataset.f]());const n=document.getElementById('laynote');if(n)n.textContent=LN[st.layout||'auto'];};
+document.querySelectorAll('.u').forEach(r=>r.querySelectorAll('button').forEach(b=>b.onclick=()=>{r.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));st[r.dataset.key]=b.dataset.v;draw();}));
+const pick=(id,fn)=>document.querySelectorAll('#'+id+' .card').forEach(c=>c.onclick=()=>{document.querySelectorAll('#'+id+' .card').forEach(x=>x.classList.toggle('on',x===c));fn(c);});
+pick('fonts',c=>document.documentElement.style.setProperty('--font',c.dataset.font));
+pick('themes',c=>{const [p,i,m,r,t,fl]=T[c.dataset.theme];const s=document.documentElement.style;s.setProperty('--paper',p);s.setProperty('--ink',i);s.setProperty('--mute',m);s.setProperty('--rule',r);s.setProperty('--tint',t);s.setProperty('--flow',fl);});
+draw();
+// Review helper: settings.html#roast,fredoka,temp:f,water:oz opens with that theme, font and units picked
+location.hash.slice(1).split(',').filter(Boolean).forEach(v=>{let c;if(v.includes(':')){const [k,u]=v.split(':');c=document.querySelector(`.u[data-key="${k}"] button[data-v="${u}"]`);}else{c=document.querySelector(`#themes [data-theme="${v}"]`)||[...document.querySelectorAll('#fonts .card')].find(x=>x.dataset.font.toLowerCase().startsWith("'"+v));}if(c)c.click();});
+</script>
+</body></html>

@@ -1,22 +1,26 @@
 import React, { useState } from 'react';
-import { Plus, Search, Sparkles, BookOpen, Settings } from 'lucide-react';
+import { Layers, Plus, Search, Settings, X } from 'lucide-react';
 import { useCoffee } from '../context/CoffeeContext';
-import { Recipe } from '../types/coffee';
+import { CoffeeCategory, Recipe } from '../types/coffee';
 import { CategoryPillSelector } from './CategoryPillSelector';
 import { RecipeCard } from './RecipeCard';
 import { RecipeModal } from './RecipeModal';
+import { BrewMethodsSheet } from './BrewMethods';
+import { Btn } from '../brew/ui';
 
 interface Props {
   onLaunchBrew: (recipe: Recipe) => void;
   onOpenSetup?: () => void;
+  onOpenGear?: (c: CoffeeCategory) => void;
 }
 
-export const RecipeVault: React.FC<Props> = ({ onLaunchBrew, onOpenSetup }) => {
+export const RecipeVault: React.FC<Props> = ({ onLaunchBrew, onOpenSetup, onOpenGear }) => {
   const { recipes, activeCategory, setActiveCategory } = useCoffee();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [recipeToEdit, setRecipeToEdit] = useState<Recipe | null>(null);
+  const [methodsOpen, setMethodsOpen] = useState(false);
 
   // Filter recipes by Category and Search Query
   const filteredRecipes = recipes.filter(r => {
@@ -39,93 +43,97 @@ export const RecipeVault: React.FC<Props> = ({ onLaunchBrew, onOpenSetup }) => {
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
-      {/* Top Banner & Search */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl sm:text-3xl font-black text-white flex items-center space-x-2.5">
-            <BookOpen className="w-7 h-7 text-amber-500" />
-            <span>Coffee Recipe Vault</span>
-          </h2>
-          <p className="text-xs sm:text-sm text-stone-400 mt-1">
-            Browse, customize, and pull curated recipes tailored to specific bean origins, equipment rigs, and water chemistry.
+    <div className="px-4 sm:px-6 pb-6">
+      {/* Screen band */}
+      <header className="-mx-4 sm:-mx-6 bg-ink text-paper px-4 sm:px-6 py-4 flex flex-wrap items-end gap-x-4 gap-y-3">
+        <div className="min-w-0 flex-1 basis-[220px]">
+          <h1 className="text-[28px] font-black tracking-[-0.02em] leading-tight">Recipe Vault</h1>
+          <p className="text-[13px] opacity-80 mt-0.5">
+            Saved recipes for each discipline, with the beans, tools and water they were dialled in on.
           </p>
         </div>
+        <button
+          type="button"
+          onClick={() => setMethodsOpen(true)}
+          className="min-h-[44px] px-3 border border-paper text-[13px] font-bold flex items-center gap-2 whitespace-nowrap"
+        >
+          <Layers className="w-4 h-4" aria-hidden />
+          Brew methods
+        </button>
+        {onOpenSetup && (
+          <button
+            type="button"
+            onClick={onOpenSetup}
+            className="min-h-[44px] px-3 border border-paper text-[13px] font-bold flex items-center gap-2 whitespace-nowrap"
+          >
+            <Settings className="w-4 h-4" aria-hidden />
+            Customise setup & tools
+          </button>
+        )}
+      </header>
 
-        <div className="flex items-center space-x-3">
-          {/* Search Bar */}
-          <div className="relative flex-1 sm:w-64">
-            <Search className="w-4 h-4 text-stone-500 absolute left-3 top-2.5" />
-            <input
-              type="text"
-              placeholder="Search bean, rig, or notes..."
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              className="w-full bg-stone-900 border border-stone-800 rounded-xl pl-9 pr-4 py-2 text-xs text-stone-200 placeholder-stone-500 focus:outline-none focus:border-amber-500"
-            />
-          </div>
-
-          {onOpenSetup && (
+      {/* Search + create */}
+      <div className="flex items-stretch gap-2 py-3 border-b border-rule">
+        <label className="relative flex-1 min-w-0">
+          <span className="sr-only">Search recipes</span>
+          <Search className="w-5 h-5 text-mute absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" aria-hidden />
+          <input
+            type="text"
+            enterKeyHint="search"
+            placeholder="Search bean, tools or notes"
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            className="w-full h-12 bg-paper border border-ink pl-10 pr-11 text-[15px] text-ink"
+          />
+          {searchQuery && (
             <button
-              onClick={onOpenSetup}
-              title="Customise Setup & Rig at any point in time"
-              className="px-3.5 py-2 rounded-xl bg-stone-900 hover:bg-stone-800 border border-stone-800 hover:border-amber-500/50 text-amber-300 text-xs font-semibold flex items-center space-x-1.5 shadow-md whitespace-nowrap transition-all"
+              type="button"
+              onClick={() => setSearchQuery('')}
+              className="absolute right-0 top-0 w-11 h-12 flex items-center justify-center text-mute"
+              aria-label="Clear search"
             >
-              <Settings className="w-3.5 h-3.5 text-amber-400" />
-              <span className="hidden sm:inline">Customise Rig</span>
+              <X className="w-5 h-5" />
             </button>
           )}
-
-          <button
-            onClick={handleCreateNew}
-            className="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold flex items-center space-x-1.5 shadow-lg shadow-amber-950/40 whitespace-nowrap"
-          >
-            <Plus className="w-4 h-4" />
-            <span>New Recipe</span>
-          </button>
-        </div>
+        </label>
+        <Btn variant="primary" size="md" className="!min-h-[48px] shrink-0" onClick={handleCreateNew}>
+          <Plus className="w-5 h-5" aria-hidden />
+          <span>New<span className="hidden sm:inline"> recipe</span></span>
+        </Btn>
       </div>
 
-      {/* Category Pills */}
-      <CategoryPillSelector
-        activeCategory={activeCategory}
-        onSelectCategory={setActiveCategory}
-      />
+      {/* Discipline filter */}
+      <div className="py-2 border-b border-rule">
+        <CategoryPillSelector activeCategory={activeCategory} onSelectCategory={setActiveCategory} />
+      </div>
+
+      <p className="label-caps pt-4 pb-2" aria-live="polite">
+        {filteredRecipes.length} {filteredRecipes.length === 1 ? 'recipe' : 'recipes'}
+      </p>
 
       {/* Recipe Grid */}
       {filteredRecipes.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-3 gap-4 pb-6">
           {filteredRecipes.map(recipe => (
-            <RecipeCard
-              key={recipe.id}
-              recipe={recipe}
-              onEdit={handleEdit}
-              onLaunchBrew={onLaunchBrew}
-            />
+            <RecipeCard key={recipe.id} recipe={recipe} onEdit={handleEdit} onLaunchBrew={onLaunchBrew} />
           ))}
         </div>
       ) : (
-        <div className="text-center py-16 bg-stone-900/50 border border-stone-800/80 rounded-3xl p-8">
-          <Sparkles className="w-10 h-10 text-stone-600 mx-auto mb-3" />
-          <h3 className="text-base font-bold text-stone-300">No Recipes Found</h3>
-          <p className="text-xs text-stone-500 mt-1 max-w-sm mx-auto">
-            Try adjusting your search query or category filter, or create a brand new recipe.
+        <section className="border-t border-ink py-8 max-w-md">
+          <h2 className="text-[19px] font-extrabold">No recipes found</h2>
+          <p className="text-[14px] text-mute mt-1">
+            Try another search or discipline, or create a new recipe.
           </p>
-          <button
-            onClick={handleCreateNew}
-            className="mt-4 px-4 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-amber-400 text-xs font-semibold"
-          >
-            Create First Recipe
-          </button>
-        </div>
+          <Btn size="md" className="mt-4" onClick={handleCreateNew}>
+            <Plus className="w-4 h-4" aria-hidden />
+            Create a recipe
+          </Btn>
+        </section>
       )}
 
       {/* Recipe Create/Edit Modal */}
-      <RecipeModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        recipeToEdit={recipeToEdit}
-      />
+      <RecipeModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} recipeToEdit={recipeToEdit} />
+      {methodsOpen && <BrewMethodsSheet onClose={() => setMethodsOpen(false)} onOpenGear={onOpenGear ? (c) => { setMethodsOpen(false); onOpenGear(c); } : undefined} />}
     </div>
   );
 };

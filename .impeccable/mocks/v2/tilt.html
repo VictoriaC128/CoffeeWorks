@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>CoffeeWorks — tilt to switch layout</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#E9E8E4;color:#151515;font-family:Archivo,sans-serif;padding:18px 20px;width:1240px}
+h1{font-size:18px;font-weight:800}
+.lede{font-size:13.5px;color:#55554F;margin:4px 0 14px;max-width:900px;line-height:1.45}
+.row{display:flex;gap:20px;align-items:flex-start}
+.card{background:#fff;border:1px solid #151515}
+.card header{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #151515}
+.card header b{font-size:14px}
+.card header span{font-size:12px;color:#6B6B66;margin-left:auto}
+.stage{position:relative;overflow:hidden;background:#F3F2EE}
+.dev{position:absolute;left:50%;top:50%;border:10px solid #151515;border-radius:26px;background:#151515;transition:transform .5s cubic-bezier(.3,.7,.3,1)}
+.dev.snap{transition:none}
+.dev iframe{display:block;border:0;border-radius:16px;background:#fff}
+.ctl{display:flex;gap:8px;padding:10px 14px;border-top:1px solid #151515;align-items:center}
+.ctl button{font:inherit;font-weight:700;font-size:14px;height:42px;padding:0 16px;border:1px solid #151515;background:#fff;color:#151515;cursor:pointer}
+.ctl button.p{background:#151515;color:#fff}
+.ctl button[aria-pressed="true"]{background:#2747D6;border-color:#2747D6;color:#fff}
+.ctl .st{font-size:12.5px;color:#55554F;margin-left:6px;line-height:1.35}
+.ctl .st b{color:#151515}
+</style></head><body>
+<h1>Tilt to switch layout</h1>
+<p class="lede">Upright, every device gets the simple one-column layout from "phone by the scale". Turn it sideways and it switches to the full layout with the mode rail. Turn it back and it switches back. <b>Lock</b> keeps whichever layout is showing, however the device is held. Try <b>Turn</b> and <b>Lock</b> below.</p>
+<div class="row">
+  <section class="card" data-scale="0.6" data-p="brew-portrait.html" data-pw="390" data-ph="844" data-l="brew-landscape-phone.html" data-lw="844" data-lh="390" style="width:560px">
+    <header><b>Phone</b><span>390 × 844</span></header>
+    <div class="stage" style="height:560px"><div class="dev"><iframe title="Phone"></iframe></div></div>
+    <div class="ctl"><button class="p turn">Turn ↻</button><button class="lock" aria-pressed="false">Lock layout</button><span class="st"></span></div>
+  </section>
+  <section class="card" data-scale="0.5" data-p="brew-portrait.html" data-pw="834" data-ph="1194" data-l="brew-filter.html" data-lw="1194" data-lh="834" style="width:640px">
+    <header><b>iPad</b><span>834 × 1194</span></header>
+    <div class="stage" style="height:640px"><div class="dev"><iframe title="iPad"></iframe></div></div>
+    <div class="ctl"><button class="p turn">Turn ↻</button><button class="lock" aria-pressed="false">Lock layout</button><span class="st"></span></div>
+  </section>
+</div>
+<script>
+document.querySelectorAll('.card').forEach(card=>{
+  const d=card.dataset, dev=card.querySelector('.dev'), fr=dev.querySelector('iframe'), st=card.querySelector('.st'), lockB=card.querySelector('.lock');
+  const s={device:'portrait', content:'portrait', locked:false};
+  const angle=()=>s.device===s.content?0:(s.device==='landscape'?-90:90);
+  const load=()=>{const p=s.content==='portrait';fr.src=p?d.p:d.l;fr.width=p?d.pw:d.lw;fr.height=p?d.ph:d.lh;};
+  const place=(snap)=>{dev.classList.toggle('snap',!!snap);dev.style.transform=`translate(-50%,-50%) scale(${d.scale}) rotate(${angle()}deg)`;};
+  const say=()=>{st.innerHTML=`Held <b>${s.device}</b> · showing <b>${s.content==='portrait'?'simple':'full'}</b> layout${s.locked?' · locked':''}`;lockB.textContent=s.locked?'Locked · unlock':'Lock layout';lockB.setAttribute('aria-pressed',s.locked);};
+  const settle=()=>{ if(s.locked||s.content===s.device) return; setTimeout(()=>{s.content=s.device;load();place(true);void dev.offsetWidth;say();},520); };
+  card.querySelector('.turn').onclick=()=>{s.device=s.device==='portrait'?'landscape':'portrait';place(false);say();settle();};
+  lockB.onclick=()=>{s.locked=!s.locked;say();settle();};
+  load();place(true);say();
+});
+</script>
+</body></html>

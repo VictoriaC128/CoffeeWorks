@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#151515"/>
+  <rect x="56" y="300" width="400" height="34" fill="#E8590C"/>
+  <g fill="#fff" font-family="Archivo, Arial, sans-serif" font-weight="900">
+    <text x="56" y="260" font-size="210" letter-spacing="-8">CW</text>
+  </g>
+  <g>
+    <rect x="56" y="376" width="58" height="58" fill="#D62828"/>
+    <rect x="124" y="376" width="58" height="58" fill="#5D6B2F"/>
+    <rect x="192" y="376" width="58" height="58" fill="#E9B523"/>
+    <rect x="260" y="376" width="58" height="58" fill="#2747D6"/>
+    <rect x="328" y="376" width="58" height="58" fill="#1F7A8C"/>
+    <rect x="396" y="376" width="60" height="58" fill="#1F7A55"/>
+  </g>
+</svg>

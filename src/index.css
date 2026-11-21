@@ -2,24 +2,163 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Roaster's Label design tokens.
+ * Colours are RGB triplets so Tailwind opacity modifiers work (bg-ink/10).
+ * Themes swap ground, ink, rules and the flow shade; mode colours never change.
+ */
+:root,
+[data-theme='paper'] {
+  --paper: 255 255 255;
+  --ink: 21 21 21;
+  --mute: 107 107 102;
+  --rule: 227 226 221;
+  --tint: 243 242 238;
+  --flow: 232 89 12;
+  --scrim: 21 21 21;
+  color-scheme: light;
+}
+[data-theme='oat'] {
+  --paper: 240 228 204;
+  --ink: 42 33 25;
+  --mute: 110 96 76;
+  --rule: 220 202 166;
+  --tint: 231 215 184;
+  --flow: 196 72 10;
+  color-scheme: light;
+}
+[data-theme='olive'] {
+  --paper: 213 215 181;
+  --ink: 38 42 23;
+  --mute: 90 93 64;
+  --rule: 190 193 155;
+  --tint: 201 204 167;
+  --flow: 178 62 10;
+  color-scheme: light;
+}
+[data-theme='roast'] {
+  --paper: 43 28 18;
+  --ink: 246 239 230;
+  --mute: 196 178 157;
+  --rule: 70 50 31;
+  --tint: 55 37 26;
+  --flow: 255 160 102;
+  --scrim: 0 0 0;
+  color-scheme: dark;
+}
+[data-theme='night'] {
+  --paper: 0 0 0;
+  --ink: 255 255 255;
+  --mute: 166 166 166;
+  --rule: 51 51 51;
+  --tint: 21 21 21;
+  --flow: 255 122 46;
+  --scrim: 0 0 0;
+  color-scheme: dark;
+}
+
+:root {
+  /* Discipline colours: fixed across themes */
+  --m-espresso: 214 40 40;
+  --m-lever: 93 107 47;
+  --m-moka: 233 181 35;
+  --m-filter: 39 71 214;
+  --m-immersion: 31 122 140;
+  --m-kopi: 31 122 85;
+  --m-other: 74 74 70;
+  --ok: 31 122 85;
+  --bad: 214 40 40;
+
+  --font-ui: 'Archivo Variable', 'Archivo', system-ui, sans-serif;
+  /* Narrow numerals only exist in Archivo; other fonts ignore the stretch */
+  --num-stretch: 78%;
+
+  /* Capacitor's SystemBars injects --safe-area-inset-* on Android; env() covers iOS and browsers */
+  --safe-top: var(--safe-area-inset-top, env(safe-area-inset-top, 0px));
+  --safe-bottom: var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px));
+  --safe-left: var(--safe-area-inset-left, env(safe-area-inset-left, 0px));
+  --safe-right: var(--safe-area-inset-right, env(safe-area-inset-right, 0px));
+}
+[data-font='atkinson'] { --font-ui: 'Atkinson Hyperlegible', system-ui, sans-serif; --num-stretch: 100%; }
+[data-font='lexend'] { --font-ui: 'Lexend Variable', system-ui, sans-serif; --num-stretch: 100%; }
+[data-font='space'] { --font-ui: 'Space Grotesk Variable', system-ui, sans-serif; --num-stretch: 100%; }
+[data-font='fredoka'] { --font-ui: 'Fredoka Variable', system-ui, sans-serif; --num-stretch: 100%; }
+
 @layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
   body {
-    @apply bg-stone-950 text-stone-100 antialiased;
+    @apply bg-paper text-ink antialiased;
+    font-family: var(--font-ui);
+    font-variant-numeric: tabular-nums;
+    overscroll-behavior: none;
+    caret-color: rgb(var(--ink));
+  }
+  ::selection {
+    background: rgb(var(--ink));
+    color: rgb(var(--paper));
+  }
+  :focus-visible {
+    outline: 2px solid rgb(var(--ink));
+    outline-offset: 2px;
+  }
+  button,
+  [role='button'] {
+    touch-action: manipulation;
+  }
+  input,
+  select,
+  textarea {
+    border-radius: 0;
+  }
+  input::placeholder,
+  textarea::placeholder {
+    color: rgb(var(--mute));
+    opacity: 1;
+  }
+  a {
+    text-underline-offset: 3px;
   }
 }
 
-/* Custom scrollbars for clean aesthetic */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+@layer utilities {
+  /* Big condensed numerals for timers and readings */
+  .num {
+    font-stretch: var(--num-stretch);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.03em;
+  }
+  .label-caps {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: rgb(var(--mute));
+  }
+  .pt-safe { padding-top: var(--safe-top); }
+  .pb-safe { padding-bottom: var(--safe-bottom); }
+  .pl-safe { padding-left: var(--safe-left); }
+  .pr-safe { padding-right: var(--safe-right); }
+  /* Rules drawn on a coloured label band, tinted from its text colour */
+  .rule-on { border-color: color-mix(in srgb, currentColor 35%, transparent); }
+  .scrollbar-none { scrollbar-width: none; }
+  .scrollbar-none::-webkit-scrollbar { display: none; }
 }
-::-webkit-scrollbar-track {
-  background: transparent;
+
+/* Thin, theme-coloured scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(var(--rule)) transparent;
 }
-::-webkit-scrollbar-thumb {
-  background: #292524;
-  border-radius: 9999px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #44403c;
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgb(var(--rule)); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Plus, Check, Edit3, X } from 'lucide-react';
+import React, { useState, useEffect, useId } from 'react';
+import { Check, ChevronDown, Pencil, X } from 'lucide-react';
 import { useCoffee } from '../context/CoffeeContext';
 
 export interface DropdownOption {
@@ -34,6 +34,7 @@ export const SmartDropdownWithOthers: React.FC<Props> = ({
   naLabel,
 }) => {
   const { customVariables, addCustomVariable } = useCoffee();
+  const autoId = useId();
   const [isEditingCustom, setIsEditingCustom] = useState<boolean>(false);
   const [customInputText, setCustomInputText] = useState<string>('');
 
@@ -85,35 +86,25 @@ export const SmartDropdownWithOthers: React.FC<Props> = ({
     groupedOptions[groupName].push(opt);
   });
 
+  const labelText = (label || '').replace(/:\s*$/, '');
+  const fieldId = id || autoId;
+
   return (
     <div className={`space-y-1.5 ${className}`}>
-      {/* Header with Label and always visible 'Edit labels' button */}
-      <div className="flex items-center justify-between text-xs font-mono text-stone-300">
-        <span>{label || ''}</span>
-        {!isEditingCustom && (
-          <button
-            type="button"
-            onClick={() => {
-              setCustomInputText(isNA ? '' : (value || ''));
-              setIsEditingCustom(true);
-            }}
-            className="text-[11px] text-amber-400 hover:text-amber-300 font-mono font-medium flex items-center space-x-1 px-2 py-0.5 rounded bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 transition-all shadow-sm"
-            title="Edit label or key in minority brand name"
-          >
-            <Edit3 className="w-3 h-3 text-amber-400" />
-            <span>Edit labels</span>
-          </button>
-        )}
-      </div>
+      {labelText && (
+        <label htmlFor={fieldId} className="label-caps block">
+          {labelText}
+        </label>
+      )}
 
       {isEditingCustom ? (
-        <div className="space-y-1">
-          <div className="flex items-center space-x-1.5">
+        <div className="space-y-1.5">
+          <div className="flex items-stretch gap-2">
             <input
               type="text"
               autoFocus
-              id={id}
-              placeholder="Key in minority brand or custom label..."
+              id={fieldId}
+              placeholder="Type a brand or your own label"
               value={customInputText}
               onChange={e => setCustomInputText(e.target.value)}
               onKeyDown={e => {
@@ -124,78 +115,89 @@ export const SmartDropdownWithOthers: React.FC<Props> = ({
                   handleCancelCustom();
                 }
               }}
-              className="flex-1 bg-stone-950 border border-amber-500 rounded-xl px-3 py-2 text-xs text-amber-300 font-medium focus:outline-none placeholder-stone-600 shadow-md shadow-amber-950/30"
+              className="flex-1 min-w-0 h-12 bg-paper border-2 border-ink px-3 text-[15px] font-semibold text-ink"
             />
             <button
               type="button"
               onClick={handleSaveCustom}
               disabled={!customInputText.trim()}
-              className="p-2 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white rounded-xl transition-colors shadow-md"
-              title="Save custom label"
+              className="w-12 h-12 shrink-0 flex items-center justify-center bg-ink text-paper border border-ink disabled:opacity-40"
+              aria-label="Save custom label"
             >
-              <Check className="w-3.5 h-3.5" />
+              <Check className="w-5 h-5" />
             </button>
             <button
               type="button"
               onClick={handleCancelCustom}
-              className="p-2 bg-stone-800 hover:bg-stone-700 text-stone-400 hover:text-white rounded-xl transition-colors"
-              title="Cancel"
+              className="w-12 h-12 shrink-0 flex items-center justify-center bg-paper text-ink border border-ink"
+              aria-label="Cancel"
             >
-              <X className="w-3.5 h-3.5" />
+              <X className="w-5 h-5" />
             </button>
           </div>
-          <div className="flex items-center justify-between text-[10px] font-mono text-stone-400 px-1">
-            <span>Type minority brand or custom tool label and press Save</span>
-            <span>Esc to cancel</span>
-          </div>
+          <p className="text-[12.5px] text-mute">Type a brand or tool that isn’t listed, then save. It’s kept for next time.</p>
         </div>
       ) : (
-        <select
-          id={id}
-          value={isNA ? 'N/A' : value}
-          onChange={handleSelectChange}
-          className="w-full bg-stone-950 border border-stone-800 rounded-xl px-3 py-2 text-xs text-stone-200 focus:outline-none focus:border-amber-500"
-        >
-          <option value="" disabled>
-            {placeholder}
-          </option>
+        <div className="flex items-stretch gap-2">
+          <div className="relative flex-1 min-w-0">
+            <select
+              id={fieldId}
+              value={isNA ? 'N/A' : value}
+              onChange={handleSelectChange}
+              className={`w-full h-12 appearance-none bg-paper border border-ink pl-3 pr-10 text-[15px] font-semibold truncate ${isNA ? 'text-mute' : 'text-ink'}`}
+            >
+              <option value="" disabled>
+                {placeholder}
+              </option>
 
-          {/* Universal N/A Option when user is not using this tool */}
-          {allowNA && (
-            <option value="N/A" className="text-stone-400 font-medium">
-              🚫 {naLabel || 'N/A (Not using this tool / None)'}
-            </option>
-          )}
-
-          {/* User's Previously Saved Custom Values */}
-          {savedCustoms.length > 0 && (
-            <optgroup label="⭐ Your Custom & Minority Brands">
-              {savedCustoms.filter(cust => cust !== 'N/A').map(cust => (
-                <option key={`custom-${cust}`} value={cust}>
-                  {cust}
+              {/* Universal N/A Option when user is not using this tool */}
+              {allowNA && (
+                <option value="N/A">
+                  {naLabel || 'N/A (Not using this tool / None)'}
                 </option>
-              ))}
-            </optgroup>
-          )}
+              )}
 
-          {/* Grouped Standard Presets */}
-          {Object.entries(groupedOptions).map(([groupName, groupList]) => (
-            <optgroup key={groupName} label={groupName}>
-              {groupList.filter(opt => opt.value !== 'N/A').map(opt => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </optgroup>
-          ))}
+              {/* User's Previously Saved Custom Values */}
+              {savedCustoms.length > 0 && (
+                <optgroup label="Your own labels">
+                  {savedCustoms.filter(cust => cust !== 'N/A').map(cust => (
+                    <option key={`custom-${cust}`} value={cust}>
+                      {cust}
+                    </option>
+                  ))}
+                </optgroup>
+              )}
 
-          {/* The Universal 'Others...' Entry */}
-          <optgroup label="➕ Custom & Minority Brands">
-            <option value="__others__">
-              ✏️ Edit labels / Key in custom minority brand...
-            </option>
-          </optgroup>
-        </select>
+              {/* Grouped Standard Presets */}
+              {Object.entries(groupedOptions).map(([groupName, groupList]) => (
+                <optgroup key={groupName} label={groupName}>
+                  {groupList.filter(opt => opt.value !== 'N/A').map(opt => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
+
+              {/* The Universal 'Others...' Entry */}
+              <optgroup label="Not listed">
+                <option value="__others__">Others… type a brand or label</option>
+              </optgroup>
+            </select>
+            <ChevronDown className="w-5 h-5 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-ink" aria-hidden />
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              setCustomInputText(isNA ? '' : (value || ''));
+              setIsEditingCustom(true);
+            }}
+            className="w-12 h-12 shrink-0 flex items-center justify-center bg-paper text-ink border border-ink"
+            aria-label={labelText ? `Type your own ${labelText.toLowerCase()}` : 'Type your own label'}
+          >
+            <Pencil className="w-[18px] h-[18px]" />
+          </button>
+        </div>
       )}
     </div>
   );

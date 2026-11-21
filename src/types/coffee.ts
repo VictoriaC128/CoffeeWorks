@@ -4,7 +4,8 @@ export type CoffeeCategory =
   | 'moka_stovetop'    // 3. Stovetop & Moka Pot
   | 'filter'           // 4. Modern Filter Coffee (V60, Orea, UFO, Chemex, Pulsar, Ceramic)
   | 'immersion'        // 5. Immersion (AeroPress, French Press, Cold Brew)
-  | 'singaporean_kopi'; // 6. Traditional Singaporean Kopi (Nanyang Coffee)
+  | 'singaporean_kopi' // 6. Traditional Singaporean Kopi (Nanyang Coffee)
+  | 'other';           // 7. The user's own methods kept outside the six (siphon, cold brew, Turkish...)
 
 export type RoastLevel =
   | 'light'
@@ -107,6 +108,56 @@ export interface PourStage {
   notes?: string;
 }
 
+/** What the barista does during a step. */
+export type StepAction = 'pour' | 'pour_swirl' | 'swirl' | 'stir' | 'wait' | 'drawdown' | 'press' | 'heat' | 'dip' | 'other';
+
+/**
+ * One timed step of a brew. Recipes may carry their own `customSteps`;
+ * otherwise steps are derived from `pourStages` or the discipline's defaults.
+ */
+export interface BrewStep {
+  id: string;
+  name: string;
+  durationSeconds: number;
+  /** Pour-to / yield-to weight on the scale at the end of the step. */
+  targetWeightGrams?: number;
+  action?: StepAction;
+  /** Espresso and lever: what the machine is holding during the step. */
+  control?: 'pressure' | 'flow';
+  /** Bar for pressure, ml/s for flow. */
+  target?: number;
+  endsWhen?: 'time' | 'weight' | 'first_drops' | 'valve';
+  notes?: string;
+}
+
+/** One line of the prep checklist (puck prep, rinse, kettle...). */
+export interface PrepItem {
+  id: string;
+  name: string;
+  tool: string;
+  setting?: string;
+  use: boolean;
+}
+
+/**
+ * A brew method the user made. It lives under one of the six main methods
+ * (sharing its colour and behaviour) or in its own "Others" group.
+ */
+export interface CustomMethod {
+  id: string;
+  name: string;
+  /** Main method it belongs to, or 'other' to keep it in the Others group. */
+  parent: CoffeeCategory;
+  /** Others only: is the scale reading water poured, or coffee in the cup? */
+  measures?: 'water' | 'cup';
+  /** Others only: show the pressure-profile step editor. */
+  pressure?: boolean;
+  /** Starting steps for new recipes of this method. */
+  steps?: BrewStep[];
+  notes?: string;
+  createdAt: string;
+}
+
 export interface KopiCustomization {
   style: 'kopi' | 'kopi_o' | 'kopi_c' | 'kopi_kosong' | 'kopi_o_kosong' | 'kopi_c_kosong' | 'other';
   strength: 'standard' | 'gao' | 'po' | 'di_lo';
@@ -152,6 +203,14 @@ export interface Recipe {
   basketSpec?: BasketSpec;
   portafilter?: string;
   showerScreen?: string;
+  /** The user's own steps and timings; replaces the preset schedule when present. */
+  customSteps?: BrewStep[];
+  /** Prep checklist shown before the first step. */
+  prepItems?: PrepItem[];
+  /** Recipe this one was copied from ("my version"). */
+  baseRecipeId?: string;
+  /** The user's own brew method this recipe uses (see CustomMethod). */
+  methodId?: string;
   isDefault?: boolean; // Set as default recipe for this category
   notes: string;
   tags: string[];
@@ -204,6 +263,17 @@ export interface BrewSession {
   sensory: SensoryRating;
   sensoryNotes: string;
   dialInAdvice: string[];
+
+  // Added with the Roaster's Label redesign (optional for older sessions)
+  beanId?: string;
+  grindSetting?: string;
+  waterTempC?: number;
+  /** Water used, in grams (1 ml ≈ 1 g). */
+  waterGrams?: number;
+  pourNotes?: string;
+  flavourTags?: string[];
+  stepTimes?: { name: string; plannedSeconds: number; actualSeconds: number }[];
+  prepUsed?: { name: string; tool: string; use: boolean }[];
 }
 
 export interface CategoryToolSelections {

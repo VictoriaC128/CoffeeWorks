@@ -1,42 +1,40 @@
 /** @type {import('tailwindcss').Config} */
+
+// Theme tokens live in src/index.css as RGB triplets so opacity modifiers work.
+const v = (name) => `rgb(var(--${name}) / <alpha-value>)`;
+
 export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
-  darkMode: 'class',
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
+    // Roaster's Label: no rounded corners, no drop shadows
+    borderRadius: { none: '0', DEFAULT: '0', sm: '0', md: '0', lg: '0', xl: '0', '2xl': '0', '3xl': '0', full: '9999px' },
+    boxShadow: { none: 'none', DEFAULT: 'none', sm: 'none', md: 'none', lg: 'none', xl: 'none', '2xl': 'none', inner: 'none' },
     extend: {
       colors: {
-        coffee: {
-          50: '#fdf8f4',
-          100: '#f9eee3',
-          200: '#f2dcbf',
-          300: '#e7c293',
-          400: '#dba365',
-          500: '#c8803b',
-          600: '#af642d',
-          700: '#8d4b26',
-          800: '#723e24',
-          900: '#5c3321',
-          950: '#341a10',
+        paper: v('paper'),
+        ink: v('ink'),
+        mute: v('mute'),
+        rule: v('rule'),
+        tint: v('tint'),
+        flow: v('flow'),
+        ok: v('ok'),
+        bad: v('bad'),
+        scrim: v('scrim'),
+        mode: {
+          espresso: v('m-espresso'),
+          lever: v('m-lever'),
+          moka: v('m-moka'),
+          filter: v('m-filter'),
+          immersion: v('m-immersion'),
+          kopi: v('m-kopi'),
+          other: v('m-other'),
         },
-        crema: {
-          DEFAULT: '#E9C46A',
-          light: '#F4A261',
-        },
-        roast: {
-          light: '#C68B59',
-          medium: '#8D5B4C',
-          dark: '#3D2314',
-          nanyang: '#1E120A',
-        }
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
-        mono: ['JetBrains Mono', 'Menlo', 'monospace']
-      }
+        sans: ['var(--font-ui)'],
+        mono: ['var(--font-ui)'],
+      },
     },
   },
   plugins: [],
-}
+};

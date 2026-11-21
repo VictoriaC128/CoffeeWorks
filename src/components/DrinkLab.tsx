@@ -1,9 +1,5 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import {
-  Coffee,
-  Droplets,
-  Flame,
-  Sparkles,
   Search,
   Plus,
   Trash2,
@@ -13,16 +9,58 @@ import {
   ChevronUp,
   X,
   Timer,
-  Sliders,
-  Scale,
-  Thermometer,
+  Flame,
+  Snowflake,
   Layers,
-  GlassWater,
-  CupSoda,
+  Thermometer,
+  LucideIcon,
 } from 'lucide-react';
 import { useCoffee } from '../context/CoffeeContext';
 import { CoffeeDrinkRecipe, DrinkFamily, CoffeeCategory } from '../types/coffee';
 import { SmartDropdownWithOthers, DropdownOption } from './SmartDropdownWithOthers';
+import { Btn, Caps, Segmented, Sheet } from '../brew/ui';
+import { InfoTip } from '../brew/InfoTip';
+import { MODES } from '../brew/modes';
+import { useSettings } from '../settings/SettingsContext';
+import { useLayout } from '../shell/LayoutContext';
+import * as F from '../settings/format';
+
+const FAMILY_TABS: { id: DrinkFamily | 'all'; label: string }[] = [
+  { id: 'all', label: 'All drinks' },
+  { id: 'espresso_black', label: 'Espresso black' },
+  { id: 'espresso_milk', label: 'Milk & microfoam' },
+  { id: 'iced_cold', label: 'Iced & chilled' },
+  { id: 'traditional_heritage', label: 'Traditional heritage' },
+  { id: 'specialty_fusion', label: 'Specialty fusion' },
+];
+
+const SERVING_TEMP: Record<CoffeeDrinkRecipe['servingTemp'], { label: string; Icon: LucideIcon }> = {
+  hot: { label: 'Hot', Icon: Flame },
+  iced: { label: 'Iced / chilled', Icon: Snowflake },
+  chilled_layered: { label: 'Thermal layered', Icon: Layers },
+  room_temp: { label: 'Room temp', Icon: Thermometer },
+};
+
+const BREW_TYPES: { value: CoffeeCategory; label: string }[] = [
+  { value: 'espresso', label: 'Espresso' },
+  { value: 'filter', label: 'Filter / drip' },
+  { value: 'immersion', label: 'Immersion / cold brew' },
+  { value: 'singaporean_kopi', label: 'Kopi sock' },
+  { value: 'moka_stovetop', label: 'Moka pot' },
+];
+
+const CUP_PRESETS_ML = [120, 180, 240, 360, 480];
+
+// Cup build-up swatches: the coffee base takes its brew-mode colour; the rest are ink tints.
+const WATER_SWATCH = 'bg-ink/30';
+const MILK_SWATCH = 'bg-ink/10';
+const ICE_SWATCH = 'bg-paper';
+
+const FIELD = 'w-full h-12 border border-ink bg-paper px-3 text-[16px]';
+const NUM_FIELD = `${FIELD} num font-bold text-[18px]`;
+const AREA = 'w-full border border-ink bg-paper p-3 text-[15px] leading-snug';
+
+const modeFor = (c: CoffeeCategory) => MODES[c] ?? MODES.espresso;
 
 const MILK_OPTIONS: DropdownOption[] = [
   { label: 'Whole Milk (Steamed Microfoam 60-65°C)', value: 'microfoam', group: 'Dairy Steamed' },
@@ -298,122 +336,115 @@ export const DrinkLab: React.FC<Props> = ({ onLaunchBrew }) => {
     }
   };
 
+  const { settings } = useSettings();
+  const u = settings.units;
+  const { mode: layoutMode } = useLayout();
+  const closeModal = useCallback(() => setIsModalOpen(false), []);
+
+  const stats: [string, number][] = [
+    ['Drinks', coffeeDrinks.length],
+    ['With milk', coffeeDrinks.filter(d => d.milk.amountMl > 0).length],
+    ['Iced', coffeeDrinks.filter(d => d.ice.amountGrams > 0 || d.servingTemp === 'iced').length],
+    ['Heritage', coffeeDrinks.filter(d => d.family === 'traditional_heritage').length],
+  ];
+
+  const formSection = (title: string, swatch: string, children: React.ReactNode) => (
+    <section className="mt-6">
+      <h3 className="flex items-center gap-2 border-b border-ink pb-1.5 text-[16px] font-extrabold">
+        <span className={`w-3.5 h-3.5 border border-ink ${swatch}`} aria-hidden />
+        {title}
+      </h3>
+      <div className="mt-3 grid grid-cols-2 gap-3">{children}</div>
+    </section>
+  );
+
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-12">
-      {/* Top Banner */}
-      <div className="bg-gradient-to-r from-stone-900 via-amber-950/20 to-stone-900 border border-stone-800 rounded-3xl p-6 sm:p-8 shadow-xl">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-          <div className="space-y-2">
-            <div className="flex items-center space-x-2">
-              <span className="px-3 py-1 rounded-full text-[11px] font-mono font-bold tracking-wider uppercase bg-amber-500/10 text-amber-400 border border-amber-500/30">
-                World Coffee Encyclopedia & Ratios
-              </span>
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
-                Water • Milk • Ice • Coffee Engine
-              </span>
-            </div>
-            <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight flex items-center space-x-3">
-              <GlassWater className="w-8 h-8 text-amber-500" />
-              <span>Coffee Drinks & Formulation Ratios</span>
-            </h1>
-            <p className="text-sm text-stone-400 max-w-3xl leading-relaxed">
-              Every iconic coffee drink with precise liquid formulations. Scale any recipe across cup sizes (4 oz to 16 oz) with auto-recalculated exact amounts of <strong className="text-amber-400">Coffee</strong>, <strong className="text-cyan-400">Water</strong>, <strong className="text-stone-200">Milk / Microfoam</strong>, and <strong className="text-sky-300">Ice</strong>.
-            </p>
-          </div>
+    <div className="max-w-7xl mx-auto pb-12 text-ink">
+      {/* Header band */}
+      <header className="bg-ink text-paper px-5 sm:px-7 py-4 flex flex-wrap items-end gap-4">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-[28px] font-black tracking-[-0.02em] leading-tight">Coffee drinks</h1>
+          <p className="text-[13.5px] opacity-80 mt-1 max-w-2xl leading-snug flex items-center gap-2">
+            Exact amounts for every drink.
+            <InfoTip title="How drink recipes work" className="!text-paper hover:!text-paper">
+              Each drink lists the exact coffee, water, milk and ice that go into the cup. Pick a cup size and every
+              amount recalculates, and the cup build-up bar shows how much of the drink each part makes up.
+            </InfoTip>
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={handleOpenAdd}
+          className="min-h-[48px] px-4 bg-paper text-ink border border-paper text-[15px] font-bold inline-flex items-center gap-2"
+        >
+          <Plus className="w-5 h-5" strokeWidth={2.5} />
+          Add drink
+        </button>
+      </header>
 
-          <div className="flex items-center space-x-3">
-            <button
-              onClick={handleOpenAdd}
-              className="px-5 py-3 rounded-2xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold flex items-center space-x-2 shadow-lg shadow-amber-950/50 transition-all hover:scale-105"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Add Custom Drink</span>
-            </button>
+      {/* Catalogue totals */}
+      <section className="grid grid-cols-4 border-b border-ink" aria-label="Catalogue totals">
+        {stats.map(([k, v], i) => (
+          <div key={k} className={`px-3 sm:px-5 py-2.5 min-w-0 ${i < 3 ? 'border-r border-rule' : ''}`}>
+            <Caps className="!text-[10.5px] truncate">{k}</Caps>
+            <div className="text-[26px] font-bold num leading-tight">{v}</div>
           </div>
+        ))}
+      </section>
+
+      {/* Filters and search */}
+      <div className="mt-4 flex flex-col lg:flex-row lg:items-center gap-3">
+        <div className="flex gap-2 overflow-x-auto scrollbar-none -mx-1 px-1 pb-1 lg:pb-0 flex-1" role="radiogroup" aria-label="Drink family">
+          {FAMILY_TABS.map(tab => {
+            const on = selectedFamily === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                role="radio"
+                aria-checked={on}
+                onClick={() => setSelectedFamily(tab.id)}
+                className={`min-h-[44px] px-3.5 text-[14px] font-semibold whitespace-nowrap border ${
+                  on ? 'bg-ink text-paper border-ink' : 'border-rule hover:border-ink'
+                }`}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
         </div>
 
-        {/* Quick Stats Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-6 border-t border-stone-800/80">
-          <div className="bg-stone-950/60 rounded-xl p-3 border border-stone-800">
-            <span className="text-[10px] font-mono text-stone-500 uppercase block">Total Drinks</span>
-            <span className="text-xl font-bold font-mono text-amber-400">{coffeeDrinks.length}</span>
-            <span className="text-[10px] text-stone-400 block mt-0.5">Global Recipes</span>
-          </div>
-          <div className="bg-stone-950/60 rounded-xl p-3 border border-stone-800">
-            <span className="text-[10px] font-mono text-stone-500 uppercase block">Milk & Latte Art</span>
-            <span className="text-xl font-bold font-mono text-stone-200">
-              {coffeeDrinks.filter(d => d.milk.amountMl > 0).length}
-            </span>
-            <span className="text-[10px] text-stone-400 block mt-0.5">Microfoam & Creams</span>
-          </div>
-          <div className="bg-stone-950/60 rounded-xl p-3 border border-stone-800">
-            <span className="text-[10px] font-mono text-stone-500 uppercase block">Iced & Cold Drinks</span>
-            <span className="text-xl font-bold font-mono text-sky-400">
-              {coffeeDrinks.filter(d => d.ice.amountGrams > 0 || d.servingTemp === 'iced').length}
-            </span>
-            <span className="text-[10px] text-stone-400 block mt-0.5">Ice & Chilled Layers</span>
-          </div>
-          <div className="bg-stone-950/60 rounded-xl p-3 border border-stone-800">
-            <span className="text-[10px] font-mono text-stone-500 uppercase block">Heritage & Regional</span>
-            <span className="text-xl font-bold font-mono text-red-400">
-              {coffeeDrinks.filter(d => d.family === 'traditional_heritage').length}
-            </span>
-            <span className="text-[10px] text-stone-400 block mt-0.5">Kopi, Phin & Cezve</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Filter and Search Bar */}
-      <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-        {/* Family Tabs */}
-        <div className="flex items-center space-x-1.5 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 scrollbar-none">
-          {[
-            { id: 'all', label: 'All Drinks' },
-            { id: 'espresso_black', label: '☕ Espresso Black' },
-            { id: 'espresso_milk', label: '🥛 Milk & Microfoam' },
-            { id: 'iced_cold', label: '🧊 Iced & Chilled' },
-            { id: 'traditional_heritage', label: '🇸🇬 Traditional Heritage' },
-            { id: 'specialty_fusion', label: '✨ Specialty Fusion' },
-          ].map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setSelectedFamily(tab.id as any)}
-              className={`px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
-                selectedFamily === tab.id
-                  ? 'bg-amber-600 text-white shadow-md shadow-amber-950/40'
-                  : 'bg-stone-900 border border-stone-800 text-stone-400 hover:text-white hover:bg-stone-800'
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Search Input */}
-        <div className="relative w-full md:w-72">
-          <Search className="w-4 h-4 text-stone-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+        <div className="relative w-full lg:w-80 shrink-0">
+          <Search className="w-5 h-5 text-mute absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
-            type="text"
-            placeholder="Search drinks, milk, ice, water..."
+            type="search"
+            placeholder="Search drinks, milk, ice, water"
+            aria-label="Search drinks"
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            className="w-full bg-stone-900 border border-stone-800 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-stone-500 focus:outline-none focus:border-amber-500 transition-colors"
+            className="w-full h-12 border border-ink bg-paper pl-10 pr-12 text-[16px] placeholder:text-mute"
           />
           {searchQuery && (
             <button
+              type="button"
               onClick={() => setSearchQuery('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-500 hover:text-white"
+              aria-label="Clear search"
+              className="absolute right-0.5 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center text-mute"
             >
-              <X className="w-3.5 h-3.5" />
+              <X className="w-5 h-5" />
             </button>
           )}
         </div>
       </div>
 
-      {/* Drink Cards Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Drink list */}
+      <div className="mt-5 grid grid-cols-1 lg:grid-cols-2 gap-x-8">
+        {filteredDrinks.length === 0 && (
+          <p className="border-t-2 border-ink py-6 text-[15px] text-mute lg:col-span-2">No drinks match this filter.</p>
+        )}
         {filteredDrinks.map(drink => {
           const scale = scaleMap[drink.id] ?? 1.0;
+          const mode = modeFor(drink.coffeeBase.brewType);
 
           // Scaled Calculations
           const scaledCoffeeYield = Math.round(drink.coffeeBase.yieldGrams * scale);
@@ -433,584 +464,515 @@ export const DrinkLab: React.FC<Props> = ({ onLaunchBrew }) => {
           const icePct = Math.round(((scaledIce || 0) / totalVolume) * 100);
 
           const isExpanded = expandedDrinkId === drink.id;
+          const temp = SERVING_TEMP[drink.servingTemp];
+
+          const coffeeR = F.coffee(scaledCoffeeYield, u, 0);
+          const waterR = F.water(scaledWater, u);
+          const milkR = F.water(scaledMilk, u);
+          const iceR = F.coffee(scaledIce, u, 0);
+
+          const layers = [
+            { key: 'coffee', name: 'Coffee', pct: coffeePct, amount: scaledCoffeeYield, cls: `${mode.bg} ${mode.on}`, text: F.text(coffeeR) },
+            { key: 'water', name: 'Water', pct: waterPct, amount: scaledWater, cls: `${WATER_SWATCH} text-ink`, text: F.text(waterR) },
+            { key: 'milk', name: 'Milk', pct: milkPct, amount: scaledMilk, cls: `${MILK_SWATCH} text-ink`, text: F.text(milkR) },
+            { key: 'ice', name: 'Ice', pct: icePct, amount: scaledIce, cls: `${ICE_SWATCH} text-ink`, text: F.text(iceR) },
+          ].filter(l => l.amount > 0);
+
+          const cells: { key: string; label: string; swatch: string; value: F.Reading; sub: string; empty: boolean }[] = [
+            {
+              key: 'coffee',
+              label: 'Coffee base',
+              swatch: mode.bg,
+              value: coffeeR,
+              sub: `${F.text(F.coffee(scaledCoffeeDose, u))} dose · 1:${drink.coffeeBase.ratio}`,
+              empty: false,
+            },
+            {
+              key: 'water',
+              label: 'Water',
+              swatch: WATER_SWATCH,
+              value: waterR,
+              sub: drink.water.type !== 'none' ? drink.water.type.replace('_', ' ') : 'Zero bypass',
+              empty: scaledWater <= 0,
+            },
+            {
+              key: 'milk',
+              label: 'Milk',
+              swatch: MILK_SWATCH,
+              value: milkR,
+              sub: drink.milk.type !== 'none' ? drink.milk.type.replace('_', ' ') : 'No milk',
+              empty: scaledMilk <= 0,
+            },
+            {
+              key: 'ice',
+              label: 'Ice',
+              swatch: ICE_SWATCH,
+              value: iceR,
+              sub:
+                scaledIce > 0
+                  ? drink.ice.cubesCount
+                    ? `~${Math.round((drink.ice.cubesCount || 4) * scale)} cubes`
+                    : drink.ice.type
+                  : 'Hot drink',
+              empty: scaledIce <= 0,
+            },
+          ];
 
           return (
-            <div
-              key={drink.id}
-              className="bg-stone-900 border border-stone-800 rounded-3xl p-5 sm:p-6 shadow-xl flex flex-col justify-between hover:border-stone-700/80 transition-all group"
-            >
-              <div>
-                {/* Header: Badges & Actions */}
-                <div className="flex items-start justify-between gap-3 mb-2">
-                  <div className="flex flex-wrap items-center gap-1.5">
-                    {drink.servingTemp === 'hot' && (
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/10 text-amber-400 border border-amber-500/30 flex items-center space-x-1">
-                        <Flame className="w-3 h-3 text-amber-400" />
-                        <span>HOT SERVING</span>
-                      </span>
-                    )}
-                    {drink.servingTemp === 'iced' && (
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-sky-500/10 text-sky-300 border border-sky-500/30 flex items-center space-x-1">
-                        <Droplets className="w-3 h-3 text-sky-400" />
-                        <span>ICED / CHILLED</span>
-                      </span>
-                    )}
-                    {drink.servingTemp === 'chilled_layered' && (
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-purple-500/10 text-purple-300 border border-purple-500/30 flex items-center space-x-1">
-                        <Layers className="w-3 h-3 text-purple-400" />
-                        <span>THERMAL LAYERED</span>
-                      </span>
-                    )}
-
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-mono text-stone-400 bg-stone-950 border border-stone-800">
-                      {drink.glassware}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center space-x-1">
-                    <button
-                      onClick={() => duplicateCoffeeDrink(drink.id)}
-                      title="Clone Drink"
-                      className="p-1.5 text-stone-500 hover:text-white rounded-lg hover:bg-stone-800 transition-colors"
-                    >
-                      <Copy className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      onClick={() => handleOpenEdit(drink)}
-                      title="Edit Formulation"
-                      className="p-1.5 text-stone-500 hover:text-white rounded-lg hover:bg-stone-800 transition-colors"
-                    >
-                      <Edit2 className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      onClick={() => {
-                        if (confirm(`Delete drink recipe "${drink.name}"?`)) deleteCoffeeDrink(drink.id);
-                      }}
-                      title="Delete"
-                      className="p-1.5 text-stone-500 hover:text-rose-400 rounded-lg hover:bg-stone-800 transition-colors"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Drink Titles */}
-                <div>
-                  <h3 className="text-xl font-black text-white group-hover:text-amber-400 transition-colors">
-                    {drink.name}
-                  </h3>
+            <article key={drink.id} className="border-t-2 border-ink pt-3 pb-6 flex flex-col min-w-0">
+              {/* Title row and actions */}
+              <div className="flex items-start gap-3">
+                <span className={`mt-[7px] w-4 h-4 shrink-0 ${mode.bg}`} aria-hidden />
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-[21px] font-extrabold leading-tight">{drink.name}</h3>
                   {drink.italianOrAltName && (
-                    <p className="text-xs font-mono text-amber-500/90 font-medium">
-                      {drink.italianOrAltName}
-                    </p>
+                    <p className="text-[13.5px] text-mute font-semibold mt-0.5">{drink.italianOrAltName}</p>
                   )}
-                  <p className="text-xs text-stone-300 mt-1.5 leading-relaxed">
-                    {drink.description}
-                  </p>
                 </div>
+                <div className="flex gap-2 -mr-1.5 -mt-1.5 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => duplicateCoffeeDrink(drink.id)}
+                    aria-label={`Duplicate ${drink.name}`}
+                    className="w-11 h-11 flex items-center justify-center hover:bg-tint"
+                  >
+                    <Copy className="w-[18px] h-[18px]" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleOpenEdit(drink)}
+                    aria-label={`Edit ${drink.name}`}
+                    className="w-11 h-11 flex items-center justify-center hover:bg-tint"
+                  >
+                    <Edit2 className="w-[18px] h-[18px]" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (confirm(`Delete drink recipe "${drink.name}"?`)) deleteCoffeeDrink(drink.id);
+                    }}
+                    aria-label={`Delete ${drink.name}`}
+                    className="w-11 h-11 flex items-center justify-center text-bad hover:bg-tint"
+                  >
+                    <Trash2 className="w-[18px] h-[18px]" />
+                  </button>
+                </div>
+              </div>
 
-                {/* Cup Size & Serving Scaler */}
-                <div className="mt-4 p-3.5 bg-stone-950/80 rounded-2xl border border-stone-800/80 space-y-2.5">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-mono font-bold text-stone-300 flex items-center space-x-1.5">
-                      <Scale className="w-3.5 h-3.5 text-amber-400" />
-                      <span>Cup Size & Serving Scaler:</span>
-                    </span>
-                    <span className="text-xs font-mono font-bold text-amber-400">
-                      {scaledOz} oz • {scaledServing} ml ({scale}x)
-                    </span>
-                  </div>
+              {/* Serving meta */}
+              <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-mute">
+                {temp && (
+                  <span className="inline-flex items-center gap-1 font-semibold text-ink">
+                    <temp.Icon className="w-4 h-4" />
+                    {temp.label}
+                  </span>
+                )}
+                <span>{drink.glassware}</span>
+                <span>{mode.label} base</span>
+              </div>
 
-                  {/* Preset Quick Scaler Buttons */}
-                  <div className="grid grid-cols-5 gap-1.5 text-[10px] font-mono">
-                    {[
-                      { label: '4 oz (120ml)', value: 120 / drink.defaultServingMl },
-                      { label: '6 oz (180ml)', value: 180 / drink.defaultServingMl },
-                      { label: '8 oz (240ml)', value: 240 / drink.defaultServingMl },
-                      { label: '12 oz (360ml)', value: 360 / drink.defaultServingMl },
-                      { label: '16 oz (480ml)', value: 480 / drink.defaultServingMl },
-                    ].map((btn, idx) => {
-                      const isCurrent = Math.abs(scale - btn.value) < 0.05;
+              {drink.description && (
+                <div className="mt-2 flex items-center gap-2 min-w-0">
+                  <p className="min-w-0 flex-1 truncate text-[14.5px] leading-snug">{drink.description}</p>
+                  <InfoTip title={drink.name}>{drink.description}</InfoTip>
+                </div>
+              )}
+
+              {/* Cup size scaler */}
+              <div className="mt-4">
+                <div className="flex items-baseline justify-between gap-3">
+                  <Caps>Cup size</Caps>
+                  <span className="text-[13px] text-mute">
+                    <b className="num font-bold text-[18px] text-ink">{scaledOz} oz</b>
+                    <span className="num"> · {scaledServing} ml · ×{Number(scale.toFixed(2))}</span>
+                  </span>
+                </div>
+                <div role="radiogroup" aria-label={`Cup size for ${drink.name}`} className="mt-1.5 grid grid-cols-5 border border-ink">
+                  {CUP_PRESETS_ML.map((ml, idx) => {
+                    const value = ml / drink.defaultServingMl;
+                    const isCurrent = Math.abs(scale - value) < 0.05;
+                    return (
+                      <button
+                        key={ml}
+                        type="button"
+                        role="radio"
+                        aria-checked={isCurrent}
+                        aria-label={`${ml / 30} oz, ${ml} ml`}
+                        onClick={() => handleSetScale(drink.id, Number(value.toFixed(2)))}
+                        className={`min-h-[48px] flex flex-col items-center justify-center leading-none ${idx ? 'border-l border-ink' : ''} ${
+                          isCurrent ? 'bg-ink text-paper' : 'hover:bg-tint'
+                        }`}
+                      >
+                        <span className="num font-bold text-[16px]">{ml / 30} oz</span>
+                        <span className={`num text-[11px] mt-1 ${isCurrent ? 'opacity-80' : 'text-mute'}`}>{ml} ml</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Cup build-up */}
+              <div className="mt-4">
+                <Caps className="mb-1.5">Cup build-up</Caps>
+                <div
+                  className="h-11 flex border border-ink"
+                  role="img"
+                  aria-label={layers.map(l => `${l.name} ${l.text}, ${l.pct}%`).join('; ')}
+                >
+                  {layers.map((l, i) => (
+                    <div
+                      key={l.key}
+                      style={{ flex: `${l.amount} 1 0%` }}
+                      className={`${l.cls} ${i ? 'border-l border-ink' : ''} min-w-0 flex items-center justify-center overflow-hidden num font-bold text-[13px]`}
+                    >
+                      {l.pct >= 10 && `${l.pct}%`}
+                    </div>
+                  ))}
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 border-l border-rule">
+                  {cells.map(c => (
+                    <div key={c.key} className="px-3 py-2.5 border-r border-b border-rule min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className={`w-3 h-3 shrink-0 border border-ink ${c.swatch}`} aria-hidden />
+                        <Caps className="!text-[10.5px] truncate">{c.label}</Caps>
+                      </div>
+                      <div className={`mt-0.5 num font-bold text-[24px] leading-tight ${c.empty ? 'text-mute' : ''}`}>
+                        {c.value.value}
+                        <span className="text-[14px] font-semibold ml-1">{c.value.unit}</span>
+                      </div>
+                      <div className="text-[12px] text-mute truncate">{c.sub}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Additions & sweeteners */}
+              {drink.additions && drink.additions.length > 0 && (
+                <div className="mt-3 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                  <Caps>Extras</Caps>
+                  {drink.additions.map((add, idx) => (
+                    <span key={idx} className="text-[14px]">
+                      {add.name} <b className="num font-bold">{Math.round(add.amount * scale)} {add.unit}</b>
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {/* Barista tip */}
+              {drink.baristaTips && (
+                <div className="mt-2">
+                  <InfoTip title="Barista tip" label="Barista tip" className="text-[14px] font-bold">
+                    {drink.baristaTips}
+                  </InfoTip>
+                </div>
+              )}
+
+              {/* Barista steps */}
+              {isExpanded && (
+                <div className="mt-4 border-t border-rule pt-3">
+                  <h4 className="text-[15px] font-extrabold mb-1.5">Assembly</h4>
+                  <ol className="space-y-1.5 pl-5 list-decimal text-[14.5px] leading-snug">
+                    {drink.assemblySteps.map((step, idx) => (
+                      <li key={idx}>{step}</li>
+                    ))}
+                  </ol>
+                </div>
+              )}
+
+              {/* Row actions */}
+              <div className="mt-auto pt-4 flex items-center justify-between gap-3">
+                <button
+                  type="button"
+                  aria-expanded={isExpanded}
+                  onClick={() => setExpandedDrinkId(isExpanded ? null : drink.id)}
+                  className="min-h-[44px] -ml-1 px-1 text-[14px] font-bold underline underline-offset-4 inline-flex items-center gap-1"
+                >
+                  {isExpanded ? 'Hide steps' : 'Barista steps'}
+                  {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                </button>
+                <Btn size="md" onClick={() => handleLaunchBrewForDrink(drink, scale)}>
+                  <Timer className="w-[18px] h-[18px]" />
+                  Brew {F.text(coffeeR)} base
+                </Btn>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+
+      {/* Add / Edit drink sheet */}
+      {isModalOpen && (
+        <Sheet
+          title={editingDrink ? `Edit ${editingDrink.name}` : 'New drink'}
+          sub="Amounts for the default cup. The cup size scaler works out the rest."
+          onClose={closeModal}
+          side={layoutMode !== 'simple'}
+          footer={
+            <>
+              <Btn size="md" onClick={closeModal}>Cancel</Btn>
+              <Btn size="md" variant="primary" type="submit" form="drink-form" className="flex-1">
+                Save drink
+              </Btn>
+            </>
+          }
+        >
+          <form id="drink-form" onSubmit={handleSubmitModal} className="pb-2">
+            <div className="grid grid-cols-1 gap-3">
+              <label className="block">
+                <Caps className="mb-1">Drink name</Caps>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Honey Cinnamon Cortado"
+                  value={formName}
+                  onChange={e => setFormName(e.target.value)}
+                  className={FIELD}
+                />
+              </label>
+              <label className="block">
+                <Caps className="mb-1">Italian / alt name</Caps>
+                <input
+                  type="text"
+                  placeholder="e.g. Cortado con Miel"
+                  value={formAltName}
+                  onChange={e => setFormAltName(e.target.value)}
+                  className={FIELD}
+                />
+              </label>
+              <label className="block">
+                <Caps className="mb-1">Drink category</Caps>
+                <select
+                  value={formFamily}
+                  onChange={e => setFormFamily(e.target.value as DrinkFamily)}
+                  className={FIELD}
+                >
+                  <option value="espresso_black">Espresso Black</option>
+                  <option value="espresso_milk">Espresso & Milk</option>
+                  <option value="iced_cold">Iced & Cold Drinks</option>
+                  <option value="traditional_heritage">Traditional Heritage</option>
+                  <option value="specialty_fusion">Specialty Fusion</option>
+                </select>
+              </label>
+              <div>
+                <Caps className="mb-1">Serving temp</Caps>
+                <Segmented
+                  label="Serving temp"
+                  value={formServingTemp}
+                  onChange={setFormServingTemp}
+                  className="w-full"
+                  options={[
+                    { value: 'hot', label: 'Hot' },
+                    { value: 'iced', label: 'Iced' },
+                    { value: 'chilled_layered', label: 'Layered' },
+                    { value: 'room_temp', label: 'Room' },
+                  ]}
+                />
+              </div>
+              <label className="block">
+                <Caps className="mb-1">Glassware / cup</Caps>
+                <input
+                  type="text"
+                  value={formGlassware}
+                  onChange={e => setFormGlassware(e.target.value)}
+                  placeholder="e.g. 150ml Gibraltar Glass"
+                  className={FIELD}
+                />
+              </label>
+              <div className="grid grid-cols-2 gap-3">
+                <label className="block">
+                  <Caps className="mb-1">Default serving (ml)</Caps>
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    value={formDefaultServingMl}
+                    onChange={e => setFormDefaultServingMl(parseInt(e.target.value) || 0)}
+                    className={NUM_FIELD}
+                  />
+                </label>
+                <label className="block">
+                  <Caps className="mb-1">Default cup (oz)</Caps>
+                  <input
+                    type="number"
+                    inputMode="decimal"
+                    step="0.5"
+                    value={formDefaultCupOz}
+                    onChange={e => setFormDefaultCupOz(parseFloat(e.target.value) || 0)}
+                    className={NUM_FIELD}
+                  />
+                </label>
+              </div>
+              <label className="block">
+                <Caps className="mb-1">Description</Caps>
+                <textarea
+                  rows={2}
+                  value={formDescription}
+                  onChange={e => setFormDescription(e.target.value)}
+                  placeholder="Flavour, texture and where the drink comes from"
+                  className={AREA}
+                />
+              </label>
+            </div>
+
+            {formSection(
+              'Coffee base',
+              modeFor(formCoffeeBrewType).bg,
+              <>
+                <label className="block">
+                  <Caps className="mb-1">Dose (g)</Caps>
+                  <input
+                    type="number"
+                    inputMode="decimal"
+                    step="0.1"
+                    value={formCoffeeDose}
+                    onChange={e => setFormCoffeeDose(parseFloat(e.target.value) || 0)}
+                    className={NUM_FIELD}
+                  />
+                </label>
+                <label className="block">
+                  <Caps className="mb-1">Yield (g)</Caps>
+                  <input
+                    type="number"
+                    inputMode="decimal"
+                    step="0.1"
+                    value={formCoffeeYield}
+                    onChange={e => setFormCoffeeYield(parseFloat(e.target.value) || 0)}
+                    className={NUM_FIELD}
+                  />
+                </label>
+                <div className="col-span-2">
+                  <Caps className="mb-1">Brewed as</Caps>
+                  <div role="radiogroup" aria-label="Brewed as" className="grid grid-cols-2 gap-2">
+                    {BREW_TYPES.map(b => {
+                      const on = formCoffeeBrewType === b.value;
                       return (
                         <button
-                          key={idx}
-                          onClick={() => handleSetScale(drink.id, Number(btn.value.toFixed(2)))}
-                          className={`py-1 px-1.5 rounded-lg border text-center transition-all ${
-                            isCurrent
-                              ? 'bg-amber-600/30 text-amber-300 border-amber-500/50 font-bold'
-                              : 'bg-stone-900 text-stone-400 border-stone-800 hover:text-white'
+                          key={b.value}
+                          type="button"
+                          role="radio"
+                          aria-checked={on}
+                          onClick={() => setFormCoffeeBrewType(b.value)}
+                          className={`min-h-[48px] px-3 flex items-center gap-2 text-left text-[14px] font-semibold border ${
+                            on ? 'bg-ink text-paper border-ink' : 'border-rule hover:border-ink'
                           }`}
                         >
-                          {btn.label.split(' ')[0]} oz
+                          <span className={`w-3.5 h-3.5 shrink-0 ${modeFor(b.value).bg}`} aria-hidden />
+                          {b.label}
                         </button>
                       );
                     })}
                   </div>
                 </div>
+              </>
+            )}
 
-                {/* Exact Liquid Metrics Grid */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-3.5">
-                  {/* Coffee Base Card */}
-                  <div className="p-3 bg-stone-950 rounded-xl border border-amber-900/30 text-center">
-                    <div className="flex items-center justify-center space-x-1 text-amber-400 mb-1">
-                      <Coffee className="w-3.5 h-3.5" />
-                      <span className="text-[10px] font-mono font-bold uppercase">Coffee Base</span>
-                    </div>
-                    <span className="text-base font-black text-amber-300 font-mono block">
-                      {scaledCoffeeYield} g
-                    </span>
-                    <span className="text-[10px] text-stone-400 font-mono block">
-                      {scaledCoffeeDose}g dose • 1:{drink.coffeeBase.ratio}
-                    </span>
-                  </div>
-
-                  {/* Water Card */}
-                  <div className={`p-3 bg-stone-950 rounded-xl border text-center ${
-                    scaledWater > 0 ? 'border-cyan-900/40' : 'border-stone-800/50 opacity-60'
-                  }`}>
-                    <div className="flex items-center justify-center space-x-1 text-cyan-400 mb-1">
-                      <Droplets className="w-3.5 h-3.5" />
-                      <span className="text-[10px] font-mono font-bold uppercase">Water to Use</span>
-                    </div>
-                    <span className="text-base font-black text-cyan-300 font-mono block">
-                      {scaledWater > 0 ? `${scaledWater} ml` : '0 ml'}
-                    </span>
-                    <span className="text-[10px] text-stone-400 font-mono block truncate">
-                      {drink.water.type !== 'none' ? drink.water.type.replace('_', ' ') : 'Zero bypass'}
-                    </span>
-                  </div>
-
-                  {/* Milk Card */}
-                  <div className={`p-3 bg-stone-950 rounded-xl border text-center ${
-                    scaledMilk > 0 ? 'border-amber-500/30' : 'border-stone-800/50 opacity-60'
-                  }`}>
-                    <div className="flex items-center justify-center space-x-1 text-stone-200 mb-1">
-                      <CupSoda className="w-3.5 h-3.5 text-stone-300" />
-                      <span className="text-[10px] font-mono font-bold uppercase">Milk to Use</span>
-                    </div>
-                    <span className="text-base font-black text-white font-mono block">
-                      {scaledMilk > 0 ? `${scaledMilk} ml` : '0 ml'}
-                    </span>
-                    <span className="text-[10px] text-stone-400 font-mono block truncate">
-                      {drink.milk.type !== 'none' ? drink.milk.type.replace('_', ' ') : 'No milk'}
-                    </span>
-                  </div>
-
-                  {/* Ice Card */}
-                  <div className={`p-3 bg-stone-950 rounded-xl border text-center ${
-                    scaledIce > 0 ? 'border-sky-500/30' : 'border-stone-800/50 opacity-60'
-                  }`}>
-                    <div className="flex items-center justify-center space-x-1 text-sky-400 mb-1">
-                      <Sparkles className="w-3.5 h-3.5" />
-                      <span className="text-[10px] font-mono font-bold uppercase">Ice to Use</span>
-                    </div>
-                    <span className="text-base font-black text-sky-300 font-mono block">
-                      {scaledIce > 0 ? `${scaledIce} g` : '0 g'}
-                    </span>
-                    <span className="text-[10px] text-stone-400 font-mono block truncate">
-                      {scaledIce > 0
-                        ? drink.ice.cubesCount
-                          ? `~${Math.round((drink.ice.cubesCount || 4) * scale)} cubes`
-                          : drink.ice.type
-                        : 'Hot drink'}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Visual Proportion Bar Stack */}
-                <div className="mt-4">
-                  <div className="flex items-center justify-between text-[10px] font-mono text-stone-400 mb-1.5">
-                    <span>Drink Composition Layers:</span>
-                    <span>100% Total Volume</span>
-                  </div>
-                  <div className="h-4 w-full bg-stone-950 rounded-lg overflow-hidden flex border border-stone-800">
-                    {icePct > 0 && (
-                      <div
-                        style={{ width: `${icePct}%` }}
-                        title={`Ice: ${scaledIce}g (${icePct}%)`}
-                        className="bg-sky-400/80 hover:bg-sky-300 transition-colors flex items-center justify-center text-[9px] font-mono text-stone-950 font-bold overflow-hidden"
-                      >
-                        {icePct > 12 && `Ice ${icePct}%`}
-                      </div>
-                    )}
-                    {milkPct > 0 && (
-                      <div
-                        style={{ width: `${milkPct}%` }}
-                        title={`Milk: ${scaledMilk}ml (${milkPct}%)`}
-                        className="bg-stone-200 hover:bg-white transition-colors flex items-center justify-center text-[9px] font-mono text-stone-950 font-bold overflow-hidden"
-                      >
-                        {milkPct > 12 && `Milk ${milkPct}%`}
-                      </div>
-                    )}
-                    {waterPct > 0 && (
-                      <div
-                        style={{ width: `${waterPct}%` }}
-                        title={`Water: ${scaledWater}ml (${waterPct}%)`}
-                        className="bg-cyan-500/80 hover:bg-cyan-400 transition-colors flex items-center justify-center text-[9px] font-mono text-stone-950 font-bold overflow-hidden"
-                      >
-                        {waterPct > 12 && `Water ${waterPct}%`}
-                      </div>
-                    )}
-                    {coffeePct > 0 && (
-                      <div
-                        style={{ width: `${coffeePct}%` }}
-                        title={`Coffee: ${scaledCoffeeYield}g (${coffeePct}%)`}
-                        className="bg-amber-600 hover:bg-amber-500 transition-colors flex items-center justify-center text-[9px] font-mono text-white font-bold overflow-hidden"
-                      >
-                        {coffeePct > 10 && `Coffee ${coffeePct}%`}
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Additions & Sweeteners if present */}
-                {drink.additions && drink.additions.length > 0 && (
-                  <div className="mt-3 flex flex-wrap items-center gap-1.5 text-xs font-mono">
-                    <span className="text-[10px] text-stone-400">Sweeteners / Extras:</span>
-                    {drink.additions.map((add, idx) => (
-                      <span
-                        key={idx}
-                        className="px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-300 border border-amber-500/20 text-[10px]"
-                      >
-                        {add.name} ({Math.round(add.amount * scale)} {add.unit})
-                      </span>
-                    ))}
-                  </div>
-                )}
-
-                {/* Expandable Barista Instructions & Science */}
-                {isExpanded && (
-                  <div className="mt-4 pt-4 border-t border-stone-800/80 space-y-3.5 text-xs">
-                    <div>
-                      <h4 className="font-bold text-stone-200 mb-2 flex items-center space-x-1.5">
-                        <Layers className="w-3.5 h-3.5 text-amber-400" />
-                        <span>Step-by-Step Barista Assembly:</span>
-                      </h4>
-                      <ol className="space-y-1.5 pl-4 list-decimal text-stone-300 leading-relaxed font-sans">
-                        {drink.assemblySteps.map((step, idx) => (
-                          <li key={idx}>{step}</li>
-                        ))}
-                      </ol>
-                    </div>
-
-                    {drink.baristaTips && (
-                      <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl text-amber-200 leading-relaxed">
-                        <strong className="text-amber-400 block font-mono text-[11px] mb-0.5">
-                          💡 Barista Craft & Extraction Note:
-                        </strong>
-                        {drink.baristaTips}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {/* Bottom Card Actions */}
-              <div className="mt-5 pt-3 border-t border-stone-800 flex items-center justify-between gap-3">
-                <button
-                  onClick={() => setExpandedDrinkId(isExpanded ? null : drink.id)}
-                  className="text-xs font-mono text-stone-400 hover:text-white flex items-center space-x-1"
-                >
-                  <span>{isExpanded ? 'Hide Steps' : 'View Barista Steps'}</span>
-                  {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-                </button>
-
-                <button
-                  onClick={() => handleLaunchBrewForDrink(drink, scale)}
-                  className="px-4 py-2 rounded-xl bg-stone-800 hover:bg-amber-600 text-stone-200 hover:text-white text-xs font-semibold flex items-center space-x-1.5 transition-all shadow-md"
-                >
-                  <Timer className="w-3.5 h-3.5 text-amber-400 group-hover:text-white" />
-                  <span>Pull {scaledCoffeeYield}g Base</span>
-                </button>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Add / Edit Drink Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm overflow-y-auto">
-          <div className="bg-stone-900 border border-stone-800 rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl my-8">
-            <div className="flex items-center justify-between pb-4 border-b border-stone-800">
-              <h3 className="text-lg font-bold text-white flex items-center space-x-2">
-                <GlassWater className="w-5 h-5 text-amber-500" />
-                <span>{editingDrink ? `Edit ${editingDrink.name}` : 'Create New Coffee Drink'}</span>
-              </h3>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="p-1 rounded-lg text-stone-400 hover:text-white hover:bg-stone-800"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <form onSubmit={handleSubmitModal} className="mt-5 space-y-4 text-xs">
-              {/* Name & Alt Name */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-mono text-stone-300 mb-1">Drink Name:</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Honey Cinnamon Cortado"
-                    value={formName}
-                    onChange={e => setFormName(e.target.value)}
-                    className="w-full bg-stone-950 border border-stone-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-amber-500"
-                  />
-                </div>
-                <div>
-                  <label className="block font-mono text-stone-300 mb-1">Italian / Alt Name:</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Cortado con Miel"
-                    value={formAltName}
-                    onChange={e => setFormAltName(e.target.value)}
-                    className="w-full bg-stone-950 border border-stone-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-amber-500"
-                  />
-                </div>
-              </div>
-
-              {/* Family & Serving Temp */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div>
-                  <label className="block font-mono text-stone-300 mb-1">Drink Category:</label>
-                  <select
-                    value={formFamily}
-                    onChange={e => setFormFamily(e.target.value as DrinkFamily)}
-                    className="w-full bg-stone-950 border border-stone-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-amber-500"
-                  >
-                    <option value="espresso_black">Espresso Black</option>
-                    <option value="espresso_milk">Espresso & Milk</option>
-                    <option value="iced_cold">Iced & Cold Drinks</option>
-                    <option value="traditional_heritage">Traditional Heritage</option>
-                    <option value="specialty_fusion">Specialty Fusion</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block font-mono text-stone-300 mb-1">Serving Temp:</label>
-                  <select
-                    value={formServingTemp}
-                    onChange={e => setFormServingTemp(e.target.value as any)}
-                    className="w-full bg-stone-950 border border-stone-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-amber-500"
-                  >
-                    <option value="hot">Hot Serving 🔥</option>
-                    <option value="iced">Iced / Chilled 🧊</option>
-                    <option value="chilled_layered">Thermal Layered ❄️</option>
-                    <option value="room_temp">Room Temp</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block font-mono text-stone-300 mb-1">Glassware / Cup:</label>
-                  <input
-                    type="text"
-                    value={formGlassware}
-                    onChange={e => setFormGlassware(e.target.value)}
-                    placeholder="e.g. 150ml Gibraltar Glass"
-                    className="w-full bg-stone-950 border border-stone-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-amber-500"
-                  />
-                </div>
-              </div>
-
-              {/* Serving Size defaults */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-mono text-stone-300 mb-1">Default Serving Volume (ml):</label>
+            {formSection(
+              'Water',
+              WATER_SWATCH,
+              <>
+                <label className="block">
+                  <Caps className="mb-1">Amount (ml)</Caps>
                   <input
                     type="number"
-                    value={formDefaultServingMl}
-                    onChange={e => setFormDefaultServingMl(parseInt(e.target.value) || 0)}
-                    className="w-full bg-stone-950 border border-stone-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-amber-500"
+                    inputMode="numeric"
+                    value={formWaterMl}
+                    onChange={e => setFormWaterMl(parseInt(e.target.value) || 0)}
+                    className={NUM_FIELD}
                   />
-                </div>
-                <div>
-                  <label className="block font-mono text-stone-300 mb-1">Default Cup Size (oz):</label>
-                  <input
-                    type="number"
-                    step="0.5"
-                    value={formDefaultCupOz}
-                    onChange={e => setFormDefaultCupOz(parseFloat(e.target.value) || 0)}
-                    className="w-full bg-stone-950 border border-stone-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-amber-500"
-                  />
-                </div>
-              </div>
-
-              {/* Description */}
-              <div>
-                <label className="block font-mono text-stone-300 mb-1">Description:</label>
-                <textarea
-                  rows={2}
-                  value={formDescription}
-                  onChange={e => setFormDescription(e.target.value)}
-                  placeholder="Describe the drink's flavor profile, texture, and origin..."
-                  className="w-full bg-stone-950 border border-stone-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-amber-500"
-                />
-              </div>
-
-              {/* SECTION: Coffee Base */}
-              <div className="p-4 bg-stone-950 rounded-2xl border border-stone-800 space-y-3">
-                <span className="font-mono font-bold text-amber-400 block">☕ 1. Coffee Base Extraction:</span>
-                <div className="grid grid-cols-3 gap-3">
-                  <div>
-                    <label className="block font-mono text-stone-400 mb-1">Coffee Dose (g):</label>
-                    <input
-                      type="number"
-                      step="0.1"
-                      value={formCoffeeDose}
-                      onChange={e => setFormCoffeeDose(parseFloat(e.target.value) || 0)}
-                      className="w-full bg-stone-900 border border-stone-700 rounded-xl px-3 py-1.5 text-white font-mono"
-                    />
-                  </div>
-                  <div>
-                    <label className="block font-mono text-stone-400 mb-1">Yield / Extracted (g):</label>
-                    <input
-                      type="number"
-                      step="0.1"
-                      value={formCoffeeYield}
-                      onChange={e => setFormCoffeeYield(parseFloat(e.target.value) || 0)}
-                      className="w-full bg-stone-900 border border-stone-700 rounded-xl px-3 py-1.5 text-white font-mono font-bold text-amber-400"
-                    />
-                  </div>
-                  <div>
-                    <label className="block font-mono text-stone-400 mb-1">Brew Discipline:</label>
-                    <select
-                      value={formCoffeeBrewType}
-                      onChange={e => setFormCoffeeBrewType(e.target.value as any)}
-                      className="w-full bg-stone-900 border border-stone-700 rounded-xl px-2 py-1.5 text-white font-mono"
-                    >
-                      <option value="espresso">Espresso</option>
-                      <option value="filter">Filter / Drip</option>
-                      <option value="immersion">Immersion / Cold Brew</option>
-                      <option value="singaporean_kopi">Kopi Sock</option>
-                      <option value="moka_stovetop">Moka Pot</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              {/* SECTION: Water */}
-              <div className="p-4 bg-stone-950 rounded-2xl border border-stone-800 space-y-3">
-                <span className="font-mono font-bold text-cyan-400 block">💧 2. Amount of Water to Use:</span>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block font-mono text-stone-400 mb-1">Water Amount (ml):</label>
-                    <input
-                      type="number"
-                      value={formWaterMl}
-                      onChange={e => setFormWaterMl(parseInt(e.target.value) || 0)}
-                      className="w-full bg-stone-900 border border-stone-700 rounded-xl px-3 py-1.5 text-cyan-400 font-mono font-bold"
-                    />
-                  </div>
-                  <div>
-                    <label className="block font-mono text-stone-400 mb-1">Water Type:</label>
-                    <SmartDropdownWithOthers
-                      options={WATER_TYPE_OPTIONS}
-                      value={formWaterType}
-                      onChange={val => setFormWaterType(val)}
-                      customVariableGroup="drink_water_types"
-                      placeholder="Select water type..."
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* SECTION: Milk */}
-              <div className="p-4 bg-stone-950 rounded-2xl border border-stone-800 space-y-3">
-                <span className="font-mono font-bold text-stone-200 block">🥛 3. Amount of Milk / Cream to Use:</span>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block font-mono text-stone-400 mb-1">Milk Amount (ml / g):</label>
-                    <input
-                      type="number"
-                      value={formMilkMl}
-                      onChange={e => setFormMilkMl(parseInt(e.target.value) || 0)}
-                      className="w-full bg-stone-900 border border-stone-700 rounded-xl px-3 py-1.5 text-white font-mono font-bold"
-                    />
-                  </div>
-                  <div>
-                    <label className="block font-mono text-stone-400 mb-1">Milk / Dairy Type:</label>
-                    <SmartDropdownWithOthers
-                      options={MILK_OPTIONS}
-                      value={formMilkType}
-                      onChange={val => setFormMilkType(val)}
-                      customVariableGroup="drink_milk_types"
-                      placeholder="Select milk or plant type..."
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* SECTION: Ice */}
-              <div className="p-4 bg-stone-950 rounded-2xl border border-stone-800 space-y-3">
-                <span className="font-mono font-bold text-sky-400 block">🧊 4. Amount of Ice to Use:</span>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block font-mono text-stone-400 mb-1">Ice Amount (grams):</label>
-                    <input
-                      type="number"
-                      value={formIceGrams}
-                      onChange={e => setFormIceGrams(parseInt(e.target.value) || 0)}
-                      className="w-full bg-stone-900 border border-stone-700 rounded-xl px-3 py-1.5 text-sky-300 font-mono font-bold"
-                    />
-                  </div>
-                  <div>
-                    <label className="block font-mono text-stone-400 mb-1">Ice Type:</label>
-                    <SmartDropdownWithOthers
-                      options={ICE_TYPE_OPTIONS}
-                      value={formIceType}
-                      onChange={val => setFormIceType(val)}
-                      customVariableGroup="drink_ice_types"
-                      placeholder="Select ice type..."
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Steps & Tips */}
-              <div>
-                <label className="block font-mono text-stone-300 mb-1">
-                  Assembly Steps (one instruction per line):
                 </label>
-                <textarea
-                  rows={3}
-                  value={formSteps}
-                  onChange={e => setFormSteps(e.target.value)}
-                  placeholder="Step 1...&#10;Step 2...&#10;Step 3..."
-                  className="w-full bg-stone-950 border border-stone-800 rounded-xl px-3 py-2 text-white font-mono"
-                />
-              </div>
+                <div className="min-w-0">
+                  <Caps className="mb-1">Type</Caps>
+                  <SmartDropdownWithOthers
+                    options={WATER_TYPE_OPTIONS}
+                    value={formWaterType}
+                    onChange={val => setFormWaterType(val)}
+                    customVariableGroup="drink_water_types"
+                    placeholder="Select water type..."
+                  />
+                </div>
+              </>
+            )}
 
-              <div>
-                <label className="block font-mono text-stone-300 mb-1">Barista Craft Tip:</label>
-                <input
-                  type="text"
-                  value={formTips}
-                  onChange={e => setFormTips(e.target.value)}
-                  placeholder="e.g. Swirl espresso before pouring milk..."
-                  className="w-full bg-stone-950 border border-stone-800 rounded-xl px-3 py-2 text-white"
-                />
-              </div>
+            {formSection(
+              'Milk / cream',
+              MILK_SWATCH,
+              <>
+                <label className="block">
+                  <Caps className="mb-1">Amount (ml / g)</Caps>
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    value={formMilkMl}
+                    onChange={e => setFormMilkMl(parseInt(e.target.value) || 0)}
+                    className={NUM_FIELD}
+                  />
+                </label>
+                <div className="min-w-0">
+                  <Caps className="mb-1">Type</Caps>
+                  <SmartDropdownWithOthers
+                    options={MILK_OPTIONS}
+                    value={formMilkType}
+                    onChange={val => setFormMilkType(val)}
+                    customVariableGroup="drink_milk_types"
+                    placeholder="Select milk or plant type..."
+                  />
+                </div>
+              </>
+            )}
 
-              <div className="pt-4 border-t border-stone-800 flex items-center justify-end space-x-3">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 rounded-xl text-stone-400 hover:text-white"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-6 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold shadow-lg shadow-amber-950/40"
-                >
-                  Save Drink Recipe
-                </button>
+            {formSection(
+              'Ice',
+              ICE_SWATCH,
+              <>
+                <label className="block">
+                  <Caps className="mb-1">Amount (g)</Caps>
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    value={formIceGrams}
+                    onChange={e => setFormIceGrams(parseInt(e.target.value) || 0)}
+                    className={NUM_FIELD}
+                  />
+                </label>
+                <div className="min-w-0">
+                  <Caps className="mb-1">Type</Caps>
+                  <SmartDropdownWithOthers
+                    options={ICE_TYPE_OPTIONS}
+                    value={formIceType}
+                    onChange={val => setFormIceType(val)}
+                    customVariableGroup="drink_ice_types"
+                    placeholder="Select ice type..."
+                  />
+                </div>
+              </>
+            )}
+
+            <section className="mt-6">
+              <h3 className="border-b border-ink pb-1.5 text-[16px] font-extrabold">Steps & tips</h3>
+              <div className="mt-3 grid grid-cols-1 gap-3">
+                <label className="block">
+                  <Caps className="mb-1">Assembly steps, one per line</Caps>
+                  <textarea
+                    rows={4}
+                    value={formSteps}
+                    onChange={e => setFormSteps(e.target.value)}
+                    placeholder={'Step 1...\nStep 2...\nStep 3...'}
+                    className={AREA}
+                  />
+                </label>
+                <label className="block">
+                  <Caps className="mb-1">Barista tip</Caps>
+                  <input
+                    type="text"
+                    value={formTips}
+                    onChange={e => setFormTips(e.target.value)}
+                    placeholder="e.g. Swirl espresso before pouring milk"
+                    className={FIELD}
+                  />
+                </label>
               </div>
-            </form>
-          </div>
-        </div>
+            </section>
+          </form>
+        </Sheet>
       )}
     </div>
   );

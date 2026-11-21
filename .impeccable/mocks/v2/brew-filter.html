@@ -72,11 +72,15 @@ button.p{background:var(--ink);color:#fff;margin-left:auto;padding:0 34px}
 .s.prep{background:var(--tint);color:var(--ink);text-decoration:none;display:block;box-shadow:inset 0 -5px 0 var(--c)}
 .s.prep .d{font-size:24px;font-stretch:90%;margin-top:7px}
 .s.prep .go{font-size:12.5px;font-weight:800;text-decoration:underline;margin-top:5px;display:block}
+.spec dd.cg{display:flex;align-items:center;gap:8px;min-width:0;padding:2px 0}
+.spec dd.cg .tx{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.spec .ed{font:inherit;height:17px;line-height:15px;padding:0 6px;font-size:9.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;border:1px solid currentColor;background:transparent;color:inherit;margin:0;flex:none;cursor:pointer}
+.lk{height:40px;padding:0 12px;font-size:12px;letter-spacing:.06em;text-transform:uppercase}
 </style></head><body>
 <aside class="rail">
   <div class="mark">CoffeeWorks<small>Brew station</small></div>
   <nav>
-    <a class="on" href="#">Brew <span>running</span></a><a href="#">Recipes <span>14</span></a><a href="#">Drink Lab <span>62</span></a><a href="#">Kopi <span>9</span></a><a href="#">Beans <span>5</span></a><a href="#">Gear <span>11</span></a><a href="#">Water <span>15</span></a><a href="#">History <span>48</span></a>
+    <a class="on" href="#">Brew <span>running</span></a><a href="#">Recipes <span>14</span></a><a href="#">Drink Lab <span>62</span></a><a href="#">Kopi <span>9</span></a><a href="#">Beans <span>5</span></a><a href="#">Gear <span>11</span></a><a href="#">Water <span>15</span></a><a href="#">History <span>48</span></a><a href="settings.html">Settings <span></span></a>
   </nav>
   <div class="h">Daily drivers</div>
   <div class="drv"><i style="background:#D62828"></i><b>Espresso</b><em>CW-001</em></div><div class="drv"><i style="background:#5D6B2F"></i><b>Lever</b><em>CW-002</em></div><div class="drv"><i style="background:#E9B523"></i><b>Moka</b><em>CW-003</em></div><div class="drv on"><i style="background:#2747D6"></i><b>Filter</b><em>CW-014</em></div><div class="drv"><i style="background:#1F7A8C"></i><b>Immersion</b><em>CW-006</em></div><div class="drv"><i style="background:#1F7A55"></i><b>Kopi</b><em>CW-007</em></div>
@@ -84,7 +88,7 @@ button.p{background:var(--ink);color:#fff;margin-left:auto;padding:0 34px}
 <main>
   <header class="label">
     <div><div class="lot">CW-014 · Filter · 15 g → 250 g · 1:16.7 · 92 °C</div><h1 class="title">Orea V4 Apex · Negotiated 5&#8209;Pour</h1></div>
-    <dl class="spec"><dt>Bean</dt><dd>Gedeb Chelchele · Washed · 25 d</dd><dt>Grind</dt><dd>Fellow Ode Gen 2 · #5.1</dd><dt>Water</dt><dd>PUB · 70 ppm · GH 45 · <b>92 °C</b></dd></dl>
+    <dl class="spec"><dt>Bean</dt><dd class="cg"><span class="tx">Gedeb Chelchele · Washed · 25 d</span><button class="ed" aria-label="Change bean">Change</button></dd><dt>Grind</dt><dd class="cg"><span class="tx">Fellow Ode Gen 2 · #5.1</span><button class="ed" aria-label="Change grind">Change</button></dd><dt>Water</dt><dd>PUB · 70 ppm · GH 45 · <b>92 °C</b></dd></dl>
   </header>
   <section class="clock">
     <div class="step">
@@ -103,7 +107,7 @@ button.p{background:var(--ink);color:#fff;margin-left:auto;padding:0 34px}
   </div>
   <div class="adv"><b>Dial-in</b><span>Flow is running 0.4 g/s fast. If the cup tastes thin, go two steps finer next brew: <strong>Ode #4.9</strong>.</span></div>
   <footer>
-    <button>Pause</button><button>+5 s</button><button>Next step</button><span class="chip">Lot CW-014 · shot 49</span>
+    <button>Pause</button><button>+5 s</button><button>Next step</button><button class="lk" aria-label="Layout follows tilt. Tap to lock">⟳ Auto</button><span class="chip">Lot CW-014 · shot 49</span>
     <button class="p">Finish &amp; taste</button>
   </footer>
 </main>

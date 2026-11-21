@@ -10,12 +10,14 @@ import {
   CoffeeDrinkRecipe,
   CategoryToolSelections,
   SetupChangeLog,
+  CustomMethod,
 } from '../types/coffee';
 import { PRESET_BEANS } from '../data/presetBeans';
 import { PRESET_GEARS } from '../data/presetGear';
 import { PRESET_WATER_PROFILES } from '../data/presetWater';
 import { DEFAULT_RECIPES } from '../data/defaultRecipes';
 import { COFFEE_DRINKS_CATALOG } from '../data/coffeeDrinksCatalog';
+import { loadKey, saveKey } from '../platform/storage';
 
 interface CoffeeContextType {
   activeCategory: CoffeeCategory | 'all';
@@ -34,6 +36,12 @@ interface CoffeeContextType {
   recipes: Recipe[];
   coffeeDrinks: CoffeeDrinkRecipe[];
   sessions: BrewSession[];
+
+  // The user's own brew methods (under a main method, or in Others)
+  customMethods: CustomMethod[];
+  addCustomMethod: (m: Omit<CustomMethod, 'id' | 'createdAt'>) => CustomMethod;
+  updateCustomMethod: (id: string, updates: Partial<CustomMethod>) => void;
+  deleteCustomMethod: (id: string) => void;
 
   // Selected Recipe for brewing
   selectedRecipeForBrew: Recipe | null;
@@ -103,6 +111,7 @@ const STORAGE_KEYS = {
   SESSIONS: 'coffeeworks_sessions_v2',
   PREFERENCES: 'coffeeworks_preferences_v2',
   CUSTOM_VARS: 'coffeeworks_custom_vars_v2',
+  METHODS: 'coffeeworks_methods_v1',
 };
 
 const DEFAULT_PREFERENCES: UserPreferences = {
@@ -191,45 +200,39 @@ export const CoffeeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const [activeCategory, setActiveCategory] = useState<CoffeeCategory | 'all'>('all');
 
   const [userPreferences, setUserPreferences] = useState<UserPreferences>(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.PREFERENCES);
-    return saved ? JSON.parse(saved) : DEFAULT_PREFERENCES;
+    return loadKey(STORAGE_KEYS.PREFERENCES, DEFAULT_PREFERENCES);
   });
 
   const [customVariables, setCustomVariables] = useState<Record<string, string[]>>(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.CUSTOM_VARS);
-    return saved ? JSON.parse(saved) : {};
+    return loadKey(STORAGE_KEYS.CUSTOM_VARS, {});
   });
 
   // Persistent States
   const [beans, setBeans] = useState<Bean[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.BEANS);
-    return saved ? JSON.parse(saved) : PRESET_BEANS;
+    return loadKey(STORAGE_KEYS.BEANS, PRESET_BEANS);
   });
 
   const [gearProfiles, setGearProfiles] = useState<GearProfile[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.GEAR);
-    return saved ? JSON.parse(saved) : PRESET_GEARS;
+    return loadKey(STORAGE_KEYS.GEAR, PRESET_GEARS);
   });
 
   const [waterProfiles, setWaterProfiles] = useState<WaterProfile[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.WATER);
-    return saved ? JSON.parse(saved) : PRESET_WATER_PROFILES;
+    return loadKey(STORAGE_KEYS.WATER, PRESET_WATER_PROFILES);
   });
 
   const [recipes, setRecipes] = useState<Recipe[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.RECIPES);
-    return saved ? JSON.parse(saved) : DEFAULT_RECIPES;
+    return loadKey(STORAGE_KEYS.RECIPES, DEFAULT_RECIPES);
   });
 
   const [coffeeDrinks, setCoffeeDrinks] = useState<CoffeeDrinkRecipe[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.DRINKS);
-    return saved ? JSON.parse(saved) : COFFEE_DRINKS_CATALOG;
+    return loadKey(STORAGE_KEYS.DRINKS, COFFEE_DRINKS_CATALOG);
   });
 
   const [sessions, setSessions] = useState<BrewSession[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.SESSIONS);
-    return saved ? JSON.parse(saved) : [];
+    return loadKey(STORAGE_KEYS.SESSIONS, []);
   });
+
+  const [customMethods, setCustomMethods] = useState<CustomMethod[]>(() => loadKey(STORAGE_KEYS.METHODS, [] as CustomMethod[]));
 
   const [selectedRecipeForBrew, setSelectedRecipeForBrew] = useState<Recipe | null>(() => {
     const prefCat = userPreferences.primaryCategory || 'filter';
@@ -239,36 +242,61 @@ export const CoffeeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
   // Save to LocalStorage on updates
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.PREFERENCES, JSON.stringify(userPreferences));
+    saveKey(STORAGE_KEYS.PREFERENCES, JSON.stringify(userPreferences));
   }, [userPreferences]);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.CUSTOM_VARS, JSON.stringify(customVariables));
+    saveKey(STORAGE_KEYS.CUSTOM_VARS, JSON.stringify(customVariables));
   }, [customVariables]);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.BEANS, JSON.stringify(beans));
+    saveKey(STORAGE_KEYS.BEANS, JSON.stringify(beans));
   }, [beans]);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.GEAR, JSON.stringify(gearProfiles));
+    saveKey(STORAGE_KEYS.GEAR, JSON.stringify(gearProfiles));
   }, [gearProfiles]);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.WATER, JSON.stringify(waterProfiles));
+    saveKey(STORAGE_KEYS.WATER, JSON.stringify(waterProfiles));
   }, [waterProfiles]);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.RECIPES, JSON.stringify(recipes));
+    saveKey(STORAGE_KEYS.RECIPES, JSON.stringify(recipes));
   }, [recipes]);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.DRINKS, JSON.stringify(coffeeDrinks));
+    saveKey(STORAGE_KEYS.DRINKS, JSON.stringify(coffeeDrinks));
   }, [coffeeDrinks]);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.SESSIONS, JSON.stringify(sessions));
+    saveKey(STORAGE_KEYS.SESSIONS, JSON.stringify(sessions));
   }, [sessions]);
+
+  useEffect(() => {
+    saveKey(STORAGE_KEYS.METHODS, JSON.stringify(customMethods));
+  }, [customMethods]);
+
+  const addCustomMethod = (data: Omit<CustomMethod, 'id' | 'createdAt'>) => {
+    const m: CustomMethod = { ...data, id: `method-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, createdAt: new Date().toISOString() };
+    setCustomMethods(prev => [...prev, m]);
+    return m;
+  };
+
+  const updateCustomMethod = (id: string, updates: Partial<CustomMethod>) => {
+    const current = customMethods.find(m => m.id === id);
+    setCustomMethods(prev => prev.map(m => (m.id === id ? { ...m, ...updates } : m)));
+    // Recipes follow their method when it moves to another group
+    if (current && updates.parent && updates.parent !== current.parent) {
+      setRecipes(prev => prev.map(r => (r.methodId === id ? { ...r, category: updates.parent! } : r)));
+    }
+  };
+
+  /** Removes the method; its recipes stay in the method's group without the custom name. */
+  const deleteCustomMethod = (id: string) => {
+    setCustomMethods(prev => prev.filter(m => m.id !== id));
+    setRecipes(prev => prev.map(r => (r.methodId === id ? { ...r, methodId: undefined } : r)));
+  };
 
   // When active category switches, load default recipe for that category if applicable
   const handleSetActiveCategory = (cat: CoffeeCategory | 'all') => {
@@ -657,6 +685,7 @@ export const CoffeeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       recipes,
       coffeeDrinks,
       sessions,
+      customMethods,
     };
     return JSON.stringify(data, null, 2);
   };
@@ -672,6 +701,7 @@ export const CoffeeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       if (data.recipes) setRecipes(data.recipes);
       if (data.coffeeDrinks) setCoffeeDrinks(data.coffeeDrinks);
       if (data.sessions) setSessions(data.sessions);
+      if (data.customMethods) setCustomMethods(data.customMethods);
       return true;
     } catch (e) {
       console.error('Failed to import JSON data:', e);
@@ -688,7 +718,7 @@ export const CoffeeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     setRecipes(DEFAULT_RECIPES);
     setCoffeeDrinks(COFFEE_DRINKS_CATALOG);
     setSessions([]);
-    localStorage.clear();
+    setCustomMethods([]);
   };
 
   return (
@@ -707,6 +737,10 @@ export const CoffeeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         recipes,
         coffeeDrinks,
         sessions,
+        customMethods,
+        addCustomMethod,
+        updateCustomMethod,
+        deleteCustomMethod,
         selectedRecipeForBrew,
         setSelectedRecipeForBrew,
         addCoffeeDrink,

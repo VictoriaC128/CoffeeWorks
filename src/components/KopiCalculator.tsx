@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
-import { Coffee, Droplets, Sparkles, Plus, Check, Award } from 'lucide-react';
+import { Coffee, Droplets, Plus, Check, Snowflake } from 'lucide-react';
 import { useCoffee } from '../context/CoffeeContext';
+import { useSettings } from '../settings/SettingsContext';
+import * as F from '../settings/format';
+import { MODES } from '../brew/modes';
+import { Btn, Caps, Stepper } from '../brew/ui';
+import { InfoTip } from '../brew/InfoTip';
 
 interface PresetOption {
   title: string;
@@ -98,8 +103,23 @@ const KOPI_PRESETS: PresetOption[] = [
   },
 ];
 
+const DIALECT: [string, string][] = [
+  ['O', 'No milk (black)'],
+  ['C', 'Evaporated milk'],
+  ['Kosong', 'No sugar'],
+  ['Gao', 'Thick, extra strong'],
+  ['Po', 'Thin, lighter'],
+  ['Di-lo', 'Undiluted, no added water'],
+  ['Peng', 'Iced'],
+];
+
+const KOPI = MODES.singaporean_kopi;
+const clamp = (n: number, min: number, max: number) => Math.min(max, Math.max(min, n));
+
 export const KopiCalculator: React.FC = () => {
   const { addRecipe, setSelectedRecipeForBrew } = useCoffee();
+  const { settings } = useSettings();
+  const u = settings.units;
 
   const [selectedPreset, setSelectedPreset] = useState<PresetOption>(KOPI_PRESETS[0]);
   const [coffeeGrams, setCoffeeGrams] = useState<number>(selectedPreset.coffeeGrams);
@@ -150,239 +170,155 @@ export const KopiCalculator: React.FC = () => {
     setTimeout(() => setSavedSuccess(false), 3000);
   };
 
+  const powder = F.coffee(coffeeGrams, u, 0);
+  const water = F.water(waterMl, u);
+  const boil = F.text(F.temp(100, u));
+  const ratio = waterMl / (coffeeGrams || 1);
+
+  const dial = (key: string, label: React.ReactNode, value: string, unit: string, sub: React.ReactNode, onMinus: () => void, onPlus: () => void) => (
+    <div key={key} className="px-4 sm:px-5 py-3 border-r border-b border-rule min-w-0 flex flex-col">
+      <Caps className="flex items-center gap-1.5">{label}</Caps>
+      <div className="num font-extrabold leading-none mt-2 mb-1 whitespace-nowrap text-[44px] sm:text-[48px]">
+        {value}<span className="text-[18px] font-semibold text-mute ml-1 tracking-normal" style={{ fontStretch: '100%' }}>{unit}</span>
+      </div>
+      <div className="text-[13px] text-mute leading-snug min-h-[34px]">{sub}</div>
+      <div className="mt-2"><Stepper label={typeof label === 'string' ? label : key} onMinus={onMinus} onPlus={onPlus} /></div>
+    </div>
+  );
+
+  const steps: [string, React.ReactNode][] = [
+    ['Pre-warm the cup', 'Swirl boiling water inside the thick porcelain cup to hold the temperature and help the milk emulsify.'],
+    ['Load the flannel sock', <>Add <b className="num text-ink">{F.text(powder)}</b> of coarse wok-roast grounds to the cloth sock strainer.</>],
+    ['Pour and pull', <>Pour <b className="num text-ink">{F.text(water)}</b> of boiling water through. Lift and dip the sock 4 to 5 times to aerate and pull out the caramelised malt body.</>],
+    ['Pour from height', 'Put the condensed or evaporated milk in the bottom of the cup, pour the hot essence from about 30 cm to froth the top, then stir.'],
+  ];
+
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
-      {/* Header Banner */}
-      <div className="bg-gradient-to-r from-stone-900 via-amber-950/40 to-stone-900 border border-stone-800 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
-        <div className="flex items-center space-x-3 mb-2">
-          <span className="text-2xl">🇸🇬</span>
-          <span className="bg-red-500/10 text-red-400 text-xs font-semibold px-2.5 py-0.5 rounded-full border border-red-500/20 uppercase tracking-wide">
-            Singapore Heritage Coffee Engine
-          </span>
+    <div className="max-w-5xl mx-auto">
+      {/* Label band in the kopi colour */}
+      <header className={`${KOPI.bg} ${KOPI.on} px-5 sm:px-7 py-4 grid gap-4 lg:grid-cols-[1fr_330px] lg:items-end`}>
+        <div className="min-w-0">
+          <div className="flex items-center gap-2.5">
+            <Coffee className="w-6 h-6 shrink-0" aria-hidden />
+            <h1 className="font-black text-[26px] sm:text-[29px] leading-tight tracking-[-0.02em]" style={{ fontStretch: '106%' }}>Kopi · {selectedPreset.title}</h1>
+          </div>
+          <p className="text-[13px] opacity-85 mt-1">{selectedPreset.transliteration}</p>
         </div>
-        <h2 className="text-2xl sm:text-3xl font-black text-white">
-          Nanyang Kopi Dial-in & Formulation Matrix
-        </h2>
-        <p className="text-xs sm:text-sm text-stone-300 mt-2 max-w-3xl leading-relaxed">
-          Traditional Singaporean Kopi is crafted from highland Robusta wok-roasted with Planta butter/margarine and sugar. Brewed through a long flannel cloth sock strainer (*kopi bag*), it yields a heavy, syrupy concentrate tailored through traditional dialect terminology.
-        </p>
+        <dl className="grid grid-cols-[72px_1fr] text-[12.5px] border-t rule-on">
+          <dt className="uppercase text-[10.5px] tracking-[0.1em] opacity-80 pt-1.5 pb-1 border-b rule-on">Sock</dt>
+          <dd className="font-semibold py-1 border-b rule-on num">{F.text(powder)} · {F.text(water)} · {boil}</dd>
+          <dt className="uppercase text-[10.5px] tracking-[0.1em] opacity-80 pt-1.5 pb-1 border-b rule-on">Cup</dt>
+          <dd className="font-semibold py-1 border-b rule-on num">Condensed {condensedMilk} g · evap {evaporatedMilk} g · sugar {sugar} g</dd>
+          <dt className="uppercase text-[10.5px] tracking-[0.1em] opacity-80 pt-1.5 pb-1 border-b rule-on">Order</dt>
+          <dd className="font-semibold py-1 border-b rule-on">{selectedPreset.title} · {isIced ? 'iced' : 'hot'}</dd>
+        </dl>
+      </header>
+
+      <div className="px-5 sm:px-7 py-2.5 text-[14px] leading-snug border-b border-rule">
+        <p className="text-mute">Wok-roasted Robusta, pulled through a cloth sock and ordered in dialect.</p>
+        <InfoTip title="Ordering kopi" label="What do O, C, Kosong, Gao, Po, Di-lo, Peng mean?" className="text-[14px] font-semibold">
+          <p>
+            Traditional Singapore kopi is highland Robusta wok-roasted with butter or margarine and sugar, brewed through
+            a long flannel sock strainer into a heavy, syrupy concentrate. You order it in dialect:
+          </p>
+          <dl className="mt-2 grid grid-cols-[64px_1fr] gap-x-3 gap-y-1">
+            {DIALECT.map(([term, meaning]) => (
+              <React.Fragment key={term}>
+                <dt className="font-bold">{term}</dt>
+                <dd>{meaning}</dd>
+              </React.Fragment>
+            ))}
+          </dl>
+        </InfoTip>
       </div>
 
-      {/* Preset Buttons Grid */}
-      <div className="bg-stone-900 border border-stone-800 rounded-2xl p-5 shadow-xl">
-        <h3 className="text-sm font-bold text-stone-200 mb-3 flex items-center space-x-2">
-          <Sparkles className="w-4 h-4 text-amber-400" />
-          <span>Select Traditional Dialect Order:</span>
-        </h3>
-
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-          {KOPI_PRESETS.map(preset => {
-            const isSelected = selectedPreset.title === preset.title;
+      {/* Dialect order picker */}
+      <section className="pt-4">
+        <Caps className="px-5 sm:px-7 mb-2">Order</Caps>
+        <div role="radiogroup" aria-label="Kopi order" className="grid grid-cols-2 sm:grid-cols-4 border-t border-l border-ink">
+          {KOPI_PRESETS.map((preset) => {
+            const on = selectedPreset.title === preset.title;
             return (
               <button
                 key={preset.title}
+                type="button"
+                role="radio"
+                aria-checked={on}
                 onClick={() => applyPreset(preset)}
-                className={`p-3 rounded-xl border text-left transition-all ${
-                  isSelected
-                    ? 'bg-amber-600 text-white border-amber-500 shadow-lg shadow-amber-950/50'
-                    : 'bg-stone-950 text-stone-300 border-stone-800 hover:border-stone-700 hover:bg-stone-900/60'
-                }`}
+                className={`min-h-[64px] px-3.5 py-2.5 text-left border-r border-b border-ink min-w-0 ${on ? `${KOPI.bg} ${KOPI.on}` : 'hover:bg-tint'}`}
               >
-                <div className="font-bold text-sm">{preset.title}</div>
-                <div className={`text-[10px] truncate mt-0.5 ${isSelected ? 'text-amber-100' : 'text-stone-400'}`}>
-                  {preset.transliteration}
-                </div>
+                <div className="font-bold text-[15px] leading-tight">{preset.title}</div>
+                <div className={`text-[12px] leading-snug mt-0.5 line-clamp-2 ${on ? 'opacity-85' : 'text-mute'}`}>{preset.transliteration}</div>
               </button>
             );
           })}
         </div>
-      </div>
+      </section>
 
-      {/* Customizer Sliders & Ratios */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-stone-900 border border-stone-800 rounded-2xl p-6 shadow-xl space-y-6">
-          <div className="flex items-center justify-between pb-3 border-b border-stone-800">
-            <div>
-              <h3 className="text-base font-bold text-white">{selectedPreset.title} Formulation</h3>
-              <p className="text-xs text-stone-400 mt-0.5">{selectedPreset.description}</p>
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] border-b border-ink">
+        {/* Formulation */}
+        <section className="min-w-0">
+          <div className="px-5 sm:px-7 pt-4 pb-3 flex flex-wrap items-start justify-between gap-3 border-b border-ink">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <h2 className="text-[20px] font-extrabold">{selectedPreset.title} formulation</h2>
+                <InfoTip title={selectedPreset.title}>
+                  <p className="font-semibold">{selectedPreset.transliteration}</p>
+                  <p className="mt-1">{selectedPreset.description}</p>
+                </InfoTip>
+              </div>
             </div>
             {isIced && (
-              <span className="bg-cyan-500/20 text-cyan-300 text-xs px-2.5 py-1 rounded-full border border-cyan-500/30 font-medium">
-                ❄️ Served Iced (Peng)
+              <span className="inline-flex items-center gap-1.5 border border-ink px-2.5 py-1 text-[12px] font-bold uppercase tracking-[0.08em]">
+                <Snowflake className="w-3.5 h-3.5" aria-hidden />
+                Served iced (Peng)
               </span>
             )}
           </div>
 
-          {/* Sliders */}
-          <div className="space-y-4">
-            {/* Coffee Grounds */}
-            <div>
-              <div className="flex justify-between text-xs font-mono text-stone-300 mb-1">
-                <span className="flex items-center space-x-1.5">
-                  <Coffee className="w-4 h-4 text-amber-500" />
-                  <span>Coffee Powder (Nanyang Wok Roast):</span>
-                </span>
-                <span className="text-amber-400 font-bold">{coffeeGrams} g</span>
-              </div>
-              <input
-                type="range"
-                min="15"
-                max="35"
-                step="1"
-                value={coffeeGrams}
-                onChange={e => setCoffeeGrams(parseInt(e.target.value))}
-                className="w-full accent-amber-500 h-2 bg-stone-950 rounded-lg cursor-pointer"
-              />
-            </div>
-
-            {/* Boiling Water */}
-            <div>
-              <div className="flex justify-between text-xs font-mono text-stone-300 mb-1">
-                <span className="flex items-center space-x-1.5">
-                  <Droplets className="w-4 h-4 text-cyan-400" />
-                  <span>Boiling Brew Water (100°C):</span>
-                </span>
-                <span className="text-cyan-400 font-bold">{waterMl} ml</span>
-              </div>
-              <input
-                type="range"
-                min="100"
-                max="300"
-                step="10"
-                value={waterMl}
-                onChange={e => setWaterMl(parseInt(e.target.value))}
-                className="w-full accent-cyan-500 h-2 bg-stone-950 rounded-lg cursor-pointer"
-              />
-            </div>
-
-            {/* Condensed Milk */}
-            <div>
-              <div className="flex justify-between text-xs font-mono text-stone-300 mb-1">
-                <span>Condensed Milk (Sweetened Creamer):</span>
-                <span className="text-amber-300 font-bold">
-                  {condensedMilk} g (~{(condensedMilk / 15).toFixed(1)} tbsp)
-                </span>
-              </div>
-              <input
-                type="range"
-                min="0"
-                max="50"
-                step="5"
-                value={condensedMilk}
-                onChange={e => setCondensedMilk(parseInt(e.target.value))}
-                className="w-full accent-amber-400 h-2 bg-stone-950 rounded-lg cursor-pointer"
-              />
-            </div>
-
-            {/* Evaporated Milk */}
-            <div>
-              <div className="flex justify-between text-xs font-mono text-stone-300 mb-1">
-                <span>Evaporated Milk (Carnation / Creamy):</span>
-                <span className="text-purple-300 font-bold">
-                  {evaporatedMilk} g (~{(evaporatedMilk / 15).toFixed(1)} tbsp)
-                </span>
-              </div>
-              <input
-                type="range"
-                min="0"
-                max="50"
-                step="5"
-                value={evaporatedMilk}
-                onChange={e => setEvaporatedMilk(parseInt(e.target.value))}
-                className="w-full accent-purple-400 h-2 bg-stone-950 rounded-lg cursor-pointer"
-              />
-            </div>
-
-            {/* Granulated Sugar */}
-            <div>
-              <div className="flex justify-between text-xs font-mono text-stone-300 mb-1">
-                <span>Sugar:</span>
-                <span className="text-rose-300 font-bold">
-                  {sugar} g (~{(sugar / 4).toFixed(1)} tsp)
-                </span>
-              </div>
-              <input
-                type="range"
-                min="0"
-                max="25"
-                step="1"
-                value={sugar}
-                onChange={e => setSugar(parseInt(e.target.value))}
-                className="w-full accent-rose-400 h-2 bg-stone-950 rounded-lg cursor-pointer"
-              />
-            </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3">
+            {dial('coffee', <><Coffee className="w-3.5 h-3.5" aria-hidden />Coffee powder</>, powder.value, powder.unit,
+              <>Nanyang wok roast · ratio <b className="text-ink num">1:{ratio.toFixed(1)}</b></>,
+              () => setCoffeeGrams((g) => clamp(g - 1, 15, 35)), () => setCoffeeGrams((g) => clamp(g + 1, 15, 35)))}
+            {dial('water', <><Droplets className="w-3.5 h-3.5" aria-hidden />Boiling water</>, water.value, water.unit,
+              <>At {boil} through the sock</>,
+              () => setWaterMl((w) => clamp(w - 10, 100, 300)), () => setWaterMl((w) => clamp(w + 10, 100, 300)))}
+            {dial('condensed', 'Condensed milk', String(condensedMilk), 'g',
+              <>About <span className="num">{(condensedMilk / 15).toFixed(1)}</span> tbsp · sweetened</>,
+              () => setCondensedMilk((g) => clamp(g - 5, 0, 50)), () => setCondensedMilk((g) => clamp(g + 5, 0, 50)))}
+            {dial('evaporated', 'Evaporated milk', String(evaporatedMilk), 'g',
+              <>About <span className="num">{(evaporatedMilk / 15).toFixed(1)}</span> tbsp · creamy, unsweetened</>,
+              () => setEvaporatedMilk((g) => clamp(g - 5, 0, 50)), () => setEvaporatedMilk((g) => clamp(g + 5, 0, 50)))}
+            {dial('sugar', 'Sugar', String(sugar), 'g',
+              <>About <span className="num">{(sugar / 4).toFixed(1)}</span> tsp</>,
+              () => setSugar((g) => clamp(g - 1, 0, 25)), () => setSugar((g) => clamp(g + 1, 0, 25)))}
           </div>
 
-          {/* Action CTAs */}
-          <div className="pt-4 border-t border-stone-800 flex flex-col sm:flex-row gap-3">
-            <button
-              onClick={handleSaveAsCustomRecipe}
-              className="flex-1 py-3 px-4 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold flex items-center justify-center space-x-2 shadow-lg shadow-amber-950/50 transition-all"
-            >
-              {savedSuccess ? (
-                <>
-                  <Check className="w-4 h-4" />
-                  <span>Added to Recipe Vault!</span>
-                </>
-              ) : (
-                <>
-                  <Plus className="w-4 h-4" />
-                  <span>Save as Custom Kopi Recipe</span>
-                </>
-              )}
-            </button>
+          <div className="px-5 sm:px-7 py-3 flex flex-wrap items-center gap-3">
+            <Btn variant="primary" onClick={handleSaveAsCustomRecipe} className="w-full sm:w-auto px-8">
+              {savedSuccess ? <><Check className="w-5 h-5" aria-hidden />Added to Recipes</> : <><Plus className="w-5 h-5" aria-hidden />Save as kopi recipe</>}
+            </Btn>
+            <span className="text-[12.5px] text-mute" aria-live="polite">
+              {savedSuccess ? 'Saved and loaded on the brew screen.' : 'Saves to Recipes and loads it on the brew screen.'}
+            </span>
           </div>
-        </div>
+        </section>
 
-        {/* Right Col: Authentic Barista Step-by-Step Sock Brew Protocol */}
-        <div className="bg-stone-900 border border-stone-800 rounded-2xl p-6 shadow-xl space-y-4">
-          <h4 className="text-sm font-bold text-amber-400 flex items-center space-x-2">
-            <Award className="w-4 h-4" />
-            <span>Traditional Sock Pull Protocol</span>
-          </h4>
-
-          <ol className="space-y-3 text-xs text-stone-300">
-            <li className="flex items-start space-x-2.5">
-              <span className="w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">
-                1
-              </span>
-              <div>
-                <strong className="text-white block font-semibold">Pre-warm the Ceramic Cup:</strong>
-                Swirl boiling water inside the thick floral porcelain cup to preserve beverage temperature and emulsify milk.
-              </div>
-            </li>
-
-            <li className="flex items-start space-x-2.5">
-              <span className="w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">
-                2
-              </span>
-              <div>
-                <strong className="text-white block font-semibold">Load the Flannel Sock:</strong>
-                Add {coffeeGrams}g of coarse wok-roast grounds into the traditional cloth sock strainer.
-              </div>
-            </li>
-
-            <li className="flex items-start space-x-2.5">
-              <span className="w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">
-                3
-              </span>
-              <div>
-                <strong className="text-white block font-semibold">Pour & Agitate (The Pull):</strong>
-                Pour {waterMl}ml boiling water through. Lift and dip the sock 4 to 5 times to aerate and extract deep caramelized malt body.
-              </div>
-            </li>
-
-            <li className="flex items-start space-x-2.5">
-              <span className="w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">
-                4
-              </span>
-              <div>
-                <strong className="text-white block font-semibold">Pour From Height:</strong>
-                Place condensed/evaporated milk at the bottom of cup, pour the hot coffee essence from a 30cm height to froth the surface, then stir.
-              </div>
-            </li>
+        {/* Sock pull protocol */}
+        <aside className="border-t lg:border-t-0 lg:border-l border-ink px-5 py-4">
+          <h2 className="text-[17px] font-extrabold border-b border-ink pb-1.5">Sock pull, step by step</h2>
+          <ol>
+            {steps.map(([title, body], i) => (
+              <li key={title} className="grid grid-cols-[32px_1fr] gap-2 py-3 border-b border-rule">
+                <span className="text-[13px] font-extrabold num pt-0.5">{String(i + 1).padStart(2, '0')}</span>
+                <div>
+                  <div className="text-[15px] font-bold">{title}</div>
+                  <p className="text-[13.5px] text-mute leading-snug mt-0.5">{body}</p>
+                </div>
+              </li>
+            ))}
           </ol>
-        </div>
+        </aside>
       </div>
     </div>
   );

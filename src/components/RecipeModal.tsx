@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { X, Plus, Trash2, Save, Star, ShieldCheck, Zap } from 'lucide-react';
+import { Plus, Trash2, Save, Star } from 'lucide-react';
 import { useCoffee } from '../context/CoffeeContext';
 import { Recipe, CoffeeCategory, PourStage, BasketSpec } from '../types/coffee';
 import { SmartDropdownWithOthers } from './SmartDropdownWithOthers';
+import { Btn, Sheet } from '../brew/ui';
+import { MODES } from '../brew/modes';
+import { MethodEditor } from './BrewMethods';
 import {
   ESPRESSO_MACHINE_OPTIONS,
   ESPRESSO_BASKET_OPTIONS,
@@ -35,10 +38,13 @@ export const RecipeModal: React.FC<Props> = ({ isOpen, onClose, recipeToEdit }) 
     setDefaultRecipeForCategory,
     getLastUsedTools,
     updateLastUsedTools,
+    customMethods,
   } = useCoffee();
 
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState<CoffeeCategory>('espresso');
+  const [methodId, setMethodId] = useState<string | undefined>(undefined);
+  const [newMethodOpen, setNewMethodOpen] = useState(false);
   const [beanId, setBeanId] = useState<string>('');
   const [waterProfileId, setWaterProfileId] = useState<string>('');
   const [saveAsNewRevision, setSaveAsNewRevision] = useState<boolean>(true);
@@ -178,6 +184,7 @@ export const RecipeModal: React.FC<Props> = ({ isOpen, onClose, recipeToEdit }) 
     if (recipeToEdit) {
       setTitle(recipeToEdit.title);
       setCategory(recipeToEdit.category);
+      setMethodId(recipeToEdit.methodId);
       setBeanId(recipeToEdit.beanId || '');
       setWaterProfileId(recipeToEdit.waterProfileId || '');
       setDoseGrams(recipeToEdit.doseGrams);
@@ -204,6 +211,7 @@ export const RecipeModal: React.FC<Props> = ({ isOpen, onClose, recipeToEdit }) 
       setTitle('');
       const startingCat = (userPreferences.primaryCategory as CoffeeCategory) || 'espresso';
       setCategory(startingCat);
+      setMethodId(undefined);
       setBeanId(beans[0]?.id || '');
       setWaterProfileId(waterProfiles[0]?.id || '');
       setPreInfusionSeconds(5);
@@ -221,6 +229,7 @@ export const RecipeModal: React.FC<Props> = ({ isOpen, onClose, recipeToEdit }) 
 
   const handleCategorySwitch = (newCat: CoffeeCategory) => {
     setCategory(newCat);
+    setMethodId(undefined);
     applyPreviousSelectionsForCategory(newCat);
   };
 
@@ -256,6 +265,7 @@ export const RecipeModal: React.FC<Props> = ({ isOpen, onClose, recipeToEdit }) 
     const recipeData = {
       title,
       category,
+      methodId,
       beanId: beanId || undefined,
       waterProfileId: (waterProfileId && waterProfileId !== 'N/A') ? waterProfileId : undefined,
       doseGrams,
@@ -336,534 +346,504 @@ export const RecipeModal: React.FC<Props> = ({ isOpen, onClose, recipeToEdit }) 
       ? 'Standard fit base'
       : `${basketDiameter} matching base`;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto">
-      <div className="bg-stone-900 border border-stone-800 rounded-3xl max-w-3xl w-full p-6 sm:p-8 shadow-2xl my-6">
-        <div className="flex items-center justify-between pb-4 border-b border-stone-800">
-          <div>
-            <h3 className="text-xl font-bold text-white">
-              {recipeToEdit ? 'Edit Coffee Recipe' : 'Create Custom Coffee Recipe'}
-            </h3>
-            <p className="text-xs text-stone-400 mt-0.5">
-              Select your variables from the dropdowns or choose "Others..." to key in custom labels.
-            </p>
-          </div>
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-xl text-stone-400 hover:text-white hover:bg-stone-800"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+  const isPressure = category === 'espresso' || category === 'manual_lever';
+  const fieldCls = 'w-full h-12 bg-paper border border-ink px-3 text-[15px] font-semibold text-ink';
+  const numCls = 'w-full h-12 bg-paper border border-ink px-3 text-[22px] font-bold num text-ink';
+  const checkRow = 'flex items-center gap-3 min-h-[48px] py-2 border-b border-rule text-[14px] font-medium';
+  const checkCls = 'w-5 h-5 shrink-0 accent-ink';
 
-        <form onSubmit={handleSubmit} className="mt-5 space-y-5">
-          {/* Method Selector Tabs */}
-          <div>
-            <label className="block text-xs font-mono text-stone-300 mb-1.5">
-              Select Coffee Brewing Method:
-            </label>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {[
-                { id: 'espresso', label: '⚡ Benchtop Espresso' },
-                { id: 'filter', label: '💧 Modern Filter' },
-                { id: 'manual_lever', label: '🦾 Manual Lever' },
-                { id: 'moka_stovetop', label: '🔥 Stovetop & Moka' },
-                { id: 'singaporean_kopi', label: '🇸🇬 Singaporean Kopi' },
-                { id: 'immersion', label: '⏳ Immersion' },
-              ].map(item => (
+  const section = (heading: string, body: React.ReactNode) => (
+    <section className="pt-6">
+      <h3 className="text-[17px] font-extrabold border-b border-ink pb-1.5 mb-3">{heading}</h3>
+      {body}
+    </section>
+  );
+
+  return (
+    <Sheet
+      title={recipeToEdit ? 'Edit recipe' : 'New recipe'}
+      sub={`${MODES[category].label} · pick from the lists, or tap the pencil to type your own brand or tool.`}
+      onClose={onClose}
+      footer={
+        <div className="w-full max-w-4xl mx-auto flex gap-2.5">
+          <Btn onClick={onClose}>Cancel</Btn>
+          <Btn variant="primary" type="submit" form="recipe-form" className="ml-auto flex-1 sm:flex-none sm:px-10">
+            <Save className="w-5 h-5" aria-hidden />
+            {recipeToEdit ? 'Save changes' : 'Create recipe'}
+          </Btn>
+        </div>
+      }
+    >
+      <form id="recipe-form" onSubmit={handleSubmit} className="max-w-4xl mx-auto pb-4">
+        {/* Method selector */}
+        <div>
+          <div className="label-caps mb-2" id="recipe-method-label">Brewing method</div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2" role="radiogroup" aria-labelledby="recipe-method-label">
+            {[
+              { id: 'espresso', label: 'Benchtop Espresso' },
+              { id: 'filter', label: 'Modern Filter' },
+              { id: 'manual_lever', label: 'Manual Lever' },
+              { id: 'moka_stovetop', label: 'Stovetop & Moka' },
+              { id: 'singaporean_kopi', label: 'Singaporean Kopi' },
+              { id: 'immersion', label: 'Immersion' },
+              { id: 'other', label: 'Others' },
+            ].map(item => {
+              const m = MODES[item.id as CoffeeCategory];
+              const on = category === item.id && !methodId;
+              return (
                 <button
                   type="button"
+                  role="radio"
+                  aria-checked={on}
                   key={item.id}
                   onClick={() => handleCategorySwitch(item.id as CoffeeCategory)}
-                  className={`py-2 px-3 rounded-xl border text-xs font-semibold text-center transition-all ${
-                    category === item.id
-                      ? 'bg-amber-600 text-white border-amber-500 shadow-md shadow-amber-950/40'
-                      : 'bg-stone-950 text-stone-300 border-stone-800 hover:border-stone-700'
+                  className={`min-h-[48px] px-3 border text-[14px] font-bold text-left flex items-center gap-2.5 ${
+                    on ? `${m.bg} ${m.on} border-transparent` : 'bg-paper text-ink border-rule'
                   }`}
                 >
-                  {item.label}
+                  <i className={`w-3.5 h-3.5 shrink-0 ${m.bg} ${on ? 'border border-current' : ''}`} aria-hidden />
+                  <span className="leading-tight">{item.label}</span>
                 </button>
-              ))}
-            </div>
+              );
+            })}
           </div>
-
-          {/* Title & Set as Default */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
-            <div className="sm:col-span-2">
-              <label className="block text-xs font-mono text-stone-300 mb-1">Recipe Title:</label>
-              <input
-                type="text"
-                required
-                placeholder="e.g. Morning Slayer-Profile Extraction"
-                value={title}
-                onChange={e => setTitle(e.target.value)}
-                className="w-full bg-stone-950 border border-stone-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500 font-medium"
-              />
-            </div>
-
-            <div className="bg-stone-950 p-2.5 rounded-xl border border-stone-800 flex items-center justify-between">
-              <span className="text-xs text-stone-300 font-medium flex items-center space-x-1.5">
-                <Star className={`w-4 h-4 ${isDefault ? 'text-amber-400 fill-amber-400' : 'text-stone-500'}`} />
-                <span>Default Rig</span>
-              </span>
-              <input
-                type="checkbox"
-                checked={isDefault}
-                onChange={e => setIsDefault(e.target.checked)}
-                className="accent-amber-500 w-4 h-4 cursor-pointer"
-              />
-            </div>
-          </div>
-
-          {/* Core Hardware & Water Dropdowns with 'Others...' */}
-          <div className="p-4 bg-stone-950/80 rounded-2xl border border-stone-800/80 space-y-3.5">
-            <span className="text-xs font-mono font-bold text-amber-400 block uppercase tracking-wider">
-              Core Rig & Chemistry Selection (With "Others..." Key-In)
-            </span>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {/* Machine or Dripper Dropdown */}
-              {category === 'espresso' && (
-                <SmartDropdownWithOthers
-                  label="Espresso Machine:"
-                  value={machineModel}
-                  onChange={setMachineModel}
-                  options={ESPRESSO_MACHINE_OPTIONS}
-                  customVariableGroup="machines"
-                />
-              )}
-
-              {category === 'filter' && (
-                <SmartDropdownWithOthers
-                  label="Filter Dripper:"
-                  value={dripperModel}
-                  onChange={setDripperModel}
-                  options={FILTER_DRIPPER_OPTIONS}
-                  customVariableGroup="drippers"
-                />
-              )}
-
-              {(category === 'manual_lever' || category === 'moka_stovetop' || category === 'singaporean_kopi' || category === 'immersion') && (
-                <SmartDropdownWithOthers
-                  label="Vessel / Machine Model:"
-                  value={machineModel}
-                  onChange={setMachineModel}
-                  options={[
-                    { label: 'Flair 58+ Heated Chamber Lever', value: 'Flair 58+' },
-                    { label: 'Cafelat Robot Dual Lever', value: 'Cafelat Robot' },
-                    { label: 'Odyssey Espresso Argos Hybrid', value: 'Odyssey Argos' },
-                    { label: 'Wacaco Picopresso Handheld', value: 'Wacaco Picopresso' },
-                    { label: '9Barista Twin Boiler Stovetop', value: '9Barista Stovetop' },
-                    { label: 'Bialetti Brikka Crema Valve', value: 'Bialetti Brikka' },
-                    { label: 'Classic Bialetti Moka Express', value: 'Bialetti Moka Express' },
-                    { label: 'Long-Spout Kettle + Flannel Cloth Sock', value: 'Cloth Sock Pull' },
-                    { label: 'AeroPress Clear + Flow Control Cap', value: 'AeroPress Clear' },
-                    { label: 'AeroPress Inverted World Champion', value: 'AeroPress Inverted' },
-                  ]}
-                  customVariableGroup="machines"
-                />
-              )}
-
-              {/* Grinder Dropdown */}
-              <SmartDropdownWithOthers
-                label="Grinder & Burrs:"
-                value={grinderModel}
-                onChange={setGrinderModel}
-                options={GRINDER_OPTIONS}
-                customVariableGroup="grinders"
-              />
-
-              {/* Water Profile Dropdown */}
-              <SmartDropdownWithOthers
-                label="Water Source & TDS:"
-                value={waterProfileId}
-                onChange={setWaterProfileId}
-                options={waterProfiles.map(w => ({
-                  label: `${w.name} (${w.tdsPpm} ppm)`,
-                  value: w.id,
-                  group: w.countryRegion,
-                }))}
-                customVariableGroup="waters"
-              />
-            </div>
-          </div>
-
-          {/* METHOD SPECIFIC: Espresso Basket & Puck Preparation Suite */}
-          {(category === 'espresso' || category === 'manual_lever') && (
-            <div className="p-4 bg-stone-950/80 rounded-2xl border border-stone-800/80 space-y-3.5">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-mono font-bold text-amber-400 block uppercase tracking-wider flex items-center space-x-1.5">
-                  <ShieldCheck className="w-4 h-4 text-amber-500" />
-                  <span>Precision Basket & Tool Selection</span>
-                </span>
-                <span className="text-[11px] text-stone-400 font-mono">
-                  Tamper Fit: <strong className="text-amber-300">{recommendedTamper}</strong>
-                </span>
-              </div>
-
-              {/* Basket Brand, Size, Diameter */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <SmartDropdownWithOthers
-                  label="Basket Brand / Model:"
-                  value={basketBrand}
-                  onChange={setBasketBrand}
-                  options={ESPRESSO_BASKET_OPTIONS}
-                  customVariableGroup="baskets"
-                />
-
-                <SmartDropdownWithOthers
-                  label="Basket Dose Capacity:"
-                  value={basketSize}
-                  onChange={setBasketSize}
-                  options={BASKET_SIZE_OPTIONS}
-                  customVariableGroup="basket_sizes"
-                />
-
-                <SmartDropdownWithOthers
-                  label="Basket Diameter:"
-                  value={basketDiameter}
-                  onChange={setBasketDiameter}
-                  options={BASKET_DIAMETER_OPTIONS}
-                  customVariableGroup="basket_diameters"
-                />
-              </div>
-
-              {/* Puck Prep Tools */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-                <SmartDropdownWithOthers
-                  label="Needle WDT Tool:"
-                  value={wdtTool}
-                  onChange={setWdtTool}
-                  options={WDT_OPTIONS}
-                  customVariableGroup="wdt_tools"
-                />
-
-                <SmartDropdownWithOthers
-                  label="Tamper System:"
-                  value={tamperTool}
-                  onChange={setTamperTool}
-                  options={TAMPER_OPTIONS}
-                  customVariableGroup="tampers"
-                />
-
-                <SmartDropdownWithOthers
-                  label="Top Puck Screen:"
-                  value={puckScreenTool}
-                  onChange={setPuckScreenTool}
-                  options={PUCK_SCREEN_OPTIONS}
-                  customVariableGroup="puck_screens"
-                />
-              </div>
-
-              {/* Portafilter & Shower Screen Selection */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                <SmartDropdownWithOthers
-                  label="Portafilter (Bottomless / Spouted):"
-                  value={portafilter}
-                  onChange={setPortafilter}
-                  options={PORTAFILTER_OPTIONS}
-                  customVariableGroup="portafilters"
-                />
-
-                <SmartDropdownWithOthers
-                  label="Shower Screen (Pesado / IKAPE / IMS):"
-                  value={showerScreen}
-                  onChange={setShowerScreen}
-                  options={SHOWER_SCREEN_OPTIONS}
-                  customVariableGroup="shower_screens"
-                />
-              </div>
-
-              {/* Bottom Paper & Flow Controls */}
-              <div className="flex flex-wrap gap-4 pt-1 text-xs text-stone-300">
-                <label className="flex items-center space-x-1.5 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={hasBottomPaper}
-                    onChange={e => setHasBottomPaper(e.target.checked)}
-                    className="accent-amber-500 rounded"
-                  />
-                  <span>Bottom Basket Paper Disc</span>
-                </label>
-
-                <label className="flex items-center space-x-1.5 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={hasFlowControl}
-                    onChange={e => setHasFlowControl(e.target.checked)}
-                    className="accent-amber-500 rounded"
-                  />
-                  <span>Flow Control Needle Paddle Active</span>
-                </label>
-
-                <label className="flex items-center space-x-1.5 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={hasPreInfusion}
-                    onChange={e => setHasPreInfusion(e.target.checked)}
-                    className="accent-amber-500 rounded"
-                  />
-                  <span>Low-Pressure Pre-Infusion</span>
-                </label>
-              </div>
-            </div>
-          )}
-
-          {/* METHOD SPECIFIC: Filter Paper & Tooling */}
-          {category === 'filter' && (
-            <div className="p-4 bg-stone-950/80 rounded-2xl border border-stone-800/80 space-y-3">
-              <span className="text-xs font-mono font-bold text-cyan-400 block uppercase tracking-wider">
-                Filter Paper Media & Tooling Synergy
-              </span>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <SmartDropdownWithOthers
-                  label="Filter Paper / Porous Medium:"
-                  value={filterPaperType}
-                  onChange={setFilterPaperType}
-                  options={FILTER_PAPER_OPTIONS}
-                  customVariableGroup="papers"
-                />
-
-                <SmartDropdownWithOthers
-                  label="Dispersion & Agitation Tool:"
-                  value={dispersionTool}
-                  onChange={setDispersionTool}
-                  options={DISPERSION_OPTIONS}
-                  customVariableGroup="dispersions"
-                />
-              </div>
-
-              <div className="flex flex-wrap gap-4 pt-1 text-xs text-stone-300">
-                <label className="flex items-center space-x-1.5 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={usesNegotiator}
-                    onChange={e => setUsesNegotiator(e.target.checked)}
-                    className="accent-purple-500 rounded"
-                  />
-                  <span>Uses Orea Negotiator Tool (Zero Bypass Wall Pleating)</span>
-                </label>
-
-                <label className="flex items-center space-x-1.5 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={hasImmersionValve}
-                    onChange={e => setHasImmersionValve(e.target.checked)}
-                    className="accent-cyan-500 rounded"
-                  />
-                  <span>Hybrid Immersion Valve (Switch / Pulsar / Clever)</span>
-                </label>
-              </div>
-            </div>
-          )}
-
-          {/* Dose, Yield, Temp, Time Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div>
-              <label className="block text-xs font-mono text-stone-300 mb-1">Dose In (g):</label>
-              <input
-                type="number"
-                step="0.1"
-                required
-                value={doseGrams}
-                onChange={e => setDoseGrams(parseFloat(e.target.value) || 0)}
-                className="w-full bg-stone-950 border border-stone-800 rounded-xl px-3 py-2 text-xs text-amber-400 font-mono font-bold focus:outline-none focus:border-amber-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-mono text-stone-300 mb-1">Yield Out (g):</label>
-              <input
-                type="number"
-                step="0.5"
-                required
-                value={yieldGrams}
-                onChange={e => setYieldGrams(parseFloat(e.target.value) || 0)}
-                className="w-full bg-stone-950 border border-stone-800 rounded-xl px-3 py-2 text-xs text-cyan-400 font-mono font-bold focus:outline-none focus:border-amber-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-mono text-stone-300 mb-1">Water Temp (°C):</label>
-              <input
-                type="number"
-                value={waterTempC}
-                onChange={e => setWaterTempC(parseFloat(e.target.value) || 0)}
-                className="w-full bg-stone-950 border border-stone-800 rounded-xl px-3 py-2 text-xs text-red-400 font-mono font-bold focus:outline-none focus:border-amber-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-mono text-stone-300 mb-1">Target Time (s):</label>
-              <input
-                type="number"
-                value={targetTotalTimeSeconds}
-                onChange={e => setTargetTotalTimeSeconds(parseFloat(e.target.value) || 0)}
-                className="w-full bg-stone-950 border border-stone-800 rounded-xl px-3 py-2 text-xs text-stone-200 font-mono font-bold focus:outline-none focus:border-amber-500"
-              />
-            </div>
-          </div>
-
-          {/* Grind Setting & Micron Size */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-mono text-stone-300 mb-1">
-                Grind Setting (e.g. 1.4 / 5.1 / 24 clicks):
-              </label>
-              <input
-                type="text"
-                placeholder="e.g. Fellow Ode 5.1 / Comandante 24"
-                value={grindSetting}
-                onChange={e => setGrindSetting(e.target.value)}
-                className="w-full bg-stone-950 border border-stone-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-mono text-stone-300 mb-1">
-                Estimated Microns (µm):
-              </label>
-              <input
-                type="number"
-                placeholder="e.g. 260 for espresso, 650 for filter"
-                value={grindMicrons || ''}
-                onChange={e => setGrindMicrons(e.target.value ? parseInt(e.target.value) : undefined)}
-                className="w-full bg-stone-950 border border-stone-800 rounded-xl px-3 py-2 text-xs text-stone-300 focus:outline-none focus:border-amber-500"
-              />
-            </div>
-          </div>
-
-          {/* Pour Schedule Builder for Filter & Immersion */}
-          {(category === 'filter' || category === 'immersion') && (
-            <div className="pt-2 border-t border-stone-800">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-mono font-semibold text-stone-200">
-                  Pour Stages & Drawdown Schedule:
-                </span>
+          <div className="label-caps mt-4 mb-2" id="recipe-own-method-label">Your methods</div>
+          <div className="flex flex-wrap gap-2" role="radiogroup" aria-labelledby="recipe-own-method-label">
+            {customMethods.map(cm => {
+              const pm = MODES[cm.parent];
+              const on = methodId === cm.id;
+              return (
                 <button
                   type="button"
-                  onClick={handleAddPourStage}
-                  className="px-2 py-1 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-300 text-xs font-medium flex items-center space-x-1"
+                  role="radio"
+                  aria-checked={on}
+                  key={cm.id}
+                  onClick={() => { setCategory(cm.parent); setMethodId(cm.id); applyPreviousSelectionsForCategory(cm.parent); }}
+                  className={`min-h-[44px] px-3 border text-[14px] font-bold flex items-center gap-2 ${on ? `${pm.bg} ${pm.on} border-transparent` : 'bg-paper text-ink border-rule'}`}
                 >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Add Stage</span>
+                  <i className={`w-3.5 h-3.5 shrink-0 ${pm.bg} ${on ? 'border border-current' : ''}`} aria-hidden />
+                  {cm.name}
+                  <span className={`text-[11px] font-semibold ${on ? 'opacity-80' : 'text-mute'}`}>{cm.parent === 'other' ? 'Others' : pm.label}</span>
                 </button>
-              </div>
+              );
+            })}
+            <button type="button" onClick={() => setNewMethodOpen(true)} className="min-h-[44px] px-3 border border-ink text-[14px] font-bold flex items-center gap-1.5">
+              <Plus className="w-4 h-4" aria-hidden /> New method
+            </button>
+          </div>
+        </div>
 
-              <div className="space-y-2 max-h-48 overflow-y-auto">
-                {pourStages.map((stage, idx) => (
-                  <div
-                    key={stage.id}
-                    className="flex items-center gap-2 p-2 bg-stone-950 rounded-xl border border-stone-800 text-xs font-mono"
-                  >
-                    <span className="w-4 text-stone-500 font-bold">{idx + 1}</span>
-                    <input
-                      type="text"
-                      value={stage.name}
-                      onChange={e => {
-                        const updated = [...pourStages];
-                        updated[idx].name = e.target.value;
-                        setPourStages(updated);
-                      }}
-                      className="bg-transparent text-stone-200 flex-1 focus:outline-none"
-                    />
-                    <div className="flex items-center space-x-1">
-                      <span className="text-stone-400">Target:</span>
-                      <input
-                        type="number"
-                        value={stage.targetWeightGrams}
-                        onChange={e => {
-                          const updated = [...pourStages];
-                          updated[idx].targetWeightGrams = parseFloat(e.target.value) || 0;
-                          setPourStages(updated);
-                        }}
-                        className="w-16 bg-stone-900 border border-stone-700 rounded px-1.5 py-0.5 text-cyan-400 text-right focus:outline-none"
-                      />
-                      <span className="text-cyan-400">g</span>
-                    </div>
-
-                    <div className="flex items-center space-x-1">
-                      <span className="text-stone-400">@</span>
-                      <input
-                        type="number"
-                        value={stage.startTimeSeconds}
-                        onChange={e => {
-                          const updated = [...pourStages];
-                          updated[idx].startTimeSeconds = parseInt(e.target.value) || 0;
-                          setPourStages(updated);
-                        }}
-                        className="w-12 bg-stone-900 border border-stone-700 rounded px-1.5 py-0.5 text-stone-200 text-right focus:outline-none"
-                      />
-                      <span className="text-stone-400">s</span>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => handleRemovePourStage(stage.id)}
-                      className="p-1 text-stone-500 hover:text-rose-400"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Barista Notes */}
-          <div>
-            <label className="block text-xs font-mono text-stone-300 mb-1">
-              Barista Notes & Preparation Steps:
-            </label>
-            <textarea
-              rows={2}
-              value={notes}
-              onChange={e => setNotes(e.target.value)}
-              placeholder="e.g. WDT thoroughly, 30lb spring tamp, top puck screen..."
-              className="w-full bg-stone-950 border border-stone-800 rounded-xl p-2.5 text-xs text-stone-200 focus:outline-none focus:border-amber-500"
+        {/* Title & daily driver */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-4 gap-y-3 items-end pt-5">
+          <div className="sm:col-span-2">
+            <label htmlFor="recipe-title" className="label-caps block mb-1.5">Recipe title</label>
+            <input
+              id="recipe-title"
+              type="text"
+              required
+              placeholder="e.g. Morning slayer-profile shot"
+              value={title}
+              onChange={e => setTitle(e.target.value)}
+              className={fieldCls}
             />
           </div>
 
-          {/* Revision Preservation Option */}
-          {recipeToEdit && (
-            <div className="p-3 bg-stone-950 rounded-xl border border-stone-800 flex items-center justify-between">
-              <div>
-                <span className="text-xs font-bold text-amber-300 block">
-                  Save as new dated revision (keep previous entry intact)
-                </span>
-                <span className="text-[11px] text-stone-400">
-                  Saves as a separate entry with date & time stamp without overriding the original recipe.
-                </span>
-              </div>
-              <input
-                type="checkbox"
-                checked={saveAsNewRevision}
-                onChange={e => setSaveAsNewRevision(e.target.checked)}
-                className="accent-amber-500 w-4 h-4 cursor-pointer ml-3 shrink-0"
+          <label className="flex items-center gap-3 min-h-[48px] px-3 border border-ink text-[14px] font-bold">
+            <input
+              type="checkbox"
+              checked={isDefault}
+              onChange={e => setIsDefault(e.target.checked)}
+              className={checkCls}
+            />
+            <Star className={`w-4 h-4 shrink-0 ${isDefault ? 'fill-current' : 'text-mute'}`} aria-hidden />
+            <span>Daily driver for {MODES[category].label}</span>
+          </label>
+        </div>
+
+        {/* Core hardware & water */}
+        {section('Rig & water',
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-3 gap-y-4">
+            {category === 'espresso' && (
+              <SmartDropdownWithOthers
+                label="Espresso Machine:"
+                value={machineModel}
+                onChange={setMachineModel}
+                options={ESPRESSO_MACHINE_OPTIONS}
+                customVariableGroup="machines"
+              />
+            )}
+
+            {category === 'filter' && (
+              <SmartDropdownWithOthers
+                label="Filter Dripper:"
+                value={dripperModel}
+                onChange={setDripperModel}
+                options={FILTER_DRIPPER_OPTIONS}
+                customVariableGroup="drippers"
+              />
+            )}
+
+            {(category === 'manual_lever' || category === 'moka_stovetop' || category === 'singaporean_kopi' || category === 'immersion') && (
+              <SmartDropdownWithOthers
+                label="Vessel / Machine Model:"
+                value={machineModel}
+                onChange={setMachineModel}
+                options={[
+                  { label: 'Flair 58+ Heated Chamber Lever', value: 'Flair 58+' },
+                  { label: 'Cafelat Robot Dual Lever', value: 'Cafelat Robot' },
+                  { label: 'Odyssey Espresso Argos Hybrid', value: 'Odyssey Argos' },
+                  { label: 'Wacaco Picopresso Handheld', value: 'Wacaco Picopresso' },
+                  { label: '9Barista Twin Boiler Stovetop', value: '9Barista Stovetop' },
+                  { label: 'Bialetti Brikka Crema Valve', value: 'Bialetti Brikka' },
+                  { label: 'Classic Bialetti Moka Express', value: 'Bialetti Moka Express' },
+                  { label: 'Long-Spout Kettle + Flannel Cloth Sock', value: 'Cloth Sock Pull' },
+                  { label: 'AeroPress Clear + Flow Control Cap', value: 'AeroPress Clear' },
+                  { label: 'AeroPress Inverted World Champion', value: 'AeroPress Inverted' },
+                ]}
+                customVariableGroup="machines"
+              />
+            )}
+
+            <SmartDropdownWithOthers
+              label="Grinder & Burrs:"
+              value={grinderModel}
+              onChange={setGrinderModel}
+              options={GRINDER_OPTIONS}
+              customVariableGroup="grinders"
+            />
+
+            <SmartDropdownWithOthers
+              label="Water Source & TDS:"
+              value={waterProfileId}
+              onChange={setWaterProfileId}
+              options={waterProfiles.map(w => ({
+                label: `${w.name} (${w.tdsPpm} ppm)`,
+                value: w.id,
+                group: w.countryRegion,
+              }))}
+              customVariableGroup="waters"
+            />
+          </div>
+        )}
+
+        {/* METHOD SPECIFIC: Espresso basket & puck preparation */}
+        {isPressure && section('Basket & puck prep',
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-3 gap-y-4">
+              <SmartDropdownWithOthers
+                label="Basket Brand / Model:"
+                value={basketBrand}
+                onChange={setBasketBrand}
+                options={ESPRESSO_BASKET_OPTIONS}
+                customVariableGroup="baskets"
+              />
+              <SmartDropdownWithOthers
+                label="Basket Dose Capacity:"
+                value={basketSize}
+                onChange={setBasketSize}
+                options={BASKET_SIZE_OPTIONS}
+                customVariableGroup="basket_sizes"
+              />
+              <SmartDropdownWithOthers
+                label="Basket Diameter:"
+                value={basketDiameter}
+                onChange={setBasketDiameter}
+                options={BASKET_DIAMETER_OPTIONS}
+                customVariableGroup="basket_diameters"
               />
             </div>
-          )}
 
-          {/* Submit CTA */}
-          <div className="pt-4 border-t border-stone-800 flex justify-end space-x-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 text-xs font-medium"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold flex items-center space-x-1.5 shadow-lg shadow-amber-950/40"
-            >
-              <Save className="w-4 h-4" />
-              <span>{recipeToEdit ? 'Save Changes' : 'Create Recipe'}</span>
-            </button>
+            <div className="border-y border-rule py-2.5">
+              <div className="label-caps">Tamper fit</div>
+              <div className="text-[14px] font-semibold mt-0.5">{recommendedTamper}</div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-3 gap-y-4">
+              <SmartDropdownWithOthers
+                label="Needle WDT Tool:"
+                value={wdtTool}
+                onChange={setWdtTool}
+                options={WDT_OPTIONS}
+                customVariableGroup="wdt_tools"
+              />
+              <SmartDropdownWithOthers
+                label="Tamper System:"
+                value={tamperTool}
+                onChange={setTamperTool}
+                options={TAMPER_OPTIONS}
+                customVariableGroup="tampers"
+              />
+              <SmartDropdownWithOthers
+                label="Top Puck Screen:"
+                value={puckScreenTool}
+                onChange={setPuckScreenTool}
+                options={PUCK_SCREEN_OPTIONS}
+                customVariableGroup="puck_screens"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-4">
+              <SmartDropdownWithOthers
+                label="Portafilter (Bottomless / Spouted):"
+                value={portafilter}
+                onChange={setPortafilter}
+                options={PORTAFILTER_OPTIONS}
+                customVariableGroup="portafilters"
+              />
+              <SmartDropdownWithOthers
+                label="Shower Screen (Pesado / IKAPE / IMS):"
+                value={showerScreen}
+                onChange={setShowerScreen}
+                options={SHOWER_SCREEN_OPTIONS}
+                customVariableGroup="shower_screens"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 sm:gap-x-4 border-t border-rule">
+              <label className={checkRow}>
+                <input type="checkbox" checked={hasBottomPaper} onChange={e => setHasBottomPaper(e.target.checked)} className={checkCls} />
+                <span>Bottom basket paper disc</span>
+              </label>
+              <label className={checkRow}>
+                <input type="checkbox" checked={hasFlowControl} onChange={e => setHasFlowControl(e.target.checked)} className={checkCls} />
+                <span>Flow control paddle active</span>
+              </label>
+              <label className={checkRow}>
+                <input type="checkbox" checked={hasPreInfusion} onChange={e => setHasPreInfusion(e.target.checked)} className={checkCls} />
+                <span>Low-pressure pre-infusion</span>
+              </label>
+            </div>
           </div>
-        </form>
-      </div>
-    </div>
+        )}
+
+        {/* METHOD SPECIFIC: Filter paper & tooling */}
+        {category === 'filter' && section('Filter paper & tools',
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-4">
+              <SmartDropdownWithOthers
+                label="Filter Paper / Porous Medium:"
+                value={filterPaperType}
+                onChange={setFilterPaperType}
+                options={FILTER_PAPER_OPTIONS}
+                customVariableGroup="papers"
+              />
+              <SmartDropdownWithOthers
+                label="Dispersion & Agitation Tool:"
+                value={dispersionTool}
+                onChange={setDispersionTool}
+                options={DISPERSION_OPTIONS}
+                customVariableGroup="dispersions"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 sm:gap-x-4 border-t border-rule">
+              <label className={checkRow}>
+                <input type="checkbox" checked={usesNegotiator} onChange={e => setUsesNegotiator(e.target.checked)} className={checkCls} />
+                <span>Orea Negotiator (no bypass, pleated wall)</span>
+              </label>
+              <label className={checkRow}>
+                <input type="checkbox" checked={hasImmersionValve} onChange={e => setHasImmersionValve(e.target.checked)} className={checkCls} />
+                <span>Immersion valve (Switch / Pulsar / Clever)</span>
+              </label>
+            </div>
+          </div>
+        )}
+
+        {/* Dose, yield, temp, time, grind */}
+        {section('Dose, time & grind',
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-3 gap-y-4">
+              <div>
+                <label htmlFor="recipe-dose" className="label-caps block mb-1.5">Dose in (g)</label>
+                <input
+                  id="recipe-dose"
+                  type="number"
+                  inputMode="decimal"
+                  step="0.1"
+                  required
+                  value={doseGrams}
+                  onChange={e => setDoseGrams(parseFloat(e.target.value) || 0)}
+                  className={numCls}
+                />
+              </div>
+              <div>
+                <label htmlFor="recipe-yield" className="label-caps block mb-1.5">Yield out (g)</label>
+                <input
+                  id="recipe-yield"
+                  type="number"
+                  inputMode="decimal"
+                  step="0.5"
+                  required
+                  value={yieldGrams}
+                  onChange={e => setYieldGrams(parseFloat(e.target.value) || 0)}
+                  className={numCls}
+                />
+              </div>
+              <div>
+                <label htmlFor="recipe-temp" className="label-caps block mb-1.5">Water temp (°C)</label>
+                <input
+                  id="recipe-temp"
+                  type="number"
+                  inputMode="decimal"
+                  value={waterTempC}
+                  onChange={e => setWaterTempC(parseFloat(e.target.value) || 0)}
+                  className={numCls}
+                />
+              </div>
+              <div>
+                <label htmlFor="recipe-time" className="label-caps block mb-1.5">Target time (s)</label>
+                <input
+                  id="recipe-time"
+                  type="number"
+                  inputMode="numeric"
+                  value={targetTotalTimeSeconds}
+                  onChange={e => setTargetTotalTimeSeconds(parseFloat(e.target.value) || 0)}
+                  className={numCls}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-4">
+              <div>
+                <label htmlFor="recipe-grind" className="label-caps block mb-1.5">Grind setting</label>
+                <input
+                  id="recipe-grind"
+                  type="text"
+                  placeholder="e.g. Fellow Ode 5.1 / Comandante 24"
+                  value={grindSetting}
+                  onChange={e => setGrindSetting(e.target.value)}
+                  className={fieldCls}
+                />
+              </div>
+              <div>
+                <label htmlFor="recipe-microns" className="label-caps block mb-1.5">Estimated microns (µm)</label>
+                <input
+                  id="recipe-microns"
+                  type="number"
+                  inputMode="numeric"
+                  placeholder="e.g. 260 espresso, 650 filter"
+                  value={grindMicrons || ''}
+                  onChange={e => setGrindMicrons(e.target.value ? parseInt(e.target.value) : undefined)}
+                  className={fieldCls}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Pour schedule builder for filter & immersion */}
+        {(category === 'filter' || category === 'immersion') && section('Pour stages',
+          <div>
+            {pourStages.length === 0 && (
+              <p className="text-[14px] text-mute pb-1">No stages yet. Add one for each pour.</p>
+            )}
+            {pourStages.length > 0 && (
+              <div className="border-t border-rule">
+                {pourStages.map((stage, idx) => (
+                  <div key={stage.id} className="flex flex-wrap sm:flex-nowrap items-center gap-2 py-2 border-b border-rule">
+                    <span className="w-7 shrink-0 text-[18px] font-bold num text-center">{idx + 1}</span>
+                    <label className="flex-1 min-w-0">
+                      <span className="sr-only">Stage {idx + 1} name</span>
+                      <input
+                        type="text"
+                        value={stage.name}
+                        onChange={e => {
+                          const updated = [...pourStages];
+                          updated[idx].name = e.target.value;
+                          setPourStages(updated);
+                        }}
+                        className="w-full h-11 bg-paper border border-rule px-2.5 text-[14px] font-semibold text-ink"
+                      />
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => handleRemovePourStage(stage.id)}
+                      className="w-11 h-11 shrink-0 flex items-center justify-center text-bad sm:order-last"
+                      aria-label={`Remove ${stage.name}`}
+                    >
+                      <Trash2 className="w-[18px] h-[18px]" />
+                    </button>
+                    <div className="basis-full sm:basis-auto pl-9 sm:pl-0 flex items-center gap-3">
+                      <label className="flex items-center gap-1.5 text-[13px] text-mute font-semibold">
+                        To
+                        <input
+                          type="number"
+                          inputMode="decimal"
+                          value={stage.targetWeightGrams}
+                          onChange={e => {
+                            const updated = [...pourStages];
+                            updated[idx].targetWeightGrams = parseFloat(e.target.value) || 0;
+                            setPourStages(updated);
+                          }}
+                          className="w-20 h-11 bg-paper border border-rule px-2 text-right text-[16px] font-bold num text-ink"
+                        />
+                        g
+                      </label>
+                      <label className="flex items-center gap-1.5 text-[13px] text-mute font-semibold">
+                        At
+                        <input
+                          type="number"
+                          inputMode="numeric"
+                          value={stage.startTimeSeconds}
+                          onChange={e => {
+                            const updated = [...pourStages];
+                            updated[idx].startTimeSeconds = parseInt(e.target.value) || 0;
+                            setPourStages(updated);
+                          }}
+                          className="w-16 h-11 bg-paper border border-rule px-2 text-right text-[16px] font-bold num text-ink"
+                        />
+                        s
+                      </label>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            <Btn size="md" className="mt-3" onClick={handleAddPourStage}>
+              <Plus className="w-4 h-4" aria-hidden />
+              Add stage
+            </Btn>
+          </div>
+        )}
+
+        {/* Notes */}
+        {section('Notes',
+          <div>
+            <label htmlFor="recipe-notes" className="sr-only">Barista notes and preparation steps</label>
+            <textarea
+              id="recipe-notes"
+              rows={3}
+              value={notes}
+              onChange={e => setNotes(e.target.value)}
+              placeholder="e.g. WDT thoroughly, 30 lb spring tamp, top puck screen…"
+              className="w-full bg-paper border border-ink p-3 text-[15px] text-ink"
+            />
+          </div>
+        )}
+
+        {/* Revision preservation option */}
+        {recipeToEdit && (
+          <label className="mt-4 flex items-start gap-3 min-h-[48px] p-3 border border-ink">
+            <input
+              type="checkbox"
+              checked={saveAsNewRevision}
+              onChange={e => setSaveAsNewRevision(e.target.checked)}
+              className={`${checkCls} mt-0.5`}
+            />
+            <span>
+              <b className="block text-[14px]">Save as a new dated revision</b>
+              <span className="text-[13px] text-mute">Keeps the original recipe as it is and saves this as a separate, time-stamped entry.</span>
+            </span>
+          </label>
+        )}
+      </form>
+      {newMethodOpen && (
+        <MethodEditor
+          defaultParent={category}
+          onSaved={(m) => { setNewMethodOpen(false); setCategory(m.parent); setMethodId(m.id); }}
+          onClose={() => setNewMethodOpen(false)}
+        />
+      )}
+    </Sheet>
   );
 };
